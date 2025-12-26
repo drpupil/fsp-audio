@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <title>Alfabetik FSP A–Z</title>
 
-  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <style>
@@ -40,15 +39,9 @@
       gap: 0.5rem;
       font-size: 0.95rem;
     }
-    .item:hover {
-      background: #f7f7f7;
-    }
-    .item.active {
-      background: #e6f1ff;
-    }
-    .title {
-      flex: 1;
-    }
+    .item:hover { background: #f7f7f7; }
+    .item.active { background: #e6f1ff; }
+    .title { flex: 1; }
     .badge {
       font-size: 0.75rem;
       color: #666;
@@ -56,39 +49,43 @@
     }
     #current {
       font-size: 0.9rem;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.35rem;
       color: #333;
     }
+    #status {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.7rem;
+      line-height: 1.35;
+    }
+    #status a { color: inherit; }
   </style>
 </head>
 <body>
 
 <h1>Alfabetik FSP A–Z</h1>
 
-<input
-  id="search"
-  type="text"
-  placeholder="Arama (ör. ACS, DM, PAVK)..."
-/>
+<input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
 
 <div id="list"></div>
 
 <div id="current">Yükleniyor…</div>
+<div id="status"></div>
 
+<!-- ÖNEMLİ: crossorigin YOK -->
 <audio id="player" class="js-player" controls></audio>
 
-<!-- Plyr JS -->
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
 <script>
-  // Archive.org base URL
   const BASE =
     "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
 
-  const listEl    = document.getElementById("list");
-  const searchEl  = document.getElementById("search");
-  const playerEl  = document.getElementById("player");
+  const listEl = document.getElementById("list");
+  const searchEl = document.getElementById("search");
+  const playerEl = document.getElementById("player");
   const currentEl = document.getElementById("current");
+  const statusEl = document.getElementById("status");
 
   const plyr = new Plyr(playerEl, {
     controls: ["play", "progress", "current-time", "mute", "volume"]
@@ -98,41 +95,50 @@
   let activeIndex = null;
 
   function urlFor(item) {
-    // ÖZEL KARAKTER + BOŞLUK GÜVENLİ
-    return BASE + encodeURIComponent(item.file).replace(/%2F/g, "/");
+    // encodeURI: boşluk/özel karakteri encode eder ama %20 varsa bozmaz
+    return encodeURI(BASE + item.file);
   }
 
-  function renderList(filterText = "") {
-    const q = filterText.toLowerCase();
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function setStatus(text, link) {
+    if (link) {
+      statusEl.innerHTML = `${escapeHtml(text)} <a href="${link}" target="_blank" rel="noreferrer">(dosyayı yeni sekmede aç)</a>`;
+    } else {
+      statusEl.textContent = text || "";
+    }
+  }
+
+  function renderList(q = "") {
+    q = q.toLowerCase();
     listEl.innerHTML = "";
+    let shown = 0;
 
     items.forEach((item, index) => {
       if (!item.title.toLowerCase().includes(q)) return;
+      shown++;
 
       const row = document.createElement("div");
       row.className = "item";
       if (index === activeIndex) row.classList.add("active");
       row.dataset.index = index;
 
-      const title = document.createElement("span");
-      title.className = "title";
-      title.textContent = item.title;
-
-      const badge = document.createElement("span");
-      badge.className = "badge";
-      badge.textContent = item.info || "";
-
-      row.appendChild(title);
-      row.appendChild(badge);
+      row.innerHTML = `
+        <span class="title">${escapeHtml(item.title)}</span>
+        <span class="badge">${escapeHtml(item.info || "")}</span>
+      `;
       listEl.appendChild(row);
     });
 
-    if (!listEl.children.length) {
-      const empty = document.createElement("div");
-      empty.style.padding = "0.75rem";
-      empty.style.color = "#666";
-      empty.textContent = "Sonuç bulunamadı.";
-      listEl.appendChild(empty);
+    if (!shown) {
+      listEl.innerHTML = "<div style='padding:0.75rem;color:#666'>Sonuç yok.</div>";
     }
   }
 
@@ -141,10 +147,18 @@
     if (!item) return;
 
     activeIndex = index;
-    playerEl.src = urlFor(item);
+
+    const src = urlFor(item);
+    playerEl.src = src;
+
     currentEl.textContent = "Şu an: " + item.title;
+    setStatus("Yükleniyor…", src);
     renderList(searchEl.value);
-    plyr.play();
+
+    plyr.play().catch(() => {
+      // Kullanıcı etkileşimi zaten var ama bazı tarayıcılar yine de kapris yapabiliyor.
+      setStatus("Oynatma tarayıcı tarafından engellendi. Play tuşuna tekrar bas.", src);
+    });
   }
 
   async function loadItems() {
@@ -153,31 +167,51 @@
       if (!res.ok) throw new Error("items.json yüklenemedi");
 
       const data = await res.json();
-      items = data
+      items = (Array.isArray(data) ? data : [])
         .filter(x => x && x.title && x.file)
-        .map(x => ({ title: x.title, file: x.file, info: x.info || "" }));
+        .map(x => ({ title: String(x.title), file: String(x.file), info: x.info ? String(x.info) : "" }));
 
       items.sort((a, b) => a.title.localeCompare(b.title, "de"));
 
       currentEl.textContent = `Toplam kayıt: ${items.length}`;
+      setStatus("Bir kayıt seç.", "");
       renderList();
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
       currentEl.textContent = "Kayıtlar yüklenemedi.";
+      setStatus("items.json bulunamadı veya bozuk.", "");
     }
   }
 
-  listEl.addEventListener("click", (e) => {
+  // Medya olayları: yükleniyor mu, hata mı var net gösterelim
+  playerEl.addEventListener("loadstart", () => setStatus("Yükleniyor…", playerEl.src));
+  playerEl.addEventListener("canplay", () => setStatus("Hazır. Oynatılıyor…", playerEl.src));
+  playerEl.addEventListener("playing", () => setStatus("Oynatılıyor…", playerEl.src));
+  playerEl.addEventListener("pause", () => setStatus("Duraklatıldı.", playerEl.src));
+
+  playerEl.addEventListener("error", () => {
+    const err = playerEl.error;
+    const code = err ? err.code : 0;
+
+    // 2 = network error / 3 = decode error / 4 = src not supported
+    const msg =
+      code === 2 ? "Ağ hatası (dosyaya erişilemiyor)." :
+      code === 3 ? "Decode hatası (dosya okunamıyor)." :
+      code === 4 ? "Format desteklenmiyor veya link yanlış." :
+      "Bilinmeyen hata.";
+
+    setStatus("Hata: " + msg, playerEl.src);
+  });
+
+  listEl.addEventListener("click", e => {
     const row = e.target.closest(".item");
     if (!row) return;
     playIndex(Number(row.dataset.index));
   });
 
-  searchEl.addEventListener("input", () => {
-    renderList(searchEl.value);
-  });
+  searchEl.addEventListener("input", () => renderList(searchEl.value));
 
-  document.addEventListener("keydown", (e) => {
+  document.addEventListener("keydown", e => {
     const q = searchEl.value.toLowerCase();
     const filtered = items
       .map((item, index) => ({ item, index }))
@@ -189,15 +223,11 @@
       e.preventDefault();
       const pos = filtered.findIndex(f => f.index === activeIndex);
       playIndex(filtered[(pos + 1) % filtered.length].index);
-    }
-
-    if (e.key === "ArrowUp") {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       const pos = filtered.findIndex(f => f.index === activeIndex);
       playIndex(filtered[(pos - 1 + filtered.length) % filtered.length].index);
-    }
-
-    if (e.key === "Enter" && activeIndex === null) {
+    } else if (e.key === "Enter" && activeIndex === null) {
       playIndex(filtered[0].index);
     }
   });
