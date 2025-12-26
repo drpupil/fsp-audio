@@ -12,10 +12,7 @@
       margin: 1.5rem;
       max-width: 900px;
     }
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 0.75rem;
-    }
+    h1 { font-size: 1.4rem; margin-bottom: 0.75rem; }
     #search {
       width: 100%;
       max-width: 420px;
@@ -25,10 +22,7 @@
       border-radius: 4px;
       font-size: 0.95rem;
     }
-    #list {
-      border-top: 1px solid #eee;
-      margin-bottom: 1rem;
-    }
+    #list { border-top: 1px solid #eee; margin-bottom: 1rem; }
     .item {
       padding: 0.35rem 0.4rem;
       border-bottom: 1px solid #f2f2f2;
@@ -42,23 +36,11 @@
     .item:hover { background: #f7f7f7; }
     .item.active { background: #e6f1ff; }
     .title { flex: 1; }
-    .badge {
-      font-size: 0.75rem;
-      color: #666;
-      white-space: nowrap;
-    }
-    #current {
-      font-size: 0.9rem;
-      margin-bottom: 0.35rem;
-      color: #333;
-    }
-    #status {
-      font-size: 0.85rem;
-      color: #666;
-      margin-bottom: 0.7rem;
-      line-height: 1.35;
-    }
-    #status a { color: inherit; }
+    .badge { font-size: 0.75rem; color: #666; white-space: nowrap; }
+
+    #current { font-size: 0.9rem; margin-bottom: 0.2rem; color: #222; }
+    #status  { font-size: 0.85rem; color: #666; margin-bottom: 0.6rem; line-height: 1.35; }
+    #status a { color: inherit; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -72,8 +54,7 @@
 <div id="current">Yükleniyor…</div>
 <div id="status"></div>
 
-<!-- ÖNEMLİ: crossorigin YOK -->
-<audio id="player" class="js-player" controls></audio>
+<audio id="player" class="js-player" controls preload="auto"></audio>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
@@ -87,17 +68,13 @@
   const currentEl = document.getElementById("current");
   const statusEl = document.getElementById("status");
 
+  // Plyr (istersen tamamen kapatabiliriz, ama bu sürüm Safari’de stabil)
   const plyr = new Plyr(playerEl, {
     controls: ["play", "progress", "current-time", "mute", "volume"]
   });
 
   let items = [];
   let activeIndex = null;
-
-  function urlFor(item) {
-    // encodeURI: boşluk/özel karakteri encode eder ama %20 varsa bozmaz
-    return encodeURI(BASE + item.file);
-  }
 
   function escapeHtml(s) {
     return String(s)
@@ -108,9 +85,14 @@
       .replaceAll("'", "&#039;");
   }
 
+  function urlFor(item) {
+    // ÇİFTE-ENCODE YAPMAZ, Safari/Archive.org için en güvenlisi
+    return encodeURI(BASE + item.file);
+  }
+
   function setStatus(text, link) {
     if (link) {
-      statusEl.innerHTML = `${escapeHtml(text)} <a href="${link}" target="_blank" rel="noreferrer">(dosyayı yeni sekmede aç)</a>`;
+      statusEl.innerHTML = `${escapeHtml(text)} — <a href="${link}" target="_blank" rel="noreferrer">dosyayı yeni sekmede aç</a>`;
     } else {
       statusEl.textContent = text || "";
     }
@@ -149,15 +131,19 @@
     activeIndex = index;
 
     const src = urlFor(item);
-    playerEl.src = src;
 
     currentEl.textContent = "Şu an: " + item.title;
     setStatus("Yükleniyor…", src);
     renderList(searchEl.value);
 
+    // 🔥 SAFARI FIX: src değişince load() şart olabiliyor
+    try { playerEl.pause(); } catch {}
+    playerEl.src = src;
+    playerEl.load();   // <-- en kritik satır
+
+    // Plyr play (kullanıcı tıklamasıyla tetiklendiği için izinli olmalı)
     plyr.play().catch(() => {
-      // Kullanıcı etkileşimi zaten var ama bazı tarayıcılar yine de kapris yapabiliyor.
-      setStatus("Oynatma tarayıcı tarafından engellendi. Play tuşuna tekrar bas.", src);
+      setStatus("Oynatma başlamadı. Linki yeni sekmede açıp test et.", src);
     });
   }
 
@@ -183,24 +169,24 @@
     }
   }
 
-  // Medya olayları: yükleniyor mu, hata mı var net gösterelim
-  playerEl.addEventListener("loadstart", () => setStatus("Yükleniyor…", playerEl.src));
-  playerEl.addEventListener("canplay", () => setStatus("Hazır. Oynatılıyor…", playerEl.src));
-  playerEl.addEventListener("playing", () => setStatus("Oynatılıyor…", playerEl.src));
-  playerEl.addEventListener("pause", () => setStatus("Duraklatıldı.", playerEl.src));
-
+  // Hata yakalama (Console’a gerek yok)
   playerEl.addEventListener("error", () => {
     const err = playerEl.error;
     const code = err ? err.code : 0;
+    const src = playerEl.currentSrc || playerEl.src;
 
-    // 2 = network error / 3 = decode error / 4 = src not supported
     const msg =
-      code === 2 ? "Ağ hatası (dosyaya erişilemiyor)." :
-      code === 3 ? "Decode hatası (dosya okunamıyor)." :
-      code === 4 ? "Format desteklenmiyor veya link yanlış." :
-      "Bilinmeyen hata.";
+      code === 2 ? "Ağ hatası (link/erişim sorunu, 404/403 olabilir)" :
+      code === 3 ? "Decode hatası (Safari bu .m4a codec’ini okuyamıyor olabilir)" :
+      code === 4 ? "Format desteklenmiyor veya link yanlış" :
+      "Bilinmeyen hata";
 
-    setStatus("Hata: " + msg, playerEl.src);
+    setStatus("Hata: " + msg, src);
+  });
+
+  playerEl.addEventListener("canplay", () => {
+    const src = playerEl.currentSrc || playerEl.src;
+    setStatus("Hazır (canplay). Oynatılıyor…", src);
   });
 
   listEl.addEventListener("click", e => {
@@ -210,27 +196,6 @@
   });
 
   searchEl.addEventListener("input", () => renderList(searchEl.value));
-
-  document.addEventListener("keydown", e => {
-    const q = searchEl.value.toLowerCase();
-    const filtered = items
-      .map((item, index) => ({ item, index }))
-      .filter(({ item }) => item.title.toLowerCase().includes(q));
-
-    if (!filtered.length) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      const pos = filtered.findIndex(f => f.index === activeIndex);
-      playIndex(filtered[(pos + 1) % filtered.length].index);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      const pos = filtered.findIndex(f => f.index === activeIndex);
-      playIndex(filtered[(pos - 1 + filtered.length) % filtered.length].index);
-    } else if (e.key === "Enter" && activeIndex === null) {
-      playIndex(filtered[0].index);
-    }
-  });
 
   loadItems();
 </script>
