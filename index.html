@@ -72,7 +72,20 @@
   const statusEl = document.getElementById("status");
 
   // Plyr sadece arayüz
-  new Plyr(playerEl, { controls: ["play", "progress", "current-time", "mute", "volume"] });
+  new Plyr(playerEl, {
+  seekTime: 5, // <- 5 sn atlama
+  controls: [
+    "rewind",      // <- -5 sn
+    "play",
+    "fast-forward",// <- +5 sn
+    "progress",
+    "current-time",
+    "duration",
+    "mute",
+    "volume"
+  ]
+});
+
 
   let items = [];
   let activeIndex = null;
