@@ -19,192 +19,191 @@
     }
     #search {
       width: 100%;
-      max-width: 400px;
-      padding: 0.4rem 0.6rem;
+      max-width: 420px;
+      padding: 0.45rem 0.6rem;
       margin-bottom: 1rem;
       border: 1px solid #ccc;
       border-radius: 4px;
+      font-size: 0.95rem;
     }
     #list {
-      margin-bottom: 1.5rem;
       border-top: 1px solid #eee;
+      margin-bottom: 1rem;
     }
     .item {
-      padding: 0.3rem 0;
-      border-bottom: 1px solid #f3f3f3;
+      padding: 0.35rem 0.4rem;
+      border-bottom: 1px solid #f2f2f2;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 0.5rem;
       font-size: 0.95rem;
-    }
-    .item span.title {
-      flex: 1;
-    }
-    .item span.badge {
-      font-size: 0.75rem;
-      color: #666;
-      margin-left: 0.5rem;
-      white-space: nowrap;
     }
     .item:hover {
       background: #f7f7f7;
     }
     .item.active {
-      background: #e5f2ff;
+      background: #e6f1ff;
+    }
+    .title {
+      flex: 1;
+    }
+    .badge {
+      font-size: 0.75rem;
+      color: #666;
+      white-space: nowrap;
     }
     #current {
-      margin-bottom: 0.4rem;
       font-size: 0.9rem;
+      margin-bottom: 0.4rem;
       color: #333;
     }
   </style>
 </head>
 <body>
 
-  <h1>Alfabetik FSP A–Z</h1>
+<h1>Alfabetik FSP A–Z</h1>
 
-  <input id="search" type="text" placeholder="Arama (ör. ACS, PAVK, DM)..." />
+<input
+  id="search"
+  type="text"
+  placeholder="Arama (ör. ACS, DM, PAVK)..."
+/>
 
-  <div id="list"></div>
+<div id="list"></div>
 
-  <div id="current">Seçilen kayıt yok.</div>
+<div id="current">Yükleniyor…</div>
 
-  <!-- Tek audio elemanı -->
-  <audio id="player" class="js-player" controls></audio>
+<audio id="player" class="js-player" controls></audio>
 
-  <!-- Plyr JS -->
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<!-- Plyr JS -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
-  <script>
-    // Temel prefix: senin koleksiyonunun IDENTIFIER'ı
-    const BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
+<script>
+  // Archive.org base URL
+  const BASE =
+    "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
 
-    // Burada başlıklar Archive.org listesinden kısaltılarak alındı, dosya adları ise senin
-    // yüklediğin gerçek MP3/M4A isimlerine göre düzeltilmeli.
-    // Örnek olarak mantıklı slug'lar kullanıldı; gerçekte DOWNLOAD -> SHOW ALL'dan
-    // tam isimleri kopyalayıp buraya yazman gerekecek. [page:1]
-    const items = [
-      { title: "Podagra akuter Gichtanfall – Fr Gerhild mit Dr Zahit – 06.11.2025", file: "podagra-akuter-gichtanfall-fr-gerhild-mit-dr-zahit-06-11-2025.m4a", info: "52:07" },
-      { title: "A – Abdomen inkarzerierte Hernie – Dr Heiko mit Dr Yunus – 03.04.2025", file: "a-abdomen-inkarzerierte-hernie-dr-heiko-mit-dr-yunus-03-04-2025.m4a", info: "46:58" },
-      { title: "ACS – Dr Heiko mit Dr Ismail – 05.02.2024", file: "acs-dr-heiko-mit-dr-ismail-05-02-2024.m4a", info: "38:13" },
-      { title: "Akute Appendizitis – Fr Gerhild mit Dr Isa – 05.12.2024", file: "akute-appendizitis-fr-gerhild-mit-dr-isa-05-12-2024.m4a", info: "36:47" },
-      { title: "Bronchialkarzinom – Fr Gerhild mit Dr Zeynep – 16.10.2025", file: "bronchialkarzinom-fr-gerhild-mit-dr-zeynep-16-10-2025.m4a", info: "45:05" },
-      { title: "COPD – Dr Heiko mit Dr Zeynep – 16.10.2025", file: "copd-dr-heiko-mit-dr-zeynep-16-10-2025.m4a", info: "33:00" },
-      { title: "DM LADA – Dr Murat mit Dr Yakup – 04.05.2025", file: "dm-lada-dr-murat-mit-dr-yakup-04-05-2025.m4a", info: "27:29" },
-      { title: "Dekompensierte Leberzirrhose – Dr Ömer mit Dr Seniha – 03.01.2025", file: "dekompensierte-leberzirrhose-dr-oemer-mit-dr-seniha-03-01-2025.m4a", info: "36:54" },
-      { title: "Gastroenteritis – Fr Gerhild mit Dr Hüseyin – 20.05.2025", file: "gastroenteritis-fr-gerhild-mit-dr-hueseyin-20-05-2025.m4a", info: "36:21" },
-      { title: "Hypothyreose – Dr Ömer mit Dr Seniha – 17.01.2025", file: "hypothyreose-dr-oemer-mit-dr-seniha-17-01-2025.m4a", info: "27:13" },
-      { title: "Infektiöse Mononukleose – Dr Heiko mit Dr Gül – 11.12.2025", file: "infektioese-mononukleose-dr-heiko-mit-dr-guel-11-12-2025.m4a", info: "40:12" },
-      { title: "Pneumonie – Dr Heiko mit Dr Hatip – 30.10.2025", file: "pneumonie-dr-heiko-mit-dr-hatip-30-10-2025.m4a", info: "35:44" },
-      { title: "Pulmonalembolie – Dr Heiko mit Dr Gül – 23.05.2025", file: "pulmonalembolie-dr-heiko-mit-dr-guel-23-05-2025.m4a", info: "39:32" },
-      { title: "Schlaganfall – Dr Heiko mit Dr Sümeyra – 18.12.2025", file: "schlaganfall-dr-heiko-mit-dr-suemeyra-18-12-2025.m4a", info: "43:19" },
-      { title: "Spinalkanalstenose – Fr Gerhild mit Dr Isa – 06.06.2024", file: "spinalkanalstenose-fr-gerhild-mit-dr-isa-06-06-2024.m4a", info: "56:20" },
-      { title: "Transitorische ischämische Attacke – 24.11.2024", file: "transitorische-ischaemische-attacke-24-11-2024.m4a", info: "37:38" },
-      { title: "Ulcus ventriculi – Fr Gerhild mit Dr Zeynep – 30.10.2025", file: "ulcus-ventriculi-fr-gerhild-mit-dr-zeynep-30-10-2025.m4a", info: "47:06" },
-      { title: "Vorhofflimmern bei bekannter KHK – Dr Oemer mit Dr Remzi – 09.05.2025", file: "vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09-05-2025.m4a", info: "39:19" },
-      // ... burada kalan tüm 200+ dosyayı aynı patternle ekleyebilirsin
-    ];
+  const listEl    = document.getElementById("list");
+  const searchEl  = document.getElementById("search");
+  const playerEl  = document.getElementById("player");
+  const currentEl = document.getElementById("current");
 
-    // Alfabetik sırala
-    items.sort((a, b) => a.title.localeCompare(b.title));
+  const plyr = new Plyr(playerEl, {
+    controls: ["play", "progress", "current-time", "mute", "volume"]
+  });
 
-    const listEl   = document.getElementById("list");
-    const searchEl = document.getElementById("search");
-    const playerEl = document.getElementById("player");
-    const currentEl= document.getElementById("current");
+  let items = [];
+  let activeIndex = null;
 
-    const plyr = new Plyr(playerEl, {
-      controls: ["play", "progress", "current-time", "mute", "volume"]
+  function urlFor(item) {
+    // ÖZEL KARAKTER + BOŞLUK GÜVENLİ
+    return BASE + encodeURIComponent(item.file).replace(/%2F/g, "/");
+  }
+
+  function renderList(filterText = "") {
+    const q = filterText.toLowerCase();
+    listEl.innerHTML = "";
+
+    items.forEach((item, index) => {
+      if (!item.title.toLowerCase().includes(q)) return;
+
+      const row = document.createElement("div");
+      row.className = "item";
+      if (index === activeIndex) row.classList.add("active");
+      row.dataset.index = index;
+
+      const title = document.createElement("span");
+      title.className = "title";
+      title.textContent = item.title;
+
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = item.info || "";
+
+      row.appendChild(title);
+      row.appendChild(badge);
+      listEl.appendChild(row);
     });
 
-    let activeIndex = null;
+    if (!listEl.children.length) {
+      const empty = document.createElement("div");
+      empty.style.padding = "0.75rem";
+      empty.style.color = "#666";
+      empty.textContent = "Sonuç bulunamadı.";
+      listEl.appendChild(empty);
+    }
+  }
 
-    function urlFor(item) {
-      return BASE + item.file;
+  function playIndex(index) {
+    const item = items[index];
+    if (!item) return;
+
+    activeIndex = index;
+    playerEl.src = urlFor(item);
+    currentEl.textContent = "Şu an: " + item.title;
+    renderList(searchEl.value);
+    plyr.play();
+  }
+
+  async function loadItems() {
+    try {
+      const res = await fetch("./items.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("items.json yüklenemedi");
+
+      const data = await res.json();
+      items = data
+        .filter(x => x && x.title && x.file)
+        .map(x => ({ title: x.title, file: x.file, info: x.info || "" }));
+
+      items.sort((a, b) => a.title.localeCompare(b.title, "de"));
+
+      currentEl.textContent = `Toplam kayıt: ${items.length}`;
+      renderList();
+    } catch (err) {
+      console.error(err);
+      currentEl.textContent = "Kayıtlar yüklenemedi.";
+    }
+  }
+
+  listEl.addEventListener("click", (e) => {
+    const row = e.target.closest(".item");
+    if (!row) return;
+    playIndex(Number(row.dataset.index));
+  });
+
+  searchEl.addEventListener("input", () => {
+    renderList(searchEl.value);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const q = searchEl.value.toLowerCase();
+    const filtered = items
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => item.title.toLowerCase().includes(q));
+
+    if (!filtered.length) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const pos = filtered.findIndex(f => f.index === activeIndex);
+      playIndex(filtered[(pos + 1) % filtered.length].index);
     }
 
-    function renderList(filterText = "") {
-      const q = filterText.toLowerCase();
-      listEl.innerHTML = "";
-
-      items.forEach((item, index) => {
-        if (!item.title.toLowerCase().includes(q)) return;
-
-        const row = document.createElement("div");
-        row.className = "item";
-        if (index === activeIndex) row.classList.add("active");
-        row.dataset.index = index;
-
-        const titleSpan = document.createElement("span");
-        titleSpan.className = "title";
-        titleSpan.textContent = item.title;
-
-        const badgeSpan = document.createElement("span");
-        badgeSpan.className = "badge";
-        badgeSpan.textContent = item.info || "";
-
-        row.appendChild(titleSpan);
-        row.appendChild(badgeSpan);
-        listEl.appendChild(row);
-      });
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const pos = filtered.findIndex(f => f.index === activeIndex);
+      playIndex(filtered[(pos - 1 + filtered.length) % filtered.length].index);
     }
 
-    function playIndex(index) {
-      const item = items[index];
-      if (!item) return;
-      activeIndex = index;
-      playerEl.src = urlFor(item);
-      currentEl.textContent = "Şu an: " + item.title;
-      renderList(searchEl.value);
-      plyr.play();
+    if (e.key === "Enter" && activeIndex === null) {
+      playIndex(filtered[0].index);
     }
+  });
 
-    renderList();
+  loadItems();
+</script>
 
-    listEl.addEventListener("click", (e) => {
-      const row = e.target.closest(".item");
-      if (!row) return;
-      const index = Number(row.dataset.index);
-      playIndex(index);
-    });
-
-    searchEl.addEventListener("input", () => {
-      renderList(searchEl.value);
-    });
-
-    // Klavye: oklar + Enter ile gezme
-    document.addEventListener("keydown", (e) => {
-      const filtered = items
-        .map((item, index) => ({ item, index }))
-        .filter(({ item }) =>
-          item.title.toLowerCase().includes(searchEl.value.toLowerCase())
-        );
-      if (!filtered.length) return;
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (activeIndex == null) {
-          playIndex(filtered[0].index);
-        } else {
-          const pos = filtered.findIndex((f) => f.index === activeIndex);
-          const next = filtered[(pos + 1) % filtered.length];
-          playIndex(next.index);
-        }
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        if (activeIndex == null) {
-          playIndex(filtered[0].index);
-        } else {
-          const pos = filtered.findIndex((f) => f.index === activeIndex);
-          const prev = filtered[(pos - 1 + filtered.length) % filtered.length];
-          playIndex(prev.index);
-        }
-      } else if (e.key === "Enter" && activeIndex == null) {
-        e.preventDefault();
-        playIndex(filtered[0].index);
-      }
-    });
-  </script>
 </body>
 </html>
