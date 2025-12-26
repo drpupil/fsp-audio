@@ -68,13 +68,17 @@
   const currentEl = document.getElementById("current");
   const statusEl = document.getElementById("status");
 
-  // Plyr (istersen tamamen kapatabiliriz, ama bu sürüm Safari’de stabil)
-  const plyr = new Plyr(playerEl, {
+  // Plyr sadece arayüz için; playback'i native audio ile yapacağız
+  new Plyr(playerEl, {
     controls: ["play", "progress", "current-time", "mute", "volume"]
   });
 
   let items = [];
   let activeIndex = null;
+
+  // src değiştirirken oluşan "pause" eventlerini göstermeyelim
+  let suppressPause = false;
+  let everPlayedThisTrack = false;
 
   function escapeHtml(s) {
     return String(s)
@@ -86,7 +90,7 @@
   }
 
   function urlFor(item) {
-    // ÇİFTE-ENCODE YAPMAZ, Safari/Archive.org için en güvenlisi
+    // double-encode yapmayan güvenli yöntem
     return encodeURI(BASE + item.file);
   }
 
@@ -124,27 +128,35 @@
     }
   }
 
-  function playIndex(index) {
+  async function playIndex(index) {
     const item = items[index];
     if (!item) return;
 
     activeIndex = index;
+    everPlayedThisTrack = false;
 
     const src = urlFor(item);
-
     currentEl.textContent = "Şu an: " + item.title;
     setStatus("Yükleniyor…", src);
     renderList(searchEl.value);
 
-    // 🔥 SAFARI FIX: src değişince load() şart olabiliyor
+    // Programatik değişim: pause olayını bastır
+    suppressPause = true;
     try { playerEl.pause(); } catch {}
     playerEl.src = src;
-    playerEl.load();   // <-- en kritik satır
+    playerEl.load();
 
-    // Plyr play (kullanıcı tıklamasıyla tetiklendiği için izinli olmalı)
-    plyr.play().catch(() => {
-      setStatus("Oynatma başlamadı. Linki yeni sekmede açıp test et.", src);
-    });
+    // Bir sonraki tick'te bastırmayı kaldır
+    setTimeout(() => { suppressPause = false; }, 0);
+
+    // Native play: en stabil
+    try {
+      await playerEl.play();
+      // play() başarılıysa zaten 'playing' event'i gelecek
+    } catch (e) {
+      // autoplay policy / başka engel
+      setStatus("Oynatma başlatılamadı. Play tuşuna bas veya linki yeni sekmede açıp test et.", src);
+    }
   }
 
   async function loadItems() {
@@ -169,7 +181,25 @@
     }
   }
 
-  // Hata yakalama (Console’a gerek yok)
+  // Durum eventleri
+  playerEl.addEventListener("loadstart", () => setStatus("Yükleniyor…", playerEl.currentSrc || playerEl.src));
+  playerEl.addEventListener("canplay",   () => setStatus("Hazır.",        playerEl.currentSrc || playerEl.src));
+  playerEl.addEventListener("playing",   () => {
+    everPlayedThisTrack = true;
+    setStatus("Oynatılıyor…", playerEl.currentSrc || playerEl.src);
+  });
+
+  playerEl.addEventListener("pause", () => {
+    if (suppressPause) return; // src/load kaynaklı sahte pause
+    // gerçekten kullanıcı durdurduysa ya da playback durduysa
+    const src = playerEl.currentSrc || playerEl.src;
+    if (everPlayedThisTrack) setStatus("Duraklatıldı.", src);
+  });
+
+  playerEl.addEventListener("ended", () => {
+    setStatus("Bitti.", playerEl.currentSrc || playerEl.src);
+  });
+
   playerEl.addEventListener("error", () => {
     const err = playerEl.error;
     const code = err ? err.code : 0;
@@ -177,18 +207,14 @@
 
     const msg =
       code === 2 ? "Ağ hatası (link/erişim sorunu, 404/403 olabilir)" :
-      code === 3 ? "Decode hatası (Safari bu .m4a codec’ini okuyamıyor olabilir)" :
+      code === 3 ? "Decode hatası (dosya codec’i desteklenmiyor olabilir)" :
       code === 4 ? "Format desteklenmiyor veya link yanlış" :
       "Bilinmeyen hata";
 
     setStatus("Hata: " + msg, src);
   });
 
-  playerEl.addEventListener("canplay", () => {
-    const src = playerEl.currentSrc || playerEl.src;
-    setStatus("Hazır (canplay). Oynatılıyor…", src);
-  });
-
+  // UI
   listEl.addEventListener("click", e => {
     const row = e.target.closest(".item");
     if (!row) return;
@@ -196,6 +222,30 @@
   });
 
   searchEl.addEventListener("input", () => renderList(searchEl.value));
+
+  // Klavye ile gezinme
+  document.addEventListener("keydown", e => {
+    const q = searchEl.value.toLowerCase();
+    const filtered = items
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => item.title.toLowerCase().includes(q));
+
+    if (!filtered.length) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const pos = filtered.findIndex(f => f.index === activeIndex);
+      const next = filtered[(pos + 1) % filtered.length].index;
+      playIndex(next);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const pos = filtered.findIndex(f => f.index === activeIndex);
+      const prev = filtered[(pos - 1 + filtered.length) % filtered.length].index;
+      playIndex(prev);
+    } else if (e.key === "Enter" && activeIndex === null) {
+      playIndex(filtered[0].index);
+    }
+  });
 
   loadItems();
 </script>
