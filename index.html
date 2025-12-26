@@ -1,264 +1,319 @@
 <!doctype html>
-<html lang="de">
+<html lang="tr">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Alfabetik FSP A–Z</title>
 
+  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <style>
-    body {
+    body{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 1.5rem;
-      max-width: 900px;
+      max-width: 950px;
     }
-    h1 { font-size: 1.4rem; margin-bottom: 0.75rem; }
-    #search {
+    h1{ font-size: 1.45rem; margin: 0 0 0.9rem; }
+
+    #search{
       width: 100%;
-      max-width: 420px;
-      padding: 0.45rem 0.6rem;
+      max-width: 520px;
+      padding: 0.55rem 0.7rem;
       margin-bottom: 1rem;
       border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 0.95rem;
+      border-radius: 8px;
+      font-size: 0.98rem;
     }
-    #list { border-top: 1px solid #eee; margin-bottom: 1rem; }
-    .item {
-      padding: 0.35rem 0.4rem;
+
+    #list{
+      border-top: 1px solid #eee;
+      margin-bottom: 1rem;
+    }
+    .item{
+      padding: 0.45rem 0.5rem;
       border-bottom: 1px solid #f2f2f2;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
-      font-size: 0.95rem;
+      gap: 0.75rem;
+      font-size: 0.98rem;
     }
-    .item:hover { background: #f7f7f7; }
-    .item.active { background: #e6f1ff; }
-    .title { flex: 1; }
-    .badge { font-size: 0.75rem; color: #666; white-space: nowrap; }
+    .item:hover{ background: #f7f7f7; }
+    .item.active{ background: #e6f1ff; }
+    .title{
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .badge{
+      font-size: 0.78rem;
+      color: #666;
+      white-space: nowrap;
+    }
 
-    #current { font-size: 0.9rem; margin-bottom: 0.2rem; color: #222; }
-    #status  { font-size: 0.85rem; color: #666; margin-bottom: 0.6rem; line-height: 1.35; }
-    #status a { color: inherit; text-decoration: underline; }
+    /* Floating player */
+    #floatingPlayer{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: min(460px, calc(100vw - 32px));
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      padding: 10px 12px;
+      z-index: 9999;
+    }
+    #fpTitle{
+      font-size: 0.92rem;
+      font-weight: 650;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #fpStatus{
+      font-size: 0.82rem;
+      color: #666;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #fpStatus a{ color: inherit; text-decoration: underline; }
+
+    /* Player kutusu sayfayı kapatmasın */
+    body{ padding-bottom: 180px; }
   </style>
 </head>
+
 <body>
+  <h1>Alfabetik FSP A–Z</h1>
 
-<h1>Alfabetik FSP A–Z</h1>
+  <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
 
-<input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
+  <div id="list"></div>
 
-<div id="list"></div>
+  <div id="floatingPlayer">
+    <div id="fpTitle">Seçili kayıt yok</div>
+    <div id="fpStatus">Bir kayıt seç.</div>
+    <audio id="player" class="js-player" controls preload="auto"></audio>
+  </div>
 
-<div id="current">Yükleniyor…</div>
-<div id="status"></div>
+  <!-- Plyr JS -->
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
-<audio id="player" class="js-player" controls preload="auto"></audio>
+  <script>
+    // Archive item identifier
+    const IDENT = "vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
+    const BASE  = `https://archive.org/download/${IDENT}/`;
 
-<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    const listEl   = document.getElementById("list");
+    const searchEl = document.getElementById("search");
+    const playerEl = document.getElementById("player");
+    const titleEl  = document.getElementById("fpTitle");
+    const statusEl = document.getElementById("fpStatus");
 
-<script>
-  // Archive item identifier (değiştirme)
-  const IDENT = "vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
-
-  // Download base (değiştirme)
-  const BASE = `https://archive.org/download/${IDENT}/`;
-
-  const listEl = document.getElementById("list");
-  const searchEl = document.getElementById("search");
-  const playerEl = document.getElementById("player");
-  const currentEl = document.getElementById("current");
-  const statusEl = document.getElementById("status");
-
-  // Plyr sadece arayüz
-  new Plyr(playerEl, {
-  seekTime: 5, // <- 5 sn atlama
-  controls: [
-    "rewind",      // <- -5 sn
-    "play",
-    "fast-forward",// <- +5 sn
-    "progress",
-    "current-time",
-    "duration",
-    "mute",
-    "volume"
-  ]
-});
-
-
-  let items = [];
-  let activeIndex = null;
-
-  function escapeHtml(s) {
-    return String(s)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function setStatus(text, link) {
-    if (link) {
-      statusEl.innerHTML =
-        `${escapeHtml(text)} — <a href="${link}" target="_blank" rel="noreferrer">dosyayı yeni sekmede aç</a>`;
-    } else {
-      statusEl.textContent = text || "";
-    }
-  }
-
-  function titleFromFilename(name) {
-    // sadece görüntü için
-    return name.replace(/\.(m4a|mp3)$/i, "").replaceAll("_", " ").trim();
-  }
-
-  function fileUrl(fileName) {
-    // 🔥 en önemli kısım: URL() doğru encode eder, case'i bozmaz
-    return new URL(fileName, BASE).href;
-  }
-
-  function renderList(q = "") {
-    q = q.toLowerCase();
-    listEl.innerHTML = "";
-    let shown = 0;
-
-    items.forEach((item, index) => {
-      if (!item.title.toLowerCase().includes(q)) return;
-      shown++;
-
-      const row = document.createElement("div");
-      row.className = "item";
-      if (index === activeIndex) row.classList.add("active");
-      row.dataset.index = index;
-
-      row.innerHTML = `
-        <span class="title">${escapeHtml(item.title)}</span>
-        <span class="badge">${escapeHtml(item.info || "")}</span>
-      `;
-      listEl.appendChild(row);
+    // Plyr UI (5 sn ileri/geri)
+    const plyr = new Plyr(playerEl, {
+      seekTime: 5,
+      controls: [
+        "rewind",
+        "play",
+        "fast-forward",
+        "progress",
+        "current-time",
+        "duration",
+        "mute",
+        "volume"
+      ]
     });
 
-    if (!shown) {
-      listEl.innerHTML = "<div style='padding:0.75rem;color:#666'>Sonuç yok.</div>";
+    let items = [];
+    let activeIndex = null;
+
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
-  }
 
-  async function playIndex(index) {
-    const item = items[index];
-    if (!item) return;
-
-    activeIndex = index;
-
-    const src = fileUrl(item.file);
-
-    currentEl.textContent = "Şu an: " + item.title;
-    setStatus("Yükleniyor…", src);
-    renderList(searchEl.value);
-
-    try { playerEl.pause(); } catch {}
-    playerEl.src = src;
-    playerEl.load();
-
-    try {
-      await playerEl.play();
-      // playing event günceller
-    } catch {
-      setStatus("Oynatma başlatılamadı. Play tuşuna bas veya linki yeni sekmede açıp test et.", src);
+    function setStatus(text, link){
+      if (link){
+        statusEl.innerHTML = `${escapeHtml(text)} — <a href="${link}" target="_blank" rel="noreferrer">dosyayı yeni sekmede aç</a>`;
+      } else {
+        statusEl.textContent = text || "";
+      }
     }
-  }
 
-  // Media eventleri
-  playerEl.addEventListener("playing", () => {
-    setStatus("Oynatılıyor…", playerEl.currentSrc || playerEl.src);
-  });
-  playerEl.addEventListener("pause", () => {
-    // gerçek duraklama olursa göster
-    if (playerEl.currentTime > 0 && !playerEl.ended) {
-      setStatus("Duraklatıldı.", playerEl.currentSrc || playerEl.src);
+    function titleFromFilename(name){
+      return name
+        .replace(/\.(m4a|mp3)$/i, "")
+        .replaceAll("_", " ")
+        .replace(/\s+/g, " ")
+        .trim();
     }
-  });
-  playerEl.addEventListener("error", () => {
-    const err = playerEl.error;
-    const code = err ? err.code : 0;
-    const src = playerEl.currentSrc || playerEl.src;
 
-    const msg =
-      code === 2 ? "Ağ hatası (link/erişim sorunu)" :
-      code === 3 ? "Decode hatası (codec desteklenmiyor olabilir)" :
-      code === 4 ? "Format desteklenmiyor veya link yanlış" :
-      "Bilinmeyen hata";
-
-    setStatus("Hata: " + msg, src);
-  });
-
-  // Liste tıklama
-  listEl.addEventListener("click", e => {
-    const row = e.target.closest(".item");
-    if (!row) return;
-    playIndex(Number(row.dataset.index));
-  });
-
-  // Arama
-  searchEl.addEventListener("input", () => renderList(searchEl.value));
-
-  // Klavye gezinme
-  document.addEventListener("keydown", e => {
-    const q = searchEl.value.toLowerCase();
-    const filtered = items
-      .map((item, index) => ({ item, index }))
-      .filter(({ item }) => item.title.toLowerCase().includes(q));
-    if (!filtered.length) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      const pos = filtered.findIndex(f => f.index === activeIndex);
-      playIndex(filtered[(pos + 1) % filtered.length].index);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      const pos = filtered.findIndex(f => f.index === activeIndex);
-      playIndex(filtered[(pos - 1 + filtered.length) % filtered.length].index);
-    } else if (e.key === "Enter" && activeIndex === null) {
-      playIndex(filtered[0].index);
+    function fileUrl(fileName){
+      // doğru encode + case korur
+      return new URL(fileName, BASE).href;
     }
-  });
 
-  // ✅ items.json yok: direkt Archive metadata’dan çek
-  async function loadFromArchive() {
-    try {
-      currentEl.textContent = "Kayıtlar yükleniyor…";
-      setStatus("Archive.org’dan liste alınıyor…", "");
+    function renderList(filterText = ""){
+      const q = filterText.toLowerCase();
+      listEl.innerHTML = "";
 
-      const metaUrl = `https://archive.org/metadata/${IDENT}`;
-      const res = await fetch(metaUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error("metadata alınamadı");
+      let shown = 0;
+      items.forEach((item, index) => {
+        if (!item.title.toLowerCase().includes(q)) return;
+        shown++;
 
-      const meta = await res.json();
-      const files = Array.isArray(meta.files) ? meta.files : [];
+        const row = document.createElement("div");
+        row.className = "item";
+        if (index === activeIndex) row.classList.add("active");
+        row.dataset.index = index;
 
-      items = files
-        .map(f => (typeof f === "object" ? f.name : null))
-        .filter(name => name && String(name).toLowerCase().endsWith(".m4a"))
-        .map(name => ({
-          file: String(name),                // 🔥 gerçek dosya adı (case doğru!)
-          title: titleFromFilename(String(name)),
-          info: ""
-        }))
-        .sort((a, b) => a.title.localeCompare(b.title, "de"));
+        row.innerHTML = `
+          <span class="title">${escapeHtml(item.title)}</span>
+          <span class="badge">${escapeHtml(item.info || "")}</span>
+        `;
+        listEl.appendChild(row);
+      });
 
-      currentEl.textContent = `Toplam kayıt: ${items.length}`;
-      setStatus("Bir kayıt seç.", "");
-      renderList();
-
-    } catch (e) {
-      console.error(e);
-      currentEl.textContent = "Liste yüklenemedi.";
-      setStatus("Archive.org metadata erişimi başarısız. (Ağ / CORS / geçici sorun olabilir)", "");
+      if (!shown){
+        listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Sonuç yok.</div>";
+      }
     }
-  }
 
-  loadFromArchive();
-</script>
+    async function playIndex(index){
+      const item = items[index];
+      if (!item) return;
 
+      activeIndex = index;
+
+      const src = fileUrl(item.file);
+      titleEl.textContent = item.title;
+      setStatus("Yükleniyor…", src);
+      renderList(searchEl.value);
+
+      // src değiştir
+      try { playerEl.pause(); } catch {}
+      playerEl.src = src;
+      playerEl.load();
+
+      // kullanıcı tıklaması ile geldiği için genelde başlar
+      try {
+        await playerEl.play();
+      } catch {
+        setStatus("Oynatma başlatılamadı. Play tuşuna bas veya linki yeni sekmede aç.", src);
+      }
+    }
+
+    // Olaylar
+    playerEl.addEventListener("playing", () => {
+      setStatus("Oynatılıyor…", playerEl.currentSrc || playerEl.src);
+    });
+    playerEl.addEventListener("pause", () => {
+      // gerçekten durmuşsa göster
+      if (playerEl.currentTime > 0 && !playerEl.ended) {
+        setStatus("Duraklatıldı.", playerEl.currentSrc || playerEl.src);
+      }
+    });
+    playerEl.addEventListener("ended", () => {
+      setStatus("Bitti.", playerEl.currentSrc || playerEl.src);
+    });
+    playerEl.addEventListener("error", () => {
+      const err = playerEl.error;
+      const code = err ? err.code : 0;
+      const src = playerEl.currentSrc || playerEl.src;
+
+      const msg =
+        code === 2 ? "Ağ hatası (link/erişim sorunu)" :
+        code === 3 ? "Decode hatası (codec desteklenmiyor olabilir)" :
+        code === 4 ? "Format desteklenmiyor veya link yanlış" :
+        "Bilinmeyen hata";
+
+      setStatus("Hata: " + msg, src);
+    });
+
+    // Liste tıklama
+    listEl.addEventListener("click", (e) => {
+      const row = e.target.closest(".item");
+      if (!row) return;
+      playIndex(Number(row.dataset.index));
+    });
+
+    // Arama
+    searchEl.addEventListener("input", () => renderList(searchEl.value));
+
+    // Ok tuşları + Enter
+    document.addEventListener("keydown", (e) => {
+      const q = searchEl.value.toLowerCase();
+      const filtered = items
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => item.title.toLowerCase().includes(q));
+
+      if (!filtered.length) return;
+
+      if (e.key === "ArrowDown"){
+        e.preventDefault();
+        const pos = filtered.findIndex(f => f.index === activeIndex);
+        const next = filtered[(pos + 1) % filtered.length].index;
+        playIndex(next);
+      } else if (e.key === "ArrowUp"){
+        e.preventDefault();
+        const pos = filtered.findIndex(f => f.index === activeIndex);
+        const prev = filtered[(pos - 1 + filtered.length) % filtered.length].index;
+        playIndex(prev);
+      } else if (e.key === "Enter" && activeIndex == null){
+        e.preventDefault();
+        playIndex(filtered[0].index);
+      }
+    });
+
+    // Archive metadata’dan otomatik liste çek
+    async function loadFromArchive(){
+      try{
+        titleEl.textContent = "Yükleniyor…";
+        setStatus("Archive.org’dan liste alınıyor…", "");
+
+        const metaUrl = `https://archive.org/metadata/${IDENT}`;
+        const res = await fetch(metaUrl, { cache: "no-store" });
+        if (!res.ok) throw new Error("metadata alınamadı");
+
+        const meta = await res.json();
+        const files = Array.isArray(meta.files) ? meta.files : [];
+
+        items = files
+          .map(f => (typeof f === "object" ? f.name : null))
+          .filter(name => name && String(name).toLowerCase().endsWith(".m4a"))
+          .map(name => ({
+            file: String(name),
+            title: titleFromFilename(String(name)),
+            info: ""
+          }))
+          .sort((a, b) => a.title.localeCompare(b.title, "de"));
+
+        titleEl.textContent = `Toplam kayıt: ${items.length}`;
+        setStatus("Bir kayıt seç.", "");
+        renderList();
+
+      } catch (e){
+        console.error(e);
+        titleEl.textContent = "Liste yüklenemedi";
+        setStatus("Archive.org metadata erişimi başarısız (ağ/CORS/geçici sorun).", "");
+        listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Liste yüklenemedi.</div>";
+      }
+    }
+
+    loadFromArchive();
+  </script>
 </body>
 </html>
