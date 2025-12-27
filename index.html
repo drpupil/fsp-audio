@@ -12,61 +12,102 @@
     body{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 1.5rem;
-      max-width: 950px;
-      padding-bottom: 190px; /* floating player sayfayı kapatmasın */
+      max-width: 980px;
+      padding-bottom: 210px; /* floating player kapatmasın */
     }
     h1{ font-size: 1.45rem; margin: 0 0 0.9rem; }
 
-    #search{
-      width: 100%;
-      max-width: 520px;
-      padding: 0.55rem 0.7rem;
+    .topbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap: .6rem;
+      align-items:center;
       margin-bottom: 1rem;
+    }
+
+    #search{
+      flex: 1;
+      min-width: 240px;
+      max-width: 560px;
+      padding: 0.55rem 0.7rem;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 0.98rem;
+    }
+
+    .btn{
+      padding: .5rem .65rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background:#fff;
+      cursor:pointer;
+      font-size:.92rem;
+      white-space:nowrap;
+    }
+    .btn:hover{ background:#f2f2f2; }
+    .btn.primary{ border-color:#8ab4ff; }
+    .btn.danger{ border-color:#ffb3b3; }
+    .btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+    #metaLine{
+      font-size:.88rem;
+      color:#666;
+      margin: .4rem 0 1rem;
     }
 
     #list{
       border-top: 1px solid #eee;
       margin-bottom: 1rem;
     }
+
     .item{
-      padding: 0.45rem 0.5rem;
+      padding: 0.48rem 0.55rem;
       border-bottom: 1px solid #f2f2f2;
-      cursor: pointer;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: .5rem;
       align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
       font-size: 0.98rem;
     }
     .item:hover{ background: #f7f7f7; }
     .item.active{ background: #e6f1ff; }
 
     .title{
-      flex: 1;
       min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    .badge{
-      font-size: 0.8rem;
-      color: #666;
-      white-space: nowrap;
-      font-variant-numeric: tabular-nums;
+      cursor: pointer;
     }
 
-    /* Floating draggable player (default: sol-alt) */
+    .badge{
+      font-size: 0.82rem;
+      color:#666;
+      font-variant-numeric: tabular-nums;
+      white-space:nowrap;
+    }
+
+    .iconBtn{
+      border: 1px solid #ddd;
+      background:#fff;
+      border-radius: 10px;
+      padding: .35rem .5rem;
+      cursor:pointer;
+      font-size: .95rem;
+      line-height: 1;
+      user-select:none;
+    }
+    .iconBtn:hover{ background:#f2f2f2; }
+    .iconBtn.star.active{ border-color:#f3c969; }
+    .iconBtn.select.active{ border-color:#8ab4ff; }
+
+    /* Floating draggable player */
     #floatingPlayer{
       position: fixed;
       left: 16px;
       bottom: 16px;
-      right: auto;
-      top: auto;
 
-      width: min(480px, calc(100vw - 32px));
+      width: min(520px, calc(100vw - 32px));
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 14px;
@@ -75,7 +116,7 @@
       z-index: 9999;
     }
     #floatingPlayer.dragging{
-      opacity: 0.92;
+      opacity: .93;
       cursor: grabbing;
     }
     #fpTitle{
@@ -85,27 +126,53 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-
-      /* drag handle */
-      cursor: grab;
-      user-select: none;
+      cursor: grab; /* drag handle */
+      user-select:none;
     }
     #fpStatus{
       font-size: 0.82rem;
-      color: #666;
+      color:#666;
       margin-bottom: 8px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     #fpStatus a{ color: inherit; text-decoration: underline; }
+
+    .smallNote{
+      font-size:.82rem;
+      color:#777;
+      margin-top:.4rem;
+    }
+
+    /* Mobilde aksiyon butonları biraz sıkışmasın */
+    @media (max-width: 520px){
+      .item{
+        grid-template-columns: 1fr auto auto;
+        grid-template-areas:
+          "title title title"
+          "dur  star  dl";
+      }
+      .title{ grid-area:title; }
+      .badge{ grid-area:dur; justify-self:start; }
+    }
   </style>
 </head>
 
 <body>
   <h1>Alfabetik FSP A–Z</h1>
 
-  <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
+  <div class="topbar">
+    <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
+
+    <button id="toggleFavs" class="btn primary" type="button">⭐ Sadece favoriler</button>
+    <button id="clearSelection" class="btn" type="button">Seçimi temizle</button>
+    <button id="downloadLinks" class="btn" type="button">⬇︎ Link listesi indir</button>
+    <button id="zipSelected" class="btn danger" type="button">📦 Seçilenleri ZIP</button>
+    <button id="zipFavs" class="btn danger" type="button">📦 Favorileri ZIP</button>
+  </div>
+
+  <div id="metaLine">Yükleniyor…</div>
 
   <div id="list"></div>
 
@@ -113,23 +180,38 @@
     <div id="fpTitle">Seçili kayıt yok</div>
     <div id="fpStatus">Bir kayıt seç.</div>
     <audio id="player" class="js-player" controls preload="auto"></audio>
+    <div class="smallNote">İpucu: Başlıktan tutup sürükleyebilirsin. Hız: ⚙︎ menüsünden.</div>
   </div>
 
   <!-- Plyr JS -->
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <!-- JSZip (ZIP için) -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
   <script>
-    // Archive item identifier
+    // === AYAR: Archive item identifier ===
     const IDENT = "vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
     const BASE  = `https://archive.org/download/${IDENT}/`;
 
+    // ZIP güvenlik limiti (tarayıcıyı korumak için)
+    const ZIP_MAX_FILES = 25;  // istersen 50 yap ama 200 yapma 🙂
+    const ZIP_MAX_TOTAL_MB = 600; // yaklaşık limit (çok büyükte zorlanır)
+
     const listEl   = document.getElementById("list");
     const searchEl = document.getElementById("search");
+    const metaEl   = document.getElementById("metaLine");
+
     const playerEl = document.getElementById("player");
     const titleEl  = document.getElementById("fpTitle");
     const statusEl = document.getElementById("fpStatus");
 
-    // Plyr UI (5 sn ileri/geri)
+    const btnToggleFavs = document.getElementById("toggleFavs");
+    const btnClearSel   = document.getElementById("clearSelection");
+    const btnLinks      = document.getElementById("downloadLinks");
+    const btnZipSel     = document.getElementById("zipSelected");
+    const btnZipFavs    = document.getElementById("zipFavs");
+
+    // Plyr: 5sn ileri/geri, hız ayarı, download butonu
     const plyr = new Plyr(playerEl, {
       seekTime: 5,
       controls: [
@@ -140,13 +222,29 @@
         "current-time",
         "duration",
         "mute",
-        "volume"
-      ]
+        "volume",
+        "settings",
+        "download"
+      ],
+      settings: ["speed"],
+      speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
     });
 
-    let items = [];
+    let items = [];              // {file,title,info,url,sizeBytes?}
     let activeIndex = null;
 
+    // state: favorites & selection
+    const LS_FAVS = "favs_v1";
+    const LS_SEL  = "sel_v1";
+    const LS_POS  = "floatingPlayerPos";
+    const LS_RESUME_PREFIX = "resume_"; // resume_<file>
+    const LS_LAST = "last_played_file";
+
+    let favs = new Set();
+    let selected = new Set();
+    let onlyFavs = false;
+
+    // --- helpers ---
     function escapeHtml(s){
       return String(s)
         .replaceAll("&", "&amp;")
@@ -158,8 +256,7 @@
 
     function setStatus(text, link){
       if (link){
-        statusEl.innerHTML =
-          `${escapeHtml(text)} — <a href="${link}" target="_blank" rel="noreferrer">dosyayı yeni sekmede aç</a>`;
+        statusEl.innerHTML = `${escapeHtml(text)} — <a href="${link}" target="_blank" rel="noreferrer">dosyayı yeni sekmede aç</a>`;
       } else {
         statusEl.textContent = text || "";
       }
@@ -174,7 +271,6 @@
     }
 
     function fileUrl(fileName){
-      // doğru encode + case korur
       return new URL(fileName, BASE).href;
     }
 
@@ -192,40 +288,100 @@
     function normalizeDuration(raw){
       if (!raw) return "";
       const v = String(raw).trim();
-
-      // "00:39:19" veya "39:19"
       if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(v)) return v;
-
-      // "2359.12" gibi saniye
       if (/^\d+(\.\d+)?$/.test(v)) return formatSecondsToHMS(parseFloat(v));
-
       return "";
     }
 
-    function renderList(filterText = ""){
-      const q = filterText.toLowerCase();
-      listEl.innerHTML = "";
+    function bytesToMB(b){ return (Number(b||0) / (1024*1024)); }
 
+    function saveFavs(){
+      localStorage.setItem(LS_FAVS, JSON.stringify(Array.from(favs)));
+    }
+    function loadFavs(){
+      try{
+        const a = JSON.parse(localStorage.getItem(LS_FAVS) || "[]");
+        favs = new Set(Array.isArray(a) ? a : []);
+      } catch { favs = new Set(); }
+    }
+
+    function saveSelection(){
+      localStorage.setItem(LS_SEL, JSON.stringify(Array.from(selected)));
+    }
+    function loadSelection(){
+      try{
+        const a = JSON.parse(localStorage.getItem(LS_SEL) || "[]");
+        selected = new Set(Array.isArray(a) ? a : []);
+      } catch { selected = new Set(); }
+    }
+
+    function updateMetaLine(){
+      const total = items.length;
+      const favCount = favs.size;
+      const selCount = selected.size;
+      metaEl.textContent = `Toplam: ${total}  •  Favori: ${favCount}  •  Seçili: ${selCount}` + (onlyFavs ? "  •  (Favori filtresi açık)" : "");
+    }
+
+    function passesFilters(item){
+      const q = searchEl.value.trim().toLowerCase();
+      if (q && !item.title.toLowerCase().includes(q)) return false;
+      if (onlyFavs && !favs.has(item.file)) return false;
+      return true;
+    }
+
+    function renderList(){
+      listEl.innerHTML = "";
       let shown = 0;
+
       items.forEach((item, index) => {
-        if (!item.title.toLowerCase().includes(q)) return;
+        if (!passesFilters(item)) return;
         shown++;
 
         const row = document.createElement("div");
         row.className = "item";
         if (index === activeIndex) row.classList.add("active");
-        row.dataset.index = index;
+
+        const isFav = favs.has(item.file);
+        const isSel = selected.has(item.file);
 
         row.innerHTML = `
-          <span class="title">${escapeHtml(item.title)}</span>
+          <span class="title" data-action="play" data-index="${index}" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</span>
           <span class="badge">${escapeHtml(item.info || "")}</span>
+          <button class="iconBtn select ${isSel ? "active" : ""}" data-action="select" data-file="${escapeHtml(item.file)}" title="Seç">☑︎</button>
+          <button class="iconBtn star ${isFav ? "active" : ""}" data-action="fav" data-file="${escapeHtml(item.file)}" title="Favori">${isFav ? "★" : "☆"}</button>
+          <button class="iconBtn" data-action="dl" data-file="${escapeHtml(item.file)}" title="İndir">⬇︎</button>
         `;
+
         listEl.appendChild(row);
       });
 
       if (!shown){
         listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Sonuç yok.</div>";
       }
+
+      updateMetaLine();
+      updateZipButtons();
+    }
+
+    function updateZipButtons(){
+      btnZipSel.disabled = selected.size === 0;
+      btnZipFavs.disabled = favs.size === 0;
+      btnClearSel.disabled = selected.size === 0;
+    }
+
+    // --- play + resume ---
+    function resumeKey(file){ return LS_RESUME_PREFIX + file; }
+
+    function saveResume(file, seconds){
+      try{
+        localStorage.setItem(resumeKey(file), String(Math.floor(seconds || 0)));
+      } catch {}
+    }
+
+    function loadResume(file){
+      const v = localStorage.getItem(resumeKey(file));
+      const n = v == null ? 0 : Number(v);
+      return Number.isFinite(n) ? n : 0;
     }
 
     async function playIndex(index){
@@ -234,14 +390,33 @@
 
       activeIndex = index;
 
-      const src = fileUrl(item.file);
+      const src = item.url;
       titleEl.textContent = item.title;
       setStatus("Yükleniyor…", src);
-      renderList(searchEl.value);
 
+      // Plyr download linkini bu dosyaya bağla
+      plyr.config.urls = { download: src };
+
+      renderList();
+
+      // src değiştir
       try { playerEl.pause(); } catch {}
       playerEl.src = src;
       playerEl.load();
+
+      // resume: metadata gelince uygula
+      const resumeAt = loadResume(item.file);
+      const applyResumeOnce = () => {
+        playerEl.removeEventListener("loadedmetadata", applyResumeOnce);
+        if (resumeAt > 3 && playerEl.duration && resumeAt < playerEl.duration - 2) {
+          playerEl.currentTime = resumeAt;
+          setStatus(`Kaldığın yerden devam: ${formatSecondsToHMS(resumeAt)}`, src);
+        }
+      };
+      playerEl.addEventListener("loadedmetadata", applyResumeOnce);
+
+      // last played
+      try { localStorage.setItem(LS_LAST, item.file); } catch {}
 
       try {
         await playerEl.play();
@@ -250,7 +425,7 @@
       }
     }
 
-    // Events
+    // Player events
     playerEl.addEventListener("playing", () => {
       setStatus("Oynatılıyor…", playerEl.currentSrc || playerEl.src);
     });
@@ -276,88 +451,240 @@
       setStatus("Hata: " + msg, src);
     });
 
-    // Click list
+    // Resume auto-save (her 5 saniyede bir)
+    let lastResumeWrite = 0;
+    playerEl.addEventListener("timeupdate", () => {
+      if (activeIndex == null) return;
+      const item = items[activeIndex];
+      if (!item) return;
+
+      const now = Date.now();
+      if (now - lastResumeWrite < 5000) return;
+      lastResumeWrite = now;
+
+      // çok başı kaydetmeyelim
+      if (playerEl.currentTime > 2) saveResume(item.file, playerEl.currentTime);
+    });
+
+    // --- list click actions ---
     listEl.addEventListener("click", (e) => {
-      const row = e.target.closest(".item");
-      if (!row) return;
-      playIndex(Number(row.dataset.index));
+      const el = e.target.closest("[data-action]");
+      if (!el) {
+        const t = e.target.closest(".title");
+        if (t) playIndex(Number(t.dataset.index));
+        return;
+      }
+
+      const action = el.dataset.action;
+
+      if (action === "play"){
+        playIndex(Number(el.dataset.index));
+        return;
+      }
+
+      const file = el.dataset.file;
+      if (!file) return;
+
+      if (action === "fav"){
+        if (favs.has(file)) favs.delete(file);
+        else favs.add(file);
+        saveFavs();
+        renderList();
+        return;
+      }
+
+      if (action === "select"){
+        if (selected.has(file)) selected.delete(file);
+        else selected.add(file);
+        saveSelection();
+        renderList();
+        return;
+      }
+
+      if (action === "dl"){
+        const url = fileUrl(file);
+        // direkt indir
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file; // çoğu tarayıcı archive’dan gelene izin verir
+        a.target = "_blank";
+        a.rel = "noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      }
     });
 
     // Search
-    searchEl.addEventListener("input", () => renderList(searchEl.value));
+    searchEl.addEventListener("input", () => renderList());
 
-    // Keyboard nav
-    document.addEventListener("keydown", (e) => {
-      const q = searchEl.value.toLowerCase();
-      const filtered = items
-        .map((item, index) => ({ item, index }))
-        .filter(({ item }) => item.title.toLowerCase().includes(q));
-
-      if (!filtered.length) return;
-
-      if (e.key === "ArrowDown"){
-        e.preventDefault();
-        const pos = filtered.findIndex(f => f.index === activeIndex);
-        const next = filtered[(pos + 1) % filtered.length].index;
-        playIndex(next);
-      } else if (e.key === "ArrowUp"){
-        e.preventDefault();
-        const pos = filtered.findIndex(f => f.index === activeIndex);
-        const prev = filtered[(pos - 1 + filtered.length) % filtered.length].index;
-        playIndex(prev);
-      } else if (e.key === "Enter" && activeIndex == null){
-        e.preventDefault();
-        playIndex(filtered[0].index);
-      }
+    // Only favs toggle
+    btnToggleFavs.addEventListener("click", () => {
+      onlyFavs = !onlyFavs;
+      btnToggleFavs.textContent = onlyFavs ? "⭐ Favoriler açık" : "⭐ Sadece favoriler";
+      renderList();
     });
 
-    // Load from Archive metadata + duration
+    // Clear selection
+    btnClearSel.addEventListener("click", () => {
+      selected.clear();
+      saveSelection();
+      renderList();
+    });
+
+    // Download links list (TXT + M3U)
+    btnLinks.addEventListener("click", () => {
+      const filtered = items.filter(passesFilters);
+      const lines = filtered.map(i => i.url);
+      const m3u = ["#EXTM3U", ...filtered.map(i => `#EXTINF:-1,${i.title}\n${i.url}`)].join("\n");
+
+      const txtBlob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+      const m3uBlob = new Blob([m3u], { type: "audio/x-mpegurl;charset=utf-8" });
+
+      const ts = new Date().toISOString().slice(0,19).replaceAll(":","-");
+
+      const a1 = document.createElement("a");
+      a1.href = URL.createObjectURL(txtBlob);
+      a1.download = `fsp-links-${ts}.txt`;
+      a1.click();
+
+      const a2 = document.createElement("a");
+      a2.href = URL.createObjectURL(m3uBlob);
+      a2.download = `fsp-playlist-${ts}.m3u`;
+      a2.click();
+
+      setTimeout(() => { URL.revokeObjectURL(a1.href); URL.revokeObjectURL(a2.href); }, 4000);
+    });
+
+    // ZIP helpers
+    async function zipFiles(fileList, zipName){
+      const list = fileList.slice(0);
+
+      if (list.length === 0) return;
+
+      if (list.length > ZIP_MAX_FILES){
+        alert(`ZIP için çok fazla dosya seçildi (${list.length}). Limit: ${ZIP_MAX_FILES}. Lütfen daha az dosya seç.`);
+        return;
+      }
+
+      // yaklaşık boyut kontrolü (metadata size varsa)
+      const totalBytes = list.reduce((sum, it) => sum + (Number(it.sizeBytes) || 0), 0);
+      if (totalBytes > 0 && bytesToMB(totalBytes) > ZIP_MAX_TOTAL_MB){
+        alert(`ZIP toplam boyutu ~${bytesToMB(totalBytes).toFixed(0)}MB. Limit: ${ZIP_MAX_TOTAL_MB}MB. Lütfen daha az dosya seç.`);
+        return;
+      }
+
+      const zip = new JSZip();
+
+      titleEl.textContent = "ZIP hazırlanıyor…";
+      setStatus("Dosyalar indiriliyor (tarayıcıda)…", "");
+
+      // sırayla indir (aynı anda çok indirmek tarayıcıyı boğar)
+      for (let i = 0; i < list.length; i++){
+        const it = list[i];
+        setStatus(`ZIP: ${i+1}/${list.length} — ${it.title}`, it.url);
+
+        try{
+          const resp = await fetch(it.url, { cache: "no-store" });
+          if (!resp.ok) throw new Error("fetch failed");
+          const blob = await resp.blob();
+
+          // dosya adı: orijinal dosya adı
+          zip.file(it.file, blob);
+        } catch (e){
+          console.error(e);
+          alert(`ZIP sırasında hata: ${it.file}\nBu dosya indirilemedi. (CORS/ağ/erişim)\nDilersen tek tek indirmeyi dene.`);
+          titleEl.textContent = it.title;
+          setStatus("ZIP iptal edildi.", it.url);
+          return;
+        }
+      }
+
+      setStatus("ZIP paketleniyor…", "");
+      const outBlob = await zip.generateAsync({ type: "blob" });
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(outBlob);
+      a.download = zipName;
+      a.click();
+
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+
+      titleEl.textContent = "ZIP hazır";
+      setStatus("ZIP indirildi.", "");
+    }
+
+    btnZipSel.addEventListener("click", async () => {
+      const list = items.filter(i => selected.has(i.file));
+      const ts = new Date().toISOString().slice(0,19).replaceAll(":","-");
+      await zipFiles(list, `fsp-selected-${ts}.zip`);
+      updateMetaLine();
+    });
+
+    btnZipFavs.addEventListener("click", async () => {
+      const list = items.filter(i => favs.has(i.file));
+      const ts = new Date().toISOString().slice(0,19).replaceAll(":","-");
+      await zipFiles(list, `fsp-favorites-${ts}.zip`);
+      updateMetaLine();
+    });
+
+    // --- load from Archive metadata (durations + size) ---
     async function loadFromArchive(){
-      try{
-        titleEl.textContent = "Yükleniyor…";
-        setStatus("Archive.org’dan liste alınıyor…", "");
+      metaEl.textContent = "Archive.org’dan liste alınıyor…";
+      titleEl.textContent = "Yükleniyor…";
+      setStatus("Liste hazırlanıyor…", "");
 
-        const metaUrl = `https://archive.org/metadata/${IDENT}`;
-        const res = await fetch(metaUrl, { cache: "no-store" });
-        if (!res.ok) throw new Error("metadata alınamadı");
+      const metaUrl = `https://archive.org/metadata/${IDENT}`;
+      const res = await fetch(metaUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error("metadata alınamadı");
 
-        const meta = await res.json();
-        const files = Array.isArray(meta.files) ? meta.files : [];
+      const meta = await res.json();
+      const files = Array.isArray(meta.files) ? meta.files : [];
 
-        items = files
-          .filter(f => f && typeof f === "object" && typeof f.name === "string")
-          .filter(f => f.name.toLowerCase().endsWith(".m4a"))
-          .map(f => {
-            // Archive'da bazen "length", bazen "duration" gelir
-            const durRaw = f.length ?? f.duration ?? "";
-            return {
-              file: f.name,
-              title: titleFromFilename(f.name),
-              info: normalizeDuration(durRaw)
-            };
-          })
-          .sort((a, b) => a.title.localeCompare(b.title, "de"));
+      items = files
+        .filter(f => f && typeof f === "object" && typeof f.name === "string")
+        .filter(f => f.name.toLowerCase().endsWith(".m4a"))
+        .map(f => {
+          const durRaw = f.length ?? f.duration ?? "";
+          const sizeBytes = f.size ? Number(f.size) : 0;
+          return {
+            file: f.name,
+            title: titleFromFilename(f.name),
+            info: normalizeDuration(durRaw),
+            url: fileUrl(f.name),
+            sizeBytes
+          };
+        })
+        .sort((a, b) => a.title.localeCompare(b.title, "de"));
 
-        titleEl.textContent = `Toplam kayıt: ${items.length}`;
-        setStatus("Bir kayıt seç.", "");
-        renderList();
+      titleEl.textContent = `Toplam kayıt: ${items.length}`;
+      setStatus("Bir kayıt seç.", "");
+      updateMetaLine();
+      renderList();
 
-      } catch (e){
-        console.error(e);
-        titleEl.textContent = "Liste yüklenemedi";
-        setStatus("Archive.org metadata erişimi başarısız (ağ/CORS/geçici sorun).", "");
-        listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Liste yüklenemedi.</div>";
+      // son çalınanı otomatik seç (çalma değil; sadece başlık)
+      const last = localStorage.getItem(LS_LAST);
+      if (last){
+        const idx = items.findIndex(x => x.file === last);
+        if (idx >= 0){
+          activeIndex = idx;
+          titleEl.textContent = items[idx].title;
+          const resumeAt = loadResume(items[idx].file);
+          if (resumeAt > 2) setStatus(`Son dinleme: ${formatSecondsToHMS(resumeAt)} (tıklayınca devam eder)`, items[idx].url);
+          renderList();
+        }
       }
     }
 
-    // === Drag & Drop (desktop + mobile) + konumu hatırla ===
+    // --- draggable floating player (desktop + mobile) ---
     (function enableDrag(){
       const box = document.getElementById("floatingPlayer");
       const handle = document.getElementById("fpTitle");
 
-      // kaydedilmiş pozisyonu yükle
+      // restore position
       try{
-        const saved = JSON.parse(localStorage.getItem("floatingPlayerPos") || "null");
+        const saved = JSON.parse(localStorage.getItem(LS_POS) || "null");
         if (saved && typeof saved.x === "number" && typeof saved.y === "number") {
           box.style.left = saved.x + "px";
           box.style.top = saved.y + "px";
@@ -373,7 +700,7 @@
       function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
       function pointerDown(e){
-        // Slider/controls üstünde sürükleme olmasın
+        // Plyr kontrollerinde drag olmasın
         if (e.target.closest(".plyr__controls")) return;
 
         dragging = true;
@@ -387,7 +714,6 @@
         startX = p.clientX;
         startY = p.clientY;
 
-        // top/left ile sürükle
         box.style.left = boxX + "px";
         box.style.top = boxY + "px";
         box.style.right = "auto";
@@ -422,7 +748,7 @@
         box.classList.remove("dragging");
 
         const rect = box.getBoundingClientRect();
-        localStorage.setItem("floatingPlayerPos", JSON.stringify({ x: rect.left, y: rect.top }));
+        localStorage.setItem(LS_POS, JSON.stringify({ x: rect.left, y: rect.top }));
 
         document.removeEventListener("mousemove", pointerMove);
         document.removeEventListener("mouseup", pointerUp);
@@ -430,12 +756,23 @@
         document.removeEventListener("touchend", pointerUp);
       }
 
-      // başlıktan tut sürükle
       handle.addEventListener("mousedown", pointerDown);
       handle.addEventListener("touchstart", pointerDown, { passive: false });
     })();
 
-    loadFromArchive();
+    // init state
+    loadFavs();
+    loadSelection();
+    updateZipButtons();
+
+    // start
+    loadFromArchive().catch(err => {
+      console.error(err);
+      metaEl.textContent = "Liste yüklenemedi (Archive.org metadata hatası).";
+      titleEl.textContent = "Liste yüklenemedi";
+      setStatus("Ağ/CORS/geçici sorun olabilir. Yenile veya sonra tekrar dene.", "");
+      listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Liste yüklenemedi.</div>";
+    });
   </script>
 </body>
 </html>
