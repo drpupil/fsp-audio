@@ -2,295 +2,206 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Alfabetik FSP A–Z</title>
 
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <!-- Plyr -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
+
   <style>
     :root{
-      --bg:#ffffff;
-      --text:#111;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --chip:#f3f4f6;
-      --chipActive:#e8f0ff;
-      --accent:#2563eb;
-      --like:#ef4444;
-      --star:#f59e0b;
-      --ok:#16a34a;
-      --shadow: 0 10px 30px rgba(0,0,0,.10);
-      --radius:16px;
-      --rowH: 52px; /* satır sık */
-      --iconBtn: 42px;
-      --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --fg:#111;
+      --muted:#666;
+      --line:#e7e7e7;
+      --bg:#fff;
+      --chip:#f7f7f8;
+      --chip-border:#d8d8dd;
+      --accent:#0a66ff;
+      --row-hover:#f3f7ff;
+      --row-active:#e6f1ff;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:18px;
     }
-
-    html,body{height:100%;}
-    body{
-      margin:0;
-      font-family:var(--font);
-      background:var(--bg);
-      color:var(--text);
-    }
-
-    .wrap{
-      max-width:1100px;
-      margin:28px auto 120px;
-      padding:0 16px;
-    }
-
-    h1{
-      margin: 0 0 14px;
-      font-size: clamp(32px, 4vw, 54px);
-      letter-spacing: -0.02em;
-      font-weight: 800;
-    }
+    html,body{background:var(--bg); color:var(--fg); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; font-weight:400;}
+    *{box-sizing:border-box;}
+    .wrap{max-width:1100px; margin:26px auto 120px; padding:0 18px;}
+    h1{font-size:54px; line-height:1.05; margin:0 0 14px; letter-spacing:-.02em; font-weight:800;}
+    @media (max-width:700px){ h1{font-size:40px;} }
 
     .topbar{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items:center;
-      margin-bottom: 10px;
+      display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+      margin:10px 0 8px;
     }
-
     .search{
-      width:100%;
-      box-sizing:border-box;
-      padding: 14px 16px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      outline: none;
-      font-size: 18px;
-      background:#fff;
+      flex:1; min-width:260px;
+      border:1px solid var(--line); background:#fff;
+      padding:14px 16px; border-radius:20px;
+      font-size:20px; outline:none;
     }
-    .search:focus{ border-color:#c7d2fe; box-shadow: 0 0 0 4px rgba(37,99,235,.08); }
-
     .btn{
-      border:1px solid var(--line);
-      background:#fff;
-      padding: 12px 16px;
-      border-radius: 18px;
-      font-size: 18px;
+      border:1px solid var(--chip-border);
+      background:#fff; border-radius:16px;
+      padding:12px 16px; font-size:18px;
       cursor:pointer;
     }
-    .btn:active{ transform: translateY(1px); }
-    .btnPrimary{
-      border-color:#c7d2fe;
-      color: var(--accent);
+    .btn:active{transform:translateY(1px);}
+    .btn.primary{
+      border-color:rgba(10,102,255,.35);
+      color:var(--accent);
+      background:#fff;
     }
 
-    .meta{
-      color: var(--muted);
-      font-size: 18px;
-      margin: 6px 0 14px;
-    }
+    .meta{color:var(--muted); font-size:20px; margin:10px 0 14px;}
+    @media (max-width:700px){ .meta{font-size:18px;} }
 
     .table{
       border-top:1px solid var(--line);
     }
 
-    /* Header row */
-    .hdr, .row{
+    /* header row */
+    .head{
       display:grid;
-      grid-template-columns: 1fr 56px 56px 56px 56px; /* title | likeCount+btn uses 56? we show count inside like cell */
+      grid-template-columns: 1fr 54px 54px 54px 54px;
       align-items:center;
-      gap: 0;
+      gap:10px;
+      padding:12px 6px;
+      color:var(--muted);
       border-bottom:1px solid var(--line);
-      min-height: var(--rowH);
+      font-size:18px;
     }
-
-    .hdr{
-      color: var(--muted);
-      font-size: 16px;
+    .head .hlabel{padding-left:4px;}
+    .hicon{
+      width:44px; height:44px; border-radius:999px;
+      border:1px solid var(--chip-border);
+      display:grid; place-items:center;
+      cursor:pointer; background:#fff;
       user-select:none;
-      background: #fff;
-      position: sticky;
-      top: 0;
-      z-index: 3;
+    }
+    .hicon.on{
+      border-color:rgba(10,102,255,.45);
+      box-shadow:0 0 0 3px rgba(10,102,255,.10);
     }
 
-    .hdr .cellTitle{
-      padding: 0 10px 0 6px;
-    }
-
-    .cellTitle{
-      padding: 0 10px 0 6px;
-      min-width:0; /* allow ellipsis */
-    }
-    .titleText{
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1.2;
-      white-space: nowrap;         /* mobilde tek satır */
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
+    /* rows */
     .row{
-      cursor:pointer;
-      background:#fff;
-    }
-    .row:hover{ background:#fafafa; }
-    .row.active{ background: #e6f1ff; }
-
-    .cellIcon{
-      display:flex;
+      display:grid;
+      grid-template-columns: 1fr 54px 54px 54px 54px;
       align-items:center;
-      justify-content:center;
-      gap:8px;
+      gap:10px;
+      padding:12px 6px;
+      border-bottom:1px solid var(--line);
+      font-size:24px;
+    }
+    .row:hover{background:var(--row-hover);}
+    .row.active{background:var(--row-active);}
+    @media (max-width:700px){
+      .row{font-size:22px;}
     }
 
-    .iconBtn{
-      width: var(--iconBtn);
-      height: var(--iconBtn);
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    .title{
+      min-width:0; /* important for ellipsis */
+      display:flex; align-items:center; gap:10px;
       cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
     }
-    .iconBtn:active{ transform: translateY(1px); }
-
-    .icon{
-      width: 20px;
-      height: 20px;
+    .title span{
       display:block;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:400;
     }
 
-    /* Filled states */
-    .iconBtn.liked{ border-color: rgba(239,68,68,.35); }
-    .iconBtn.liked svg{ fill: var(--like); stroke: var(--like); }
-
-    .iconBtn.faved{ border-color: rgba(245,158,11,.40); }
-    .iconBtn.faved svg{ fill: var(--star); stroke: var(--star); }
-
-    .iconBtn.selected{ border-color: rgba(22,163,74,.35); background: rgba(22,163,74,.06); }
-    .iconBtn.selected svg{ fill: var(--ok); stroke: var(--ok); }
-
-    /* Default icon style */
-    svg{ fill: none; stroke: #6b7280; stroke-width: 2; }
-
-    /* Like count */
-    .likeWrap{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      min-width:0;
-    }
-    .likeCount{
-      width: 20px;
+    .likecount{
+      color:var(--muted);
+      font-size:18px;
       text-align:right;
-      font-size: 16px;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
+      padding-right:2px;
+      user-select:none;
     }
 
-    /* Header filter buttons */
-    .hdr .iconBtn{ width: 44px; height: 44px; }
-    .hdr .iconBtn.filterOn{
-      background: var(--chipActive);
-      border-color:#c7d2fe;
+    .iconbtn{
+      width:44px; height:44px; border-radius:999px;
+      border:1px solid var(--chip-border);
+      display:grid; place-items:center;
+      cursor:pointer; background:#fff;
+      user-select:none;
     }
+    .iconbtn.on{
+      border-color:rgba(10,102,255,.45);
+      box-shadow:0 0 0 3px rgba(10,102,255,.10);
+    }
+    .iconbtn svg{width:22px; height:22px;}
+    .iconbtn.on svg{fill:var(--accent); stroke:var(--accent);}
+    .iconbtn svg{fill:none; stroke:#666; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+
+    .dl svg{stroke:#444;}
+    .iconbtn.dl{border-color:#e0e0e0;}
+    .iconbtn.dl:active{transform:translateY(1px);}
 
     /* Floating player */
     #floatingPlayer{
-      position: fixed;
-      left: 18px;
-      bottom: 18px;
-      width: min(820px, calc(100vw - 36px));
+      position:fixed;
+      left:18px; bottom:18px;
+      width:min(860px, calc(100vw - 36px));
       background:#fff;
       border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      z-index: 9999;
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      z-index:9999;
       overflow:hidden;
-      touch-action: none; /* for drag */
+      touch-action:none;
     }
-
-    .fpTop{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
+    #fpBar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 12px 10px 14px;
       border-bottom:1px solid var(--line);
+      cursor:grab;
+      user-select:none;
       background:#fff;
+      gap:10px;
     }
-    .fpTitle{
-      font-size: 18px;
-      font-weight: 700;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      min-width:0;
-      flex:1;
+    #fpTitle{
+      font-size:20px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      font-weight:700;
+      flex:1; min-width:0;
     }
-
-    .fpRight{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex: 0 0 auto;
+    #fpRight{
+      display:flex; align-items:center; gap:8px;
+      flex:0 0 auto;
     }
-
-    .miniBtn{
-      width: 44px;
-      height: 36px;
-      border-radius: 12px;
-      border:1px solid var(--line);
+    .mini{
+      width:44px; height:44px; border-radius:14px;
+      border:1px solid var(--chip-border);
       background:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:grid; place-items:center;
       cursor:pointer;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
     }
-    .miniBtn:active{ transform: translateY(1px); }
-
-    .dragHint{
-      color: var(--muted);
-      font-size: 16px;
-      user-select:none;
-      padding-left: 6px;
+    .mini svg{width:22px; height:22px; fill:none; stroke:#333; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+    .dragTag{
+      color:var(--muted);
+      font-size:16px;
+      padding:0 6px;
+      border-radius:10px;
+      border:1px solid transparent;
     }
-
-    .fpBody{
-      padding: 10px 12px 12px;
-    }
-    #fpStatus{
-      color: var(--muted);
-      font-size: 16px;
-      margin: 0 0 8px;
-      min-height: 18px;
+    #fpMsg{
+      padding:10px 14px 0;
+      color:var(--muted);
+      font-size:16px;
+      display:none;
     }
 
-    /* Plyr compact */
-    .plyr--audio .plyr__controls{
-      padding: 10px 10px;
-    }
-    .plyr__controls{
-      border-radius: 14px;
-    }
+    /* Plyr spacing */
+    .plyr--audio .plyr__controls{padding:10px 12px;}
+    .plyr__time{font-size:14px;}
+    .plyr__menu__container .plyr__control{font-size:14px;}
 
-    /* Small screens tweaks */
-    @media (max-width: 640px){
-      .wrap{ margin-bottom: 160px; }
-      .topbar{ grid-template-columns: 1fr; }
-      .btn{ justify-self: start; }
-      .hdr, .row{
-        grid-template-columns: 1fr 56px 56px 56px 56px;
-      }
-      .titleText{ font-size: 18px; }
-      .meta{ font-size: 16px; }
-      .likeCount{ display:none; } /* mobilde sayacı ikon içinde görmeye gerek yok */
-      .likeWrap{ gap:0; }
+    /* reduce extra gaps on small */
+    @media (max-width:700px){
+      #fpTitle{font-size:18px;}
+      .search{font-size:18px; padding:12px 14px;}
+      .btn{font-size:17px; padding:10px 14px;}
     }
   </style>
 </head>
@@ -300,53 +211,43 @@
     <h1>Alfabetik FSP A–Z</h1>
 
     <div class="topbar">
-      <input id="search" class="search" placeholder="Arama (ör. ACS, DM, PAVK)..." autocomplete="off" />
-      <button id="clearAll" class="btn btnPrimary">Hepsi</button>
+      <input id="q" class="search" placeholder="Arama (ör. ACS, DM, PAVK)..." autocomplete="off" />
+      <button id="resetBtn" class="btn primary" title="Filtreleri temizle">Hepsi</button>
     </div>
 
     <div id="meta" class="meta">Yükleniyor…</div>
 
     <div class="table">
-      <div class="hdr">
-        <div class="cellTitle">Kayıt</div>
+      <div class="head">
+        <div class="hlabel">Kayıt</div>
 
-        <!-- Like filter -->
-        <div class="cellIcon">
-          <div id="filterLike" class="iconBtn" title="Liked filtre">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 21s-7-4.5-9.5-9C.5 7.5 3 5 6 5c1.7 0 3.2.8 4 2 0.8-1.2 2.3-2 4-2 3 0 5.5 2.5 3.5 7-2.5 4.5-9.5 9-9.5 9z"/>
-            </svg>
-          </div>
+        <!-- Like count column header is blank on purpose -->
+        <div></div>
+
+        <!-- Filter icons (no text) -->
+        <div id="hLike" class="hicon" title="Sadece liked">
+          <!-- heart -->
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6c-1.7 1.7-1.7 4.4 0 6.1L12 19.5l8.8-8.8c1.7-1.7 1.7-4.4 0-6.1z"/>
+          </svg>
         </div>
 
-        <!-- Fav filter -->
-        <div class="cellIcon">
-          <div id="filterFav" class="iconBtn" title="Favori filtre">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2l3 7 7 .6-5.2 4.5 1.6 7-6.4-3.9-6.4 3.9 1.6-7L2 9.6 9 9z"/>
-            </svg>
-          </div>
+        <div id="hFav" class="hicon" title="Sadece favoriler">
+          <!-- star -->
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l3.1 6.3 7 .9-5.1 5 1.2 7-6.2-3.3-6.2 3.3 1.2-7-5.1-5 7-.9z"/>
+          </svg>
         </div>
 
-        <!-- Selected filter -->
-        <div class="cellIcon">
-          <div id="filterSel" class="iconBtn" title="Seçili filtre">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 6L9 17l-5-5"/>
-            </svg>
-          </div>
+        <div id="hSel" class="hicon" title="Sadece seçili">
+          <!-- check -->
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
         </div>
 
-        <!-- (Download column header, no filter) -->
-        <div class="cellIcon">
-          <div class="iconBtn" style="opacity:.35; cursor:default;" title="İndir">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3v12"/>
-              <path d="M7 10l5 5 5-5"/>
-              <path d="M5 21h14"/>
-            </svg>
-          </div>
-        </div>
+        <!-- download header empty -->
+        <div></div>
       </div>
 
       <div id="list"></div>
@@ -354,493 +255,481 @@
   </div>
 
   <!-- Floating player -->
-  <div id="floatingPlayer" role="dialog" aria-label="Ses oynatıcı">
-    <div class="fpTop" id="fpDragBar">
-      <div id="fpTitle" class="fpTitle">Bir kayıt seç…</div>
-      <div class="fpRight">
-        <button id="prevBtn" class="miniBtn" title="Önceki">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M11 19l-8-7 8-7"/>
-            <path d="M21 19l-8-7 8-7"/>
-          </svg>
+  <div id="floatingPlayer" aria-live="polite">
+    <div id="fpBar">
+      <div id="fpTitle">Bir kayıt seç…</div>
+      <div id="fpRight">
+        <button id="prevBtn" class="mini" title="Önceki">
+          <svg viewBox="0 0 24 24"><path d="M11 19l-9-7 9-7v14z"/><path d="M22 19V5"/></svg>
         </button>
-        <button id="nextBtn" class="miniBtn" title="Sonraki">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M13 5l8 7-8 7"/>
-            <path d="M3 5l8 7-8 7"/>
-          </svg>
+        <button id="nextBtn" class="mini" title="Sonraki">
+          <svg viewBox="0 0 24 24"><path d="M13 5l9 7-9 7V5z"/><path d="M2 5v14"/></svg>
         </button>
-        <div class="dragHint">Sürükle</div>
+        <span class="dragTag" title="Sürükle">Sürükle</span>
       </div>
     </div>
-    <div class="fpBody">
-      <div id="fpStatus"></div>
-      <audio id="player" controls preload="metadata"></audio>
-    </div>
+    <div id="fpMsg"></div>
+    <audio id="player" controls crossorigin="anonymous"></audio>
   </div>
 
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+
   <script>
-    // ---------- Helpers ----------
-    const qs = (s, el=document) => el.querySelector(s);
-    const qsa = (s, el=document) => Array.from(el.querySelectorAll(s));
-    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+    /***********************
+     * 1) AYAR: Archive base
+     ***********************/
+    // Burayı kendi linkinle aynı formatta bırak:
+    // "https://archive.org/download/IDENTIFIER/"
+    const ARCHIVE_BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
 
-    function safeDownloadUrl(url){
-      // Archive.org genelde ?download=1 ile indirmeyi tetikler.
-      try{
-        const u = new URL(url, location.href);
-        if (u.searchParams.has("download")) return u.toString();
-        u.searchParams.set("download","1");
-        return u.toString();
-      }catch(e){
-        // fallback string
-        return url + (url.includes("?") ? "&" : "?") + "download=1";
-      }
-    }
+    // items.json bu repo içinde (GitHub Pages) olmalı:
+    const ITEMS_JSON = "./items.json";
 
-    function isAudioUrl(u){
-      const x = (u || "").toLowerCase();
-      return x.endsWith(".m4a") || x.endsWith(".mp3");
-    }
+    /***********************
+     * 2) State + storage
+     ***********************/
+    const LS_LIKES = "fsp_likes_v1";
+    const LS_FAVS  = "fsp_favs_v1";
+    const LS_SELS  = "fsp_sels_v1";
 
-    function normalizeItems(raw){
-      // Supports:
-      // 1) Array of {title,url,duration}
-      // 2) {items:[...]}
-      const arr = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.items) ? raw.items : []);
-      const out = [];
-      for (const it of arr){
-        const url = it.url || it.file_url || it.file || it.href || "";
-        if (!isAudioUrl(url)) continue;
+    const loadSet = (k) => new Set(JSON.parse(localStorage.getItem(k) || "[]"));
+    const saveSet = (k, s) => localStorage.setItem(k, JSON.stringify([...s]));
 
-        out.push({
-          id: it.id || it.identifier || it.slug || url,  // stable key
-          title: (it.title || it.name || it.label || "").trim() || decodeURIComponent(url.split("/").pop() || url),
-          url,
-          duration: it.duration || it.len || it.length || "" // optional
-        });
-      }
-      return out;
-    }
+    let likes = loadSet(LS_LIKES);
+    let favs  = loadSet(LS_FAVS);
+    let sels  = loadSet(LS_SELS);
 
-    function formatDuration(sec){
-      // sec may be "mm:ss" already
-      if (typeof sec === "string" && sec.includes(":")) return sec;
-      const s = Number(sec);
-      if (!isFinite(s) || s <= 0) return "";
-      const m = Math.floor(s/60);
-      const r = Math.floor(s%60);
-      return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0");
-    }
+    // Like sayaçları (sadece bu cihazda)
+    const LS_LIKECOUNTS = "fsp_likecounts_v1";
+    const loadCounts = () => JSON.parse(localStorage.getItem(LS_LIKECOUNTS) || "{}");
+    const saveCounts = (obj) => localStorage.setItem(LS_LIKECOUNTS, JSON.stringify(obj));
+    let likeCounts = loadCounts();
 
-    // ---------- State ----------
-    const LS_KEY = "fsp_audio_v6";
-    const state = {
-      items: [],
-      filteredIdx: [],
-      activeIndex: null,
-      q: "",
-      filter: { like:false, fav:false, sel:false },
-      likes: {},   // id -> 0/1 (local)
-      favs: {},    // id -> 0/1 (local)
-      sels: {},    // id -> 0/1 (local)
-    };
+    // Data
+    let allItems = [];
+    let filtered = [];
+    let activeIndex = null;
 
-    function loadLS(){
-      try{
-        const x = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
-        state.likes = x.likes || {};
-        state.favs  = x.favs  || {};
-        state.sels  = x.sels  || {};
-      }catch(e){}
-    }
-    function saveLS(){
-      localStorage.setItem(LS_KEY, JSON.stringify({
-        likes: state.likes,
-        favs: state.favs,
-        sels: state.sels
-      }));
-    }
+    // Filters
+    let filterLike = false;
+    let filterFav  = false;
+    let filterSel  = false;
 
-    // ---------- UI refs ----------
-    const listEl = qs("#list");
-    const metaEl = qs("#meta");
-    const searchEl = qs("#search");
-    const clearAllBtn = qs("#clearAll");
+    /***********************
+     * 3) DOM
+     ***********************/
+    const qEl = document.getElementById("q");
+    const listEl = document.getElementById("list");
+    const metaEl = document.getElementById("meta");
+    const resetBtn = document.getElementById("resetBtn");
 
-    const filterLikeBtn = qs("#filterLike");
-    const filterFavBtn  = qs("#filterFav");
-    const filterSelBtn  = qs("#filterSel");
+    const hLike = document.getElementById("hLike");
+    const hFav  = document.getElementById("hFav");
+    const hSel  = document.getElementById("hSel");
 
-    const fp = qs("#floatingPlayer");
-    const fpTitle = qs("#fpTitle");
-    const fpStatus = qs("#fpStatus");
-    const audioEl = qs("#player");
-    const prevBtn = qs("#prevBtn");
-    const nextBtn = qs("#nextBtn");
+    const fp = document.getElementById("floatingPlayer");
+    const fpBar = document.getElementById("fpBar");
+    const fpTitle = document.getElementById("fpTitle");
+    const fpMsg = document.getElementById("fpMsg");
+    const audioEl = document.getElementById("player");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
 
-    // IMPORTANT: CORS breakage fix -> NO crossOrigin here.
-    // audioEl.crossOrigin = "anonymous"; // <-- asla koyma
-
-    // Plyr init
+    /***********************
+     * 4) Plyr init
+     ***********************/
     const plyr = new Plyr(audioEl, {
       seekTime: 5,
       controls: [
-        "rewind",
-        "play",
-        "fast-forward",
-        "progress",
-        "current-time",
-        "duration",
-        "mute",
-        "volume",
-        "settings"
+        "rewind","play","fast-forward","progress","current-time","duration","mute","volume","settings"
       ],
       settings: ["speed"],
-      speed: { selected: 1, options: [0.8, 0.9, 1] }
+      speed: { selected: 1, options: [0.8, 0.9, 1, 1.1, 1.2] }
     });
 
-    // ---------- Rendering ----------
-    function passesFilters(item){
-      const id = item.id;
-      if (state.q){
-        const t = (item.title || "").toLowerCase();
-        if (!t.includes(state.q)) return false;
+    // Oynatma hatası mesajı
+    audioEl.addEventListener("error", () => {
+      const err = audioEl.error;
+      let msg = "Oynatma başlatılamadı. Player’daki ▶︎ tuşuna bas.";
+      if (err && err.code) msg += " (Hata kodu: " + err.code + ")";
+      showMsg(msg);
+    });
+
+    plyr.on("play", () => hideMsg());
+
+    function showMsg(t){
+      fpMsg.style.display = "block";
+      fpMsg.textContent = t;
+    }
+    function hideMsg(){
+      fpMsg.style.display = "none";
+      fpMsg.textContent = "";
+    }
+
+    /***********************
+     * 5) URL builder (kritik)
+     ***********************/
+    function toFileUrl(file){
+      // items.json'daki "file" sadece dosya adı (boşluk/özel karakter olabilir)
+      // encodeURI tüm yolu güvenli hale getirir.
+      return encodeURI(ARCHIVE_BASE + file);
+    }
+
+    /***********************
+     * 6) Fetch items.json
+     ***********************/
+    async function loadItems(){
+      try{
+        const res = await fetch(ITEMS_JSON + "?v=" + Date.now(), { cache: "no-store" });
+        if(!res.ok) throw new Error("items.json HTTP " + res.status);
+        const data = await res.json();
+
+        // data: [{title,file}, ...]
+        const cleaned = (Array.isArray(data) ? data : [])
+          .filter(x => x && typeof x.title === "string" && typeof x.file === "string")
+          .filter(x => {
+            const f = x.file.toLowerCase();
+            return f.endsWith(".m4a") || f.endsWith(".mp3");
+          })
+          .map(x => ({
+            id: x.file,                 // stable key
+            title: x.title.trim(),
+            file: x.file,
+            url: toFileUrl(x.file)
+          }));
+
+        // A–Z
+        cleaned.sort((a,b)=> a.title.localeCompare(b.title, "tr", { sensitivity:"base" }));
+
+        allItems = cleaned;
+        applyFiltersAndRender();
+      }catch(e){
+        metaEl.textContent = "Hata: items.json okunamadı. (" + e.message + ")";
       }
-      if (state.filter.like && !state.likes[id]) return false;
-      if (state.filter.fav  && !state.favs[id])  return false;
-      if (state.filter.sel  && !state.sels[id])  return false;
-      return true;
     }
 
-    function recomputeFiltered(){
-      const idx = [];
-      for (let i=0;i<state.items.length;i++){
-        if (passesFilters(state.items[i])) idx.push(i);
+    /***********************
+     * 7) Render
+     ***********************/
+    const heartSvg = () => `
+      <svg viewBox="0 0 24 24">
+        <path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6c-1.7 1.7-1.7 4.4 0 6.1L12 19.5l8.8-8.8c1.7-1.7 1.7-4.4 0-6.1z"></path>
+      </svg>`;
+    const starSvg = () => `
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2l3.1 6.3 7 .9-5.1 5 1.2 7-6.2-3.3-6.2 3.3 1.2-7-5.1-5 7-.9z"></path>
+      </svg>`;
+    const checkSvg = () => `
+      <svg viewBox="0 0 24 24">
+        <path d="M20 6L9 17l-5-5"></path>
+      </svg>`;
+    const dlSvg = () => `
+      <svg viewBox="0 0 24 24">
+        <path d="M12 3v12"></path>
+        <path d="M7 10l5 5 5-5"></path>
+        <path d="M5 21h14"></path>
+      </svg>`;
+
+    function applyFiltersAndRender(){
+      const q = qEl.value.trim().toLowerCase();
+
+      filtered = allItems.filter(it => {
+        if(q && !it.title.toLowerCase().includes(q)) return false;
+        if(filterLike && !likes.has(it.id)) return false;
+        if(filterFav  && !favs.has(it.id))  return false;
+        if(filterSel  && !sels.has(it.id))  return false;
+        return true;
+      });
+
+      // meta
+      metaEl.textContent = `Görünen: ${filtered.length} / Toplam: ${allItems.length}`;
+
+      // header icon states
+      hLike.classList.toggle("on", filterLike);
+      hFav.classList.toggle("on",  filterFav);
+      hSel.classList.toggle("on",  filterSel);
+
+      // keep activeIndex valid
+      if(activeIndex != null){
+        if(activeIndex < 0 || activeIndex >= filtered.length) activeIndex = null;
       }
-      state.filteredIdx = idx;
-    }
 
-    function updateMeta(){
-      metaEl.textContent = `Görünen: ${state.filteredIdx.length} / Toplam: ${state.items.length}`;
-    }
-
-    function iconHeart(filled){
-      return `
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 21s-7-4.5-9.5-9C.5 7.5 3 5 6 5c1.7 0 3.2.8 4 2 0.8-1.2 2.3-2 4-2 3 0 5.5 2.5 3.5 7-2.5 4.5-9.5 9-9.5 9z"></path>
-        </svg>`;
-    }
-    function iconStar(){
-      return `
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 2l3 7 7 .6-5.2 4.5 1.6 7-6.4-3.9-6.4 3.9 1.6-7L2 9.6 9 9z"></path>
-        </svg>`;
-    }
-    function iconCheck(){
-      return `
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20 6L9 17l-5-5"></path>
-        </svg>`;
-    }
-    function iconDownload(){
-      return `
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 3v12"></path>
-          <path d="M7 10l5 5 5-5"></path>
-          <path d="M5 21h14"></path>
-        </svg>`;
-    }
-
-    function render(){
-      recomputeFiltered();
-      updateMeta();
-
-      // header filter button visuals
-      filterLikeBtn.classList.toggle("filterOn", !!state.filter.like);
-      filterFavBtn.classList.toggle("filterOn", !!state.filter.fav);
-      filterSelBtn.classList.toggle("filterOn", !!state.filter.sel);
-
+      // render list
       listEl.innerHTML = "";
-      const frag = document.createDocumentFragment();
-
-      for (const realIndex of state.filteredIdx){
-        const it = state.items[realIndex];
-        const id = it.id;
-
+      filtered.forEach((it, idx) => {
         const row = document.createElement("div");
-        row.className = "row" + (state.activeIndex === realIndex ? " active" : "");
-        row.dataset.index = String(realIndex);
+        row.className = "row" + (activeIndex === idx ? " active" : "");
 
-        const titleCell = document.createElement("div");
-        titleCell.className = "cellTitle";
-        titleCell.innerHTML = `<div class="titleText" title="${escapeHtml(it.title)}">${escapeHtml(it.title)}</div>`;
+        // title
+        const t = document.createElement("div");
+        t.className = "title";
+        const span = document.createElement("span");
+        span.textContent = it.title;
+        t.appendChild(span);
+        t.addEventListener("click", () => playIndex(idx));
 
-        // like cell (count + icon)
-        const likeCell = document.createElement("div");
-        likeCell.className = "cellIcon";
-        const liked = !!state.likes[id];
-        likeCell.innerHTML = `
-          <div class="likeWrap">
-            <div class="likeCount">${liked ? "1" : "0"}</div>
-            <div class="iconBtn ${liked ? "liked":""}" data-act="like" title="Like">
-              ${iconHeart(liked)}
-            </div>
-          </div>
-        `;
+        // like count
+        const lc = document.createElement("div");
+        lc.className = "likecount";
+        lc.textContent = String(likeCounts[it.id] || 0);
 
-        // fav
-        const favCell = document.createElement("div");
-        favCell.className = "cellIcon";
-        const faved = !!state.favs[id];
-        favCell.innerHTML = `
-          <div class="iconBtn ${faved ? "faved":""}" data-act="fav" title="Favori">
-            ${iconStar()}
-          </div>
-        `;
-
-        // select
-        const selCell = document.createElement("div");
-        selCell.className = "cellIcon";
-        const sel = !!state.sels[id];
-        selCell.innerHTML = `
-          <div class="iconBtn ${sel ? "selected":""}" data-act="sel" title="Seç">
-            ${iconCheck()}
-          </div>
-        `;
-
-        // download
-        const dlCell = document.createElement("div");
-        dlCell.className = "cellIcon";
-        const dl = document.createElement("a");
-        dl.className = "iconBtn";
-        dl.title = "İndir";
-        dl.href = safeDownloadUrl(it.url);
-        dl.setAttribute("download", ""); // tarayıcı izin verirse direkt indirir
-        dl.setAttribute("rel", "noopener");
-        dl.innerHTML = iconDownload();
-        // stop row click
-        dl.addEventListener("click", (e)=>{ e.stopPropagation(); });
-        dlCell.appendChild(dl);
-
-        row.appendChild(titleCell);
-        row.appendChild(likeCell);
-        row.appendChild(favCell);
-        row.appendChild(selCell);
-        row.appendChild(dlCell);
-
-        // Row click => play
-        row.addEventListener("click", ()=> playIndex(realIndex));
-
-        // Icon actions
-        row.addEventListener("click", (e)=>{
-          const btn = e.target.closest(".iconBtn");
-          if (!btn) return;
-          const act = btn.dataset.act;
-          if (!act) return;
-          e.stopPropagation();
-
-          if (act === "like"){
-            state.likes[id] = state.likes[id] ? 0 : 1;
-            saveLS();
-            render();
-          } else if (act === "fav"){
-            state.favs[id] = state.favs[id] ? 0 : 1;
-            saveLS();
-            render();
-          } else if (act === "sel"){
-            state.sels[id] = state.sels[id] ? 0 : 1;
-            saveLS();
-            render();
+        // like btn
+        const bLike = document.createElement("button");
+        bLike.className = "iconbtn" + (likes.has(it.id) ? " on" : "");
+        bLike.innerHTML = heartSvg();
+        bLike.title = "Like";
+        bLike.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          toggleSet(likes, LS_LIKES, it.id);
+          // sayacı sadece like ON olduğunda +1 (OFF olunca -1 yapmıyorum; istersen yaparız)
+          if(likes.has(it.id)){
+            likeCounts[it.id] = (likeCounts[it.id] || 0) + 1;
+            saveCounts(likeCounts);
           }
+          applyFiltersAndRender();
         });
 
-        frag.appendChild(row);
-      }
+        // fav btn
+        const bFav = document.createElement("button");
+        bFav.className = "iconbtn" + (favs.has(it.id) ? " on" : "");
+        bFav.innerHTML = starSvg();
+        bFav.title = "Favori";
+        bFav.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          toggleSet(favs, LS_FAVS, it.id);
+          applyFiltersAndRender();
+        });
 
-      listEl.appendChild(frag);
+        // sel btn
+        const bSel = document.createElement("button");
+        bSel.className = "iconbtn" + (sels.has(it.id) ? " on" : "");
+        bSel.innerHTML = checkSvg();
+        bSel.title = "Seç";
+        bSel.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          toggleSet(sels, LS_SELS, it.id);
+          applyFiltersAndRender();
+        });
 
-      // If active item filtered out, clear highlight but keep audio
-      if (state.activeIndex != null){
-        const stillVisible = state.filteredIdx.includes(state.activeIndex);
-        if (!stillVisible){
-          qsa(".row.active").forEach(r=>r.classList.remove("active"));
-        }
-      }
+        // download btn
+        const bDl = document.createElement("button");
+        bDl.className = "iconbtn dl";
+        bDl.innerHTML = dlSvg();
+        bDl.title = "İndir";
+        bDl.addEventListener("click", async (ev) => {
+          ev.stopPropagation();
+          await downloadFile(it.url, it.file);
+        });
+
+        row.appendChild(t);
+        row.appendChild(lc);
+        row.appendChild(bLike);
+        row.appendChild(bFav);
+        row.appendChild(bSel);
+        row.appendChild(bDl);
+
+        listEl.appendChild(row);
+      });
     }
 
-    function escapeHtml(s){
-      return String(s || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#39;");
+    function toggleSet(setObj, key, id){
+      if(setObj.has(id)) setObj.delete(id);
+      else setObj.add(id);
+      saveSet(key, setObj);
     }
 
-    // ---------- Playback ----------
-    function setStatus(msg, linkUrl){
-      if (!msg){
-        fpStatus.textContent = "";
-        return;
-      }
-      if (linkUrl){
-        fpStatus.innerHTML = `${escapeHtml(msg)} <a href="${linkUrl}" target="_blank" rel="noopener">dosyayı yeni sekmede aç</a>`;
-      } else {
-        fpStatus.textContent = msg;
-      }
-    }
+    /***********************
+     * 8) Playback + prev/next
+     ***********************/
+    async function playIndex(idx){
+      if(idx < 0 || idx >= filtered.length) return;
+      activeIndex = idx;
+      const it = filtered[idx];
 
-    function playIndex(realIndex){
-      const it = state.items[realIndex];
-      if (!it) return;
+      // highlight
+      applyFiltersAndRender();
 
-      state.activeIndex = realIndex;
       fpTitle.textContent = it.title;
+      hideMsg();
 
-      // IMPORTANT: do not use crossOrigin -> avoids Archive.org CORS playback failure
-      plyr.source = {
-        type: "audio",
-        title: it.title,
-        sources: [
-          { src: it.url, type: (it.url.toLowerCase().endsWith(".mp3") ? "audio/mpeg" : "audio/mp4") }
-        ]
-      };
+      // set source (kritik)
+      audioEl.src = it.url;
       audioEl.load();
 
-      render();
-
-      // Try to autoplay; if browser blocks, show hint.
-      setStatus("");
-      const p = audioEl.play();
-      if (p && typeof p.then === "function"){
-        p.then(()=>setStatus("")).catch(()=>{
-          setStatus("Oynatma başlatılamadı. Player’daki ▶ tuşuna bas.", it.url);
-        });
+      // Autoplay bazen engellenebilir — o durumda kullanıcı play'e basar.
+      try{
+        await audioEl.play();
+      }catch(e){
+        // iOS/Chrome autoplay policy
+        showMsg("Oynatma başlatılamadı. Player’daki ▶︎ tuşuna bas.");
       }
     }
 
-    function playPrevNext(dir){
-      // navigate within filtered list if possible, else within all
-      const pool = state.filteredIdx.length ? state.filteredIdx : state.items.map((_,i)=>i);
-      if (!pool.length) return;
-
-      const current = state.activeIndex;
-      let pos = pool.indexOf(current);
-      if (pos === -1) pos = 0;
-      const nextPos = (pos + dir + pool.length) % pool.length;
-      playIndex(pool[nextPos]);
+    function playPrev(){
+      if(!filtered.length) return;
+      if(activeIndex == null) return playIndex(0);
+      playIndex((activeIndex - 1 + filtered.length) % filtered.length);
+    }
+    function playNext(){
+      if(!filtered.length) return;
+      if(activeIndex == null) return playIndex(0);
+      playIndex((activeIndex + 1) % filtered.length);
     }
 
-    prevBtn.addEventListener("click", ()=>playPrevNext(-1));
-    nextBtn.addEventListener("click", ()=>playPrevNext(1));
+    prevBtn.addEventListener("click", (e)=>{ e.stopPropagation(); playPrev(); });
+    nextBtn.addEventListener("click", (e)=>{ e.stopPropagation(); playNext(); });
 
-    // Space = play/pause (input focus dışında)
-    document.addEventListener("keydown", (e)=>{
-      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-      if (e.code === "Space"){
+    audioEl.addEventListener("ended", () => {
+      // sıradaki
+      playNext();
+    });
+
+    /***********************
+     * 9) Filters (header icons) + reset
+     ***********************/
+    hLike.addEventListener("click", () => { filterLike = !filterLike; applyFiltersAndRender(); });
+    hFav .addEventListener("click", () => { filterFav  = !filterFav;  applyFiltersAndRender(); });
+    hSel .addEventListener("click", () => { filterSel  = !filterSel;  applyFiltersAndRender(); });
+
+    resetBtn.addEventListener("click", () => {
+      filterLike = filterFav = filterSel = false;
+      qEl.value = "";
+      applyFiltersAndRender();
+    });
+
+    qEl.addEventListener("input", applyFiltersAndRender);
+
+    /***********************
+     * 10) Keyboard
+     ***********************/
+    document.addEventListener("keydown", (e) => {
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+      const inInput = tag === "input" || tag === "textarea";
+
+      if(inInput) return;
+
+      if(e.code === "Space"){
         e.preventDefault();
-        if (audioEl.paused) audioEl.play().catch(()=>{});
-        else audioEl.pause();
+        if(audioEl.src){
+          if(audioEl.paused) audioEl.play().catch(()=>{});
+          else audioEl.pause();
+        }
+      }
+      if(e.key === "ArrowDown"){
+        e.preventDefault();
+        if(!filtered.length) return;
+        if(activeIndex == null) playIndex(0);
+        else playIndex(Math.min(filtered.length-1, activeIndex+1));
+      }
+      if(e.key === "ArrowUp"){
+        e.preventDefault();
+        if(!filtered.length) return;
+        if(activeIndex == null) playIndex(0);
+        else playIndex(Math.max(0, activeIndex-1));
+      }
+      if(e.key === "ArrowLeft"){
+        // -5s
+        if(!isNaN(audioEl.currentTime)) audioEl.currentTime = Math.max(0, audioEl.currentTime - 5);
+      }
+      if(e.key === "ArrowRight"){
+        // +5s
+        if(!isNaN(audioEl.currentTime)) audioEl.currentTime = Math.min(audioEl.duration || Infinity, audioEl.currentTime + 5);
       }
     });
 
-    // ---------- Filters ----------
-    function clearAll(){
-      state.filter.like = false;
-      state.filter.fav  = false;
-      state.filter.sel  = false;
-      state.q = "";
-      searchEl.value = "";
-      render();
-    }
+    /***********************
+     * 11) Draggable player
+     ***********************/
+    (function makeDraggable(){
+      let dragging = false;
+      let startX=0, startY=0, startLeft=0, startTop=0;
 
-    clearAllBtn.addEventListener("click", clearAll);
-
-    filterLikeBtn.addEventListener("click", ()=>{
-      state.filter.like = !state.filter.like;
-      render();
-    });
-    filterFavBtn.addEventListener("click", ()=>{
-      state.filter.fav = !state.filter.fav;
-      render();
-    });
-    filterSelBtn.addEventListener("click", ()=>{
-      state.filter.sel = !state.filter.sel;
-      render();
-    });
-
-    searchEl.addEventListener("input", ()=>{
-      state.q = searchEl.value.trim().toLowerCase();
-      render();
-    });
-
-    // ---------- Draggable floating player ----------
-    (function draggable(){
-      const bar = qs("#fpDragBar");
-      let startX=0, startY=0, startLeft=0, startTop=0, dragging=false;
-
-      function pointerDown(e){
-        // allow dragging from top bar only
+      // initialize position (bottom-left)
+      // We'll switch to top/left positioning after first drag.
+      function onDown(ev){
         dragging = true;
-        fp.setPointerCapture?.(e.pointerId);
+        fpBar.style.cursor = "grabbing";
+
         const rect = fp.getBoundingClientRect();
-        startX = e.clientX;
-        startY = e.clientY;
-        startLeft = rect.left;
-        startTop = rect.top;
-      }
-
-      function pointerMove(e){
-        if (!dragging) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-
-        const newLeft = clamp(startLeft + dx, 8, window.innerWidth - fp.offsetWidth - 8);
-        const newTop  = clamp(startTop + dy, 8, window.innerHeight - fp.offsetHeight - 8);
-
-        fp.style.left = newLeft + "px";
-        fp.style.top  = newTop + "px";
+        // lock to current top/left
+        fp.style.left = rect.left + "px";
+        fp.style.top  = rect.top + "px";
         fp.style.bottom = "auto";
+
+        startLeft = rect.left;
+        startTop  = rect.top;
+
+        const p = getPoint(ev);
+        startX = p.x;
+        startY = p.y;
+
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onUp);
+        window.addEventListener("touchmove", onMove, {passive:false});
+        window.addEventListener("touchend", onUp);
       }
 
-      function pointerUp(){
+      function onMove(ev){
+        if(!dragging) return;
+        if(ev.cancelable) ev.preventDefault();
+        const p = getPoint(ev);
+        const dx = p.x - startX;
+        const dy = p.y - startY;
+
+        const nx = startLeft + dx;
+        const ny = startTop + dy;
+
+        const maxX = window.innerWidth - fp.offsetWidth - 10;
+        const maxY = window.innerHeight - fp.offsetHeight - 10;
+
+        fp.style.left = Math.max(10, Math.min(maxX, nx)) + "px";
+        fp.style.top  = Math.max(10, Math.min(maxY, ny)) + "px";
+      }
+
+      function onUp(){
         dragging = false;
+        fpBar.style.cursor = "grab";
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+        window.removeEventListener("touchmove", onMove);
+        window.removeEventListener("touchend", onUp);
       }
 
-      bar.addEventListener("pointerdown", pointerDown);
-      window.addEventListener("pointermove", pointerMove);
-      window.addEventListener("pointerup", pointerUp);
+      function getPoint(ev){
+        if(ev.touches && ev.touches[0]) return {x: ev.touches[0].clientX, y: ev.touches[0].clientY};
+        return {x: ev.clientX, y: ev.clientY};
+      }
+
+      fpBar.addEventListener("mousedown", onDown);
+      fpBar.addEventListener("touchstart", onDown, {passive:true});
     })();
 
-    // ---------- Load items.json ----------
-    async function loadItems(){
-      loadLS();
-
-      // cache-bust for GitHub Pages
-      const url = `items.json?ts=${Date.now()}`;
-      const r = await fetch(url, { cache: "no-store" });
-      if (!r.ok) throw new Error("items.json okunamadı");
-      const raw = await r.json();
-
-      const items = normalizeItems(raw);
-
-      // If items.json contains other formats, you can extend normalizeItems.
-      state.items = items;
-
-      if (!state.items.length){
-        metaEl.textContent = "items.json geldi ama uygun .m4a/.mp3 bulunamadı.";
-      } else {
-        render();
+    /***********************
+     * 12) Download (try blob -> fallback)
+     ***********************/
+    async function downloadFile(url, filename){
+      try{
+        const r = await fetch(url, { mode:"cors" });
+        if(!r.ok) throw new Error("HTTP " + r.status);
+        const blob = await r.blob();
+        const objUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = objUrl;
+        a.download = filename || "audio";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(()=>URL.revokeObjectURL(objUrl), 1500);
+      }catch(e){
+        // fallback: open
+        window.open(url, "_blank", "noopener,noreferrer");
       }
     }
 
-    loadItems().catch((e)=>{
-      console.error(e);
-      metaEl.textContent = "Liste yüklenemedi. items.json kontrol et.";
-      setStatus("Liste yüklenemedi (items.json).", "");
-    });
+    /***********************
+     * 13) Start
+     ***********************/
+    loadItems();
   </script>
 </body>
 </html>
