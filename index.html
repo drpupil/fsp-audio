@@ -5,22 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Alfabetik FSP A–Z</title>
 
-  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <style>
     :root{
-      --bg:#ffffff;
+      --bg:#fff;
       --text:#111;
       --muted:#666;
       --line:#eee;
-      --chip:#f6f6f6;
-      --chipBorder:#e5e5e5;
+      --soft:#f6f6f6;
+      --softBorder:#e5e5e5;
       --active:#e5f2ff;
-      --btn:#ffffff;
-      --btnBorder:#dcdcdc;
       --shadow: 0 10px 30px rgba(0,0,0,.12);
       --radius: 12px;
+      --blue:#2563eb;
+      --amber:#f59e0b;
+      --rose:#e11d48;
     }
 
     body{
@@ -29,16 +29,15 @@
       max-width: 1100px;
       color: var(--text);
       background: var(--bg);
-      font-weight: 400; /* bold yok */
+      font-weight: 400;
     }
 
     h1{
       font-size: 1.5rem;
       margin: 0 0 12px 0;
-      font-weight: 600; /* başlık hariç */
+      font-weight: 600;
     }
 
-    /* Controls row */
     .topbar{
       display:flex;
       flex-wrap: wrap;
@@ -57,42 +56,75 @@
       font-weight: 400;
     }
 
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
+    .chipGroup{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .chipBtn{
       padding: 9px 12px;
-      border: 1px solid var(--chipBorder);
-      background: var(--chip);
-      border-radius: 10px;
+      border:1px solid var(--softBorder);
+      background: var(--soft);
+      border-radius:10px;
       cursor:pointer;
       user-select:none;
-      font-size: .95rem;
-      font-weight: 500;
-      white-space: nowrap;
+      font-weight:600;
+      font-size:.95rem;
+      white-space:nowrap;
     }
-    .chip:active{ transform: translateY(1px); }
+    .chipBtn:active{ transform: translateY(1px); }
+    .chipBtn.active{
+      border-color: var(--blue);
+      background: var(--active);
+    }
 
-    .chip select{
-      border: none;
-      background: transparent;
-      font-size: .95rem;
-      outline:none;
+    .ghostBtn{
+      padding: 9px 12px;
+      border:1px solid var(--softBorder);
+      background:#fff;
+      border-radius:10px;
       cursor:pointer;
-      font-weight: 500;
+      user-select:none;
+      font-weight:600;
+      font-size:.95rem;
+      white-space:nowrap;
     }
+    .ghostBtn:active{ transform: translateY(1px); }
 
-    #meta{
-      margin: 8px 0 10px 2px;
+    #statusTop{
       font-size: .95rem;
       color: var(--muted);
+      margin: 6px 0 10px 2px;
       font-weight: 400;
     }
 
+    /* Header (kolon başlığı + sort butonu) */
+    #listHeader{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      padding: 10px 6px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .92rem;
+      user-select:none;
+      gap: 10px;
+    }
+    #listHeader .hLeft{ flex:1; min-width:0; }
+    #listHeader .hRight{ display:flex; align-items:center; gap:10px; }
+
+    #sortBtn{
+      width: 44px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #dcdcdc;
+      background: #fff;
+      cursor:pointer;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+    #sortBtn:active{ transform: translateY(1px); }
+
     /* List */
     #list{
-      border-top: 1px solid var(--line);
-      margin-bottom: 110px; /* floating player yer aç */
+      margin-bottom: 120px; /* floating player için */
     }
 
     .row{
@@ -104,7 +136,7 @@
       border-bottom: 1px solid #f2f2f2;
       cursor: pointer;
       font-size: 1.02rem;
-      font-weight: 400; /* bold yok */
+      font-weight: 400;
     }
     .row:hover{ background:#fafafa; }
     .row.active{ background: var(--active); }
@@ -122,7 +154,7 @@
       overflow:hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-weight: 400; /* bold yok */
+      font-weight: 400;
     }
 
     .right{
@@ -138,7 +170,7 @@
       min-width: 56px;
       text-align:right;
       font-variant-numeric: tabular-nums;
-      font-weight: 400; /* bold yok */
+      font-weight: 400;
     }
 
     .actions{
@@ -151,8 +183,8 @@
       width: 34px;
       height: 34px;
       border-radius: 999px;
-      border: 1px solid var(--btnBorder);
-      background: var(--btn);
+      border: 2px solid #dcdcdc;
+      background: #fff;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -162,84 +194,38 @@
     }
     .iconBtn:active{ transform: translateY(1px); }
 
-    /* Selected */
-    .iconBtn.select{
-      border-width: 2px;
-    }
-    .iconBtn.select::before{
-      content:"✓";
-      font-size: 16px;
-      color:#9aa0a6;
-      transform: translateY(-0.5px);
-    }
-    .iconBtn.select.active{
-      border-color:#2563eb;
-      background:#2563eb;
-    }
-    .iconBtn.select.active::before{
-      color:#fff;
-    }
-
-    /* Favorite */
-    .iconBtn.star{
-      border-width: 2px;
-    }
-    .iconBtn.star::before{
-      content:"☆";
-      font-size: 16px;
-      color:#777;
-      transform: translateY(-0.5px);
-    }
-    .iconBtn.star.active{
-      border-color:#f59e0b;
-      background:#fff7ed;
-    }
-    .iconBtn.star.active::before{
-      content:"★";
-      color:#f59e0b;
-    }
-
     /* Like + counter */
     .likeCount{
       font-size: 0.85rem;
       color:#444;
-      min-width: 22px;
+      min-width: 18px;
       text-align:right;
       font-variant-numeric: tabular-nums;
       font-weight: 400;
     }
-    .iconBtn.like{
-      border-width: 2px;
-    }
-    .iconBtn.like::before{
-      content:"♡";
-      font-size: 15px;
-      color:#777;
-      transform: translateY(-0.5px);
-    }
-    .iconBtn.like.active{
-      border-color:#f43f5e;
-      background:#fff0f3;
-    }
-    .iconBtn.like.active::before{
-      content:"♥";
-      color:#e11d48;
-    }
+    .iconBtn.like::before{ content:"♡"; font-size: 15px; color:#777; transform: translateY(-0.5px); }
+    .iconBtn.like.active{ border-color: var(--rose); background:#fff0f3; }
+    .iconBtn.like.active::before{ content:"♥"; color: var(--rose); }
+
+    /* Favorite */
+    .iconBtn.star::before{ content:"☆"; font-size: 16px; color:#777; transform: translateY(-0.5px); }
+    .iconBtn.star.active{ border-color: var(--amber); background:#fff7ed; }
+    .iconBtn.star.active::before{ content:"★"; color: var(--amber); }
+
+    /* Selected (isteğe bağlı ama belirgin) */
+    .iconBtn.select::before{ content:"✓"; font-size: 16px; color:#9aa0a6; transform: translateY(-0.5px); }
+    .iconBtn.select.active{ border-color: var(--blue); background: var(--blue); }
+    .iconBtn.select.active::before{ color:#fff; }
 
     /* Download */
-    .iconBtn.dl::before{
-      content:"⤓";
-      font-size: 16px;
-      color:#111;
-      transform: translateY(-0.5px);
-    }
+    .iconBtn.dl::before{ content:"⤓"; font-size: 16px; color:#111; transform: translateY(-0.5px); }
 
     /* Floating player */
     #floatingPlayer{
       position: fixed;
       left: 18px;
       bottom: 18px;
-      width: min(520px, calc(100vw - 36px));
+      width: min(560px, calc(100vw - 36px));
       background: #fff;
       border: 1px solid #e6e6e6;
       border-radius: var(--radius);
@@ -267,7 +253,7 @@
       overflow:hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-weight: 500;
+      font-weight: 600;
       flex: 1;
       min-width:0;
     }
@@ -278,25 +264,21 @@
       white-space:nowrap;
     }
 
-    #fpBody{
-      padding: 10px 12px 12px 12px;
-    }
+    #fpBody{ padding: 10px 12px 12px 12px; }
 
-    #status{
+    #playerStatus{
       font-size: .9rem;
       color:#666;
       margin: 0 0 8px 2px;
       font-weight: 400;
     }
 
-    /* Plyr */
-    .plyr{
-      border-radius: 10px;
-    }
+    .plyr{ border-radius: 10px; }
 
     @media (max-width: 520px){
       .badge{ min-width: 48px; }
       .iconBtn{ width: 32px; height: 32px; }
+      #sortBtn{ width: 42px; }
     }
   </style>
 </head>
@@ -307,29 +289,25 @@
   <div class="topbar">
     <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
 
-    <div class="chip" title="Filtre">
-      <span>Filtre:</span>
-      <select id="filterMode">
-        <option value="all">Hepsi</option>
-        <option value="fav">Sadece favoriler</option>
-        <option value="liked">Sadece liked</option>
-        <option value="smart">Favori + Liked (akıllı)</option>
-      </select>
+    <div class="chipGroup" id="filterBtns" aria-label="Filtre">
+      <button class="chipBtn active" data-filter="all">Hepsi</button>
+      <button class="chipBtn" data-filter="fav">Favoriler</button>
+      <button class="chipBtn" data-filter="liked">Liked</button>
+      <button class="chipBtn" data-filter="smart">Fav+Liked</button>
     </div>
 
-    <div class="chip" title="Sıralama">
-      <span>Sırala:</span>
-      <select id="sortMode">
-        <option value="az">A → Z</option>
-        <option value="za">Z → A</option>
-        <option value="likes">En çok beğenilen</option>
-      </select>
-    </div>
-
-    <div class="chip" id="clearSelectionBtn" title="Seçimi temizle">Seçimi temizle</div>
+    <button class="ghostBtn" id="clearSelectionBtn" title="Seçimi temizle">Seçimi temizle</button>
   </div>
 
-  <div id="meta">Yükleniyor…</div>
+  <div id="statusTop"></div>
+
+  <div id="listHeader">
+    <div class="hLeft">Kayıt</div>
+    <div class="hRight">
+      <span style="font-variant-numeric: tabular-nums;">Süre</span>
+      <button id="sortBtn" title="Sıralama değiştir">A→Z</button>
+    </div>
+  </div>
 
   <div id="list"></div>
 
@@ -340,42 +318,44 @@
       <div id="fpHint">Sürükle</div>
     </div>
     <div id="fpBody">
-      <div id="status"></div>
+      <div id="playerStatus"></div>
       <audio id="player" class="js-player" controls preload="auto"></audio>
     </div>
   </div>
 
-  <!-- Plyr JS -->
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
   <script>
-    // === AYAR: Archive.org koleksiyon URL'i (download klasörü) ===
+    // === Archive.org download base ===
     const BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
 
     // === LocalStorage keys ===
-    const LS_FAVS = "favs_v1";        // [file]
-    const LS_SELECTED = "selected_v1";// [file]
-    const LS_LIKES = "likes_count_v1";// { file: number }
+    const LS_FAVS = "favs_v2";
+    const LS_SELECTED = "selected_v2";
+    const LS_LIKES = "likes_count_v2";
 
     // === State ===
-    let items = [];         // loaded from items.json
+    let items = [];                 // {title,file,info}
     let favs = new Set();
     let selected = new Set();
-    let likesCount = {};    // map: file -> number
+    let likesCount = {};            // { file: number }
     let activeFile = null;
+
+    let filterMode = "all";         // all | fav | liked | smart
+    let sortMode = "az";            // az | za | likes
 
     // === Elements ===
     const listEl = document.getElementById("list");
     const searchEl = document.getElementById("search");
-    const metaEl = document.getElementById("meta");
-    const filterEl = document.getElementById("filterMode");
-    const sortEl = document.getElementById("sortMode");
-    const clearSelectionBtn = document.getElementById("clearSelectionBtn");
+    const statusTopEl = document.getElementById("statusTop");
 
     const fp = document.getElementById("floatingPlayer");
     const fpHeader = document.getElementById("fpHeader");
     const fpTitle = document.getElementById("fpTitle");
-    const statusEl = document.getElementById("status");
+    const playerStatusEl = document.getElementById("playerStatus");
+
+    const clearSelectionBtn = document.getElementById("clearSelectionBtn");
+    const sortBtn = document.getElementById("sortBtn");
 
     const audioEl = document.getElementById("player");
 
@@ -383,9 +363,9 @@
     const plyr = new Plyr(audioEl, {
       seekTime: 5,
       controls: [
-        "rewind",       // -5 sn
+        "rewind",
         "play",
-        "fast-forward", // +5 sn
+        "fast-forward",
         "progress",
         "current-time",
         "duration",
@@ -405,41 +385,29 @@
     }
 
     function fileUrl(file){
-      // dosya adlarında boşluk/özel karakter olabiliyor -> encode
       const encoded = encodeURIComponent(file).replace(/%2F/g, "/");
       return BASE + encoded;
     }
 
     function downloadUrl(file){
-      // Bazı tarayıcılar cross-origin "download" attribute'u yok sayar.
-      // Yine de ?download=1 çoğu yerde indirmeyi tetikleyebiliyor.
       return fileUrl(file) + "?download=1";
     }
 
-    function loadFavs(){
+    function loadSet(key){
       try{
-        const arr = JSON.parse(localStorage.getItem(LS_FAVS) || "[]");
-        favs = new Set(Array.isArray(arr) ? arr : []);
-      } catch { favs = new Set(); }
+        const arr = JSON.parse(localStorage.getItem(key) || "[]");
+        return new Set(Array.isArray(arr) ? arr : []);
+      } catch { return new Set(); }
     }
-    function saveFavs(){
-      localStorage.setItem(LS_FAVS, JSON.stringify([...favs]));
-    }
-
-    function loadSelected(){
-      try{
-        const arr = JSON.parse(localStorage.getItem(LS_SELECTED) || "[]");
-        selected = new Set(Array.isArray(arr) ? arr : []);
-      } catch { selected = new Set(); }
-    }
-    function saveSelected(){
-      localStorage.setItem(LS_SELECTED, JSON.stringify([...selected]));
+    function saveSet(key, set){
+      localStorage.setItem(key, JSON.stringify([...set]));
     }
 
     function loadLikes(){
       try{
-        likesCount = JSON.parse(localStorage.getItem(LS_LIKES) || "{}") || {};
-      } catch { likesCount = {}; }
+        const obj = JSON.parse(localStorage.getItem(LS_LIKES) || "{}");
+        return (obj && typeof obj === "object") ? obj : {};
+      } catch { return {}; }
     }
     function saveLikes(){
       localStorage.setItem(LS_LIKES, JSON.stringify(likesCount));
@@ -448,28 +416,34 @@
       return Number(likesCount[file] || 0);
     }
 
-    function updateMetaLine(viewCount){
-      metaEl.textContent =
-        `Toplam: ${items.length}  •  Görünen: ${viewCount}  •  Favori: ${favs.size}  •  Seçili: ${selected.size}`;
+    function setTopStatus(msg){
+      statusTopEl.textContent = msg || "";
+    }
+    function setPlayerStatus(msg){
+      playerStatusEl.textContent = msg || "";
+    }
+
+    function updateSortButton(){
+      if (sortMode === "az") sortBtn.textContent = "A→Z";
+      else if (sortMode === "za") sortBtn.textContent = "Z→A";
+      else sortBtn.textContent = "♥";
     }
 
     function buildView(){
       const q = searchEl.value.trim().toLowerCase();
-      const mode = filterEl.value; // all / fav / liked / smart
-      const sortMode = sortEl.value; // az / za / likes
 
       // filter
       let view = items.filter(it => {
-        const matchQ = !q || (it.title || "").toLowerCase().includes(q);
-        if (!matchQ) return false;
+        const title = (it.title || "").toLowerCase();
+        if (q && !title.includes(q)) return false;
 
         const isFav = favs.has(it.file);
         const likeN = getLikeCount(it.file);
         const isLiked = likeN > 0;
 
-        if (mode === "fav") return isFav;
-        if (mode === "liked") return isLiked;
-        if (mode === "smart") return (isFav || isLiked);
+        if (filterMode === "fav") return isFav;
+        if (filterMode === "liked") return isLiked;
+        if (filterMode === "smart") return (isFav || isLiked);
         return true;
       });
 
@@ -478,7 +452,7 @@
         view.sort((a,b) => {
           const la = getLikeCount(a.file);
           const lb = getLikeCount(b.file);
-          if (lb !== la) return lb - la; // desc
+          if (lb !== la) return lb - la;
           return String(a.title).localeCompare(String(b.title), "tr");
         });
       } else if (sortMode === "za"){
@@ -493,6 +467,11 @@
     function renderList(){
       const view = buildView();
       listEl.innerHTML = "";
+
+      // üstte sadece küçük bilgi
+      const shown = view.length;
+      const likesShown = view.reduce((acc, it) => acc + (getLikeCount(it.file) > 0 ? 1 : 0), 0);
+      setTopStatus(`Görünen: ${shown} • Favori: ${favs.size} • Liked: ${likesShown}`);
 
       for (const it of view){
         const isActive = (it.file === activeFile);
@@ -529,32 +508,22 @@
 
         listEl.appendChild(row);
       }
-
-      updateMetaLine(view.length);
-    }
-
-    function setStatus(msg){
-      statusEl.textContent = msg || "";
     }
 
     async function playFile(file, title){
       activeFile = file;
       fpTitle.textContent = title || "Seçili kayıt";
-      setStatus("Yükleniyor…");
+      setPlayerStatus("Yükleniyor…");
 
       audioEl.src = fileUrl(file);
 
-      // Plyr bazen eski state yüzünden duruyor; load + play zorlayalım
-      try{
-        audioEl.load();
-      } catch {}
+      try { audioEl.load(); } catch {}
 
       try{
         await plyr.play();
-        setStatus("");
-      } catch (e){
-        // Autoplay / gesture / network vs.
-        setStatus("Oynatma başlatılamadı. Play tuşuna bas.");
+        setPlayerStatus("");
+      } catch {
+        setPlayerStatus("Oynatma başlatılamadı. Play tuşuna bas.");
       }
 
       renderList();
@@ -562,9 +531,6 @@
 
     function triggerDownload(file){
       const url = downloadUrl(file);
-
-      // Cross-origin: download attribute bazı tarayıcılarda yok sayılabilir.
-      // Yine de çoğu durumda indirir; olmazsa yeni sekme açılır.
       const a = document.createElement("a");
       a.href = url;
       a.target = "_blank";
@@ -574,6 +540,76 @@
       a.click();
       a.remove();
     }
+
+    // === Next/Prev (filtre + sıralı view'a göre) ===
+    function getCurrentView(){ return buildView(); }
+
+    function playByIndexInView(view, idx){
+      if (idx < 0 || idx >= view.length) return;
+      const it = view[idx];
+      playFile(it.file, it.title);
+    }
+
+    function playNext(){
+      if (!activeFile) return;
+      const view = getCurrentView();
+      const i = view.findIndex(x => x.file === activeFile);
+      if (i === -1) return;
+      playByIndexInView(view, (i + 1) % view.length);
+    }
+
+    function playPrev(){
+      if (!activeFile) return;
+      const view = getCurrentView();
+      const i = view.findIndex(x => x.file === activeFile);
+      if (i === -1) return;
+      playByIndexInView(view, (i - 1 + view.length) % view.length);
+    }
+
+    // Parça bitince otomatik sonraki
+    audioEl.addEventListener("ended", () => playNext());
+
+    // Plyr barına Prev/Next butonlarını ekle
+    (function injectPrevNextButtons(){
+      const tryInject = () => {
+        const controls = document.querySelector(".plyr__controls");
+        if (!controls) return false;
+        if (controls.querySelector("[data-custom='prev']")) return true;
+
+        const makeBtn = (label, title, onClick) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "plyr__control";
+          b.setAttribute("data-custom", label);
+          b.setAttribute("aria-label", title);
+          b.title = title;
+          b.innerHTML = (label === "prev") ? "⏮" : "⏭";
+          b.addEventListener("click", (e) => {
+            e.preventDefault();
+            onClick();
+          });
+          return b;
+        };
+
+        const prevBtn = makeBtn("prev", "Önceki", playPrev);
+        const nextBtn = makeBtn("next", "Sonraki", playNext);
+
+        const playBtn = controls.querySelector("[data-plyr='play']");
+        if (playBtn){
+          controls.insertBefore(prevBtn, playBtn);
+          controls.insertBefore(nextBtn, playBtn.nextSibling);
+        } else {
+          controls.prepend(prevBtn, nextBtn);
+        }
+        return true;
+      };
+
+      const t = setInterval(() => {
+        if (tryInject()) clearInterval(t);
+      }, 200);
+
+      setTimeout(() => clearInterval(t), 5000);
+    })();
 
     // === Events ===
     listEl.addEventListener("click", (e) => {
@@ -585,9 +621,7 @@
       const item = items.find(x => x.file === file);
       if (!item) return;
 
-      // Play (title click)
       if (!btn){
-        // satırın boş yerinden tık -> play
         playFile(item.file, item.title);
         return;
       }
@@ -602,7 +636,7 @@
       if (action === "fav"){
         if (favs.has(file)) favs.delete(file);
         else favs.add(file);
-        saveFavs();
+        saveSet(LS_FAVS, favs);
         renderList();
         return;
       }
@@ -610,14 +644,14 @@
       if (action === "select"){
         if (selected.has(file)) selected.delete(file);
         else selected.add(file);
-        saveSelected();
+        saveSet(LS_SELECTED, selected);
         renderList();
         return;
       }
 
       if (action === "like"){
-        const cur = getLikeCount(file);
-        likesCount[file] = (cur > 0) ? 0 : 1; // toggle (istersen +1 yaparız)
+        // Toggle (0/1). İstersen +1 yaparız.
+        likesCount[file] = (getLikeCount(file) > 0) ? 0 : 1;
         saveLikes();
         renderList();
         return;
@@ -630,12 +664,28 @@
     });
 
     searchEl.addEventListener("input", renderList);
-    filterEl.addEventListener("change", renderList);
-    sortEl.addEventListener("change", renderList);
+
+    document.getElementById("filterBtns").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-filter]");
+      if (!b) return;
+
+      filterMode = b.dataset.filter;
+
+      document.querySelectorAll("#filterBtns .chipBtn").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+
+      renderList();
+    });
 
     clearSelectionBtn.addEventListener("click", () => {
       selected.clear();
-      saveSelected();
+      saveSet(LS_SELECTED, selected);
+      renderList();
+    });
+
+    sortBtn.addEventListener("click", () => {
+      sortMode = (sortMode === "az") ? "za" : (sortMode === "za") ? "likes" : "az";
+      updateSortButton();
       renderList();
     });
 
@@ -696,9 +746,12 @@
 
     // === Init ===
     async function loadItems(){
-      loadFavs();
-      loadSelected();
-      loadLikes();
+      favs = loadSet(LS_FAVS);
+      selected = loadSet(LS_SELECTED);
+      likesCount = loadLikes();
+
+      updateSortButton();
+      setTopStatus("Yükleniyor…");
 
       try{
         const res = await fetch("./items.json", { cache: "no-store" });
@@ -706,7 +759,6 @@
         const data = await res.json();
         if (!Array.isArray(data)) throw new Error("items.json formatı yanlış");
 
-        // beklenen format: [{title,file,info}, ...]
         items = data
           .filter(x => x && x.file)
           .map(x => ({
@@ -716,11 +768,12 @@
           }));
 
         renderList();
-        setStatus("");
+        setTopStatus("");
+        setPlayerStatus("");
       } catch (err){
         console.error(err);
-        metaEl.textContent = "Liste yüklenemedi. items.json kontrol et.";
-        setStatus("Liste yüklenemedi.");
+        setTopStatus("Liste yüklenemedi. items.json kontrol et.");
+        setPlayerStatus("Liste yüklenemedi.");
       }
     }
 
