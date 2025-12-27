@@ -1,209 +1,164 @@
 <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Alfabetik FSP A–Z</title>
 
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
 <style>
+:root{
+  --bg:#fff; --text:#111; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#2563eb; --rowHover:#eff6ff; --rowActive:#dbeafe;
+  --shadow:0 8px 30px rgba(0,0,0,.12); --radius:16px;
+}
+*{box-sizing:border-box}
 body{
-  margin:0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  background:#fff;
-  color:#111;
-  font-weight:400;
+  margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:var(--bg);color:var(--text);font-weight:400;
+}
+.wrap{max-width:1200px;margin:24px auto 120px;padding:0 16px}
+h1{font-size:clamp(36px,5vw,64px);margin:4px 0 16px;font-weight:700}
+.topbar{display:flex;gap:12px;flex-wrap:wrap}
+.search{
+  flex:1;padding:14px 16px;font-size:18px;
+  border:1px solid var(--line);border-radius:16px
+}
+.btn{padding:12px 16px;border:1px solid #93c5fd;border-radius:16px}
+.meta{margin:8px 0;color:var(--muted);font-size:18px}
+
+/* GRID: 6 kolon */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 56px 56px 56px 56px 56px;
+  gap:10px;align-items:center
 }
 
-.container{
-  max-width:1100px;
-  margin:24px auto 140px;
-  padding:0 16px;
-}
+.header{border-bottom:1px solid var(--line);padding:12px 8px;color:var(--muted)}
+.row{padding:10px 8px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:hover{background:var(--rowHover)}
+.row.active{background:var(--rowActive)}
+.title{font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-h1{
-  font-size:56px;
-  margin:0 0 16px;
+.iconBtn{
+  width:44px;height:44px;border-radius:999px;border:1px solid #d1d5db;
+  display:flex;align-items:center;justify-content:center;background:#fff
 }
+.iconBtn.on{box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.ic{width:22px;height:22px;stroke:#6b7280;fill:none;stroke-width:2}
 
-input{
-  width:100%;
-  padding:14px 16px;
-  font-size:18px;
-  border-radius:16px;
-  border:1px solid #ddd;
-}
-
-.meta{
-  margin:12px 0;
-  color:#666;
-  font-size:16px;
-}
-
-.list{
-  border-top:1px solid #e5e7eb;
-}
-
-.row{
-  padding:12px 8px;
-  border-bottom:1px solid #e5e7eb;
-  cursor:pointer;
-}
-
-.row:hover{
-  background:#f1f5f9;
-}
-
-.row.active{
-  background:#e0f2fe;
-}
-
-.title{
-  font-size:20px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
+.likeCount{text-align:right;font-size:18px;color:var(--muted);padding-right:2px}
 
 #floatingPlayer{
-  position:fixed;
-  left:16px;
-  bottom:16px;
-  width:min(760px,calc(100vw - 32px));
-  background:#fff;
-  border:1px solid #ddd;
-  border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.15);
-  z-index:9999;
+  position:fixed;left:16px;bottom:16px;width:min(760px,calc(100vw - 32px));
+  border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);background:#fff;z-index:9999
 }
+#fpHeader{display:flex;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:grab}
+#fpTitle{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#playerWrap{padding:12px}
+.plyr,.plyr *{font-weight:400!important}
 
-#fpHeader{
-  padding:10px 14px;
-  border-bottom:1px solid #e5e7eb;
-  font-size:16px;
-  font-weight:600;
-  cursor:grab;
-}
-
-#fpHeader:active{
-  cursor:grabbing;
-}
-
-#playerWrap{
-  padding:12px;
-}
-
-.plyr *{
-  font-weight:400 !important;
+@media(max-width:720px){
+  .grid{grid-template-columns:1fr 44px 44px 44px 44px 44px}
+  .title{font-size:20px}
 }
 </style>
 </head>
 
 <body>
+<div class="wrap">
+<h1>Alfabetik FSP A–Z</h1>
 
-<div class="container">
-  <h1>Alfabetik FSP A–Z</h1>
-  <input id="search" placeholder="Arama (ör. ACS, DM, PAVK)...">
-  <div id="meta" class="meta">Yükleniyor…</div>
-  <div id="rows" class="list"></div>
+<div class="topbar">
+<input id="search" class="search" placeholder="Arama..." />
+<button id="resetBtn" class="btn">Hepsi</button>
+</div>
+
+<div id="meta" class="meta">Yükleniyor…</div>
+
+<div class="header grid">
+<div>Kayıt</div>
+<div style="text-align:right">Like</div>
+<div id="filterLike" class="iconBtn">❤</div>
+<div id="filterFav" class="iconBtn">★</div>
+<div id="filterSel" class="iconBtn">✔</div>
+<div></div>
+</div>
+
+<div id="rows"></div>
 </div>
 
 <div id="floatingPlayer">
-  <div id="fpHeader">Bir kayıt seç…</div>
-  <div id="playerWrap">
-    <audio id="player" controls preload="metadata"></audio>
-  </div>
+<div id="fpHeader"><div id="fpTitle">Bir kayıt seç…</div></div>
+<div id="playerWrap"><audio id="player" controls></audio></div>
 </div>
 
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-
 <script>
-/* ====== AYAR ====== */
-const ARCHIVE_IDENTIFIER = "fsp-audio"; // ← BURAYI DOĞRU YAP
-const ITEMS_JSON = "./items.json";
-const BASE = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/`;
+/* === ARCHIVE IDENTIFIER (Action ile birebir) === */
+const ARCHIVE_IDENTIFIER =
+"vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
 
-const rowsEl = document.getElementById("rows");
-const metaEl = document.getElementById("meta");
-const searchEl = document.getElementById("search");
-const fpHeader = document.getElementById("fpHeader");
-const audio = document.getElementById("player");
+const ITEMS_JSON="./items.json";
+const BASE=`https://archive.org/download/${ARCHIVE_IDENTIFIER}/`;
 
-const plyr = new Plyr(audio,{
-  seekTime:5,
-  settings:["speed"],
-  speed:{selected:1,options:[0.8,0.9,1,1.1,1.2]}
-});
+const rowsEl=document.getElementById("rows");
+const metaEl=document.getElementById("meta");
+const searchEl=document.getElementById("search");
+const resetBtn=document.getElementById("resetBtn");
 
-let allItems=[];
-let viewItems=[];
-let activeIndex=-1;
+const audio=document.getElementById("player");
+const plyr=new Plyr(audio);
 
-function buildUrl(file){
-  return BASE + encodeURIComponent(file).replace(/%2F/g,"/");
+let allItems=[],viewItems=[],activeIndex=-1;
+let filterMode=null;
+
+function buildUrl(f){
+  return BASE+encodeURIComponent(f).replace(/%2F/g,"/");
 }
-
 function render(){
-  rowsEl.innerHTML="";
-  viewItems.forEach((it,i)=>{
-    const row=document.createElement("div");
-    row.className="row"+(i===activeIndex?" active":"");
-    row.innerHTML=`<div class="title">${it.title}</div>`;
-    row.onclick=()=>playIndex(i,true);
-    rowsEl.appendChild(row);
+  const q=(searchEl.value||"").toLowerCase();
+  viewItems=allItems.filter(i=>{
+    if(q && !i.title.toLowerCase().includes(q))return false;
+    if(filterMode==="like")return i.like;
+    if(filterMode==="fav")return i.fav;
+    if(filterMode==="sel")return i.sel;
+    return true;
   });
-  metaEl.textContent=`Görünen: ${viewItems.length} / Toplam: ${allItems.length}`;
-}
+  metaEl.textContent=`Görünen: ${viewItems.length} / ${allItems.length}`;
+  rowsEl.innerHTML="";
+  viewItems.forEach((it,idx)=>{
+    const r=document.createElement("div");
+    r.className="row grid"+(idx===activeIndex?" active":"");
+    r.onclick=()=>play(idx);
 
-async function playIndex(i,user){
+    const t=document.createElement("div");t.className="title";t.textContent=it.title;
+    const lc=document.createElement("div");lc.className="likeCount";lc.textContent=it.likes||0;
+    const like=document.createElement("div");like.className="iconBtn";like.textContent="❤";
+    const fav=document.createElement("div");fav.className="iconBtn";fav.textContent="★";
+    const sel=document.createElement("div");sel.className="iconBtn";sel.textContent="✔";
+    const dl=document.createElement("div");dl.className="iconBtn";dl.textContent="⬇";
+
+    dl.onclick=e=>{e.stopPropagation();window.open(buildUrl(it.file))};
+
+    r.append(t,lc,like,fav,sel,dl);
+    rowsEl.appendChild(r);
+  });
+}
+function play(i){
   activeIndex=i;
-  const it=viewItems[i];
-  fpHeader.textContent=it.title;
-  audio.src=buildUrl(it.file);
-  audio.load();
-  render();
-  if(user){
-    try{ await plyr.play(); }catch{}
-  }
-}
-
-searchEl.oninput=()=>{
-  const q=searchEl.value.toLowerCase();
-  viewItems=allItems.filter(i=>i.title.toLowerCase().includes(q));
-  activeIndex=-1;
-  render();
-};
-
-async function load(){
-  const r=await fetch(ITEMS_JSON,{cache:"no-store"});
-  const data=await r.json();
-  allItems=data
-    .filter(x=>x.file.endsWith(".m4a")||x.file.endsWith(".mp3"))
-    .sort((a,b)=>a.title.localeCompare(b.title,"tr"));
-  viewItems=[...allItems];
+  audio.src=buildUrl(viewItems[i].file);
+  plyr.play();
   render();
 }
-
-load();
-
-/* sürükleme */
-(()=>{
-  let sx,sy,l,b,drag=false;
-  fpHeader.onpointerdown=e=>{
-    drag=true;
-    sx=e.clientX; sy=e.clientY;
-    const r=floatingPlayer.getBoundingClientRect();
-    l=r.left; b=innerHeight-r.bottom;
-  };
-  onpointermove=e=>{
-    if(!drag)return;
-    floatingPlayer.style.left=l+(e.clientX-sx)+"px";
-    floatingPlayer.style.bottom=b-(e.clientY-sy)+"px";
-  };
-  onpointerup=()=>drag=false;
-})();
+fetch(ITEMS_JSON).then(r=>r.json()).then(d=>{
+  allItems=d.map(x=>({...x,likes:0}));
+  render();
+});
+searchEl.oninput=render;
+resetBtn.onclick=()=>{filterMode=null;searchEl.value="";render()};
 </script>
-
 </body>
 </html>
