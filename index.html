@@ -3,456 +3,681 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>Alfabetik FSP A–Z</title>
 
+  <!-- Plyr -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <style>
     :root{
-      --line:#eee; --muted:#666; --muted2:#888; --chip:#f5f5f7;
-      --accent:#1677ff; --danger:#e11d48; --star:#f59e0b;
+      --border:#ececec;
+      --muted:#6b7280;
+      --bg:#ffffff;
+      --rowHover:#f7f7f7;
+      --rowActive:#e5f2ff;
+      --btn:#f4f4f5;
+      --btnBorder:#e5e7eb;
+      --btnActive:#111827;
+      --shadow:0 12px 40px rgba(0,0,0,.12);
+      --radius:14px;
     }
-    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:18px;max-width:1100px}
-    h1{font-size:22px;margin:0 0 10px;font-weight:700}
 
-    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
-    #search{flex:1;min-width:260px;padding:10px 12px;border:1px solid #d9d9d9;border-radius:12px;outline:none;font-size:15px}
-    #search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(22,119,255,.15)}
-    .pill{padding:9px 12px;border:1px solid #d9d9d9;border-radius:12px;background:#fff;cursor:pointer;font-size:14px;user-select:none}
-    .pill:hover{background:var(--chip)}
-    .meta{font-size:13px;color:var(--muted);margin:6px 0 8px}
+    body{
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 18px;
+      max-width: 1100px;
+      color:#111;
+    }
 
-    /* Header row (icon-only) */
-    .hdr{
-      display:grid;
-      grid-template-columns: 1fr 90px 70px 80px 60px;
-      gap:10px;
+    h1{
+      font-size: 28px;
+      margin: 6px 0 14px 0;
+      font-weight: 700;
+      letter-spacing: -.2px;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      gap:12px;
       align-items:center;
-      padding:8px 6px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    #search{
+      flex:1;
+      min-width: 260px;
+      padding: 10px 12px;
+      border:1px solid var(--btnBorder);
+      border-radius: 14px;
+      outline:none;
+      font-size:16px;
+    }
+    #search:focus{ border-color:#c7d2fe; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+
+    .pill{
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid var(--btnBorder);
+      background:var(--btn);
+      cursor:pointer;
+      font-size:16px;
+      user-select:none;
+    }
+    .pill:active{ transform: translateY(1px); }
+    .pill.primary{ background:#fff; }
+    .pill.primary:hover{ background:#fafafa; }
+
+    .meta{
+      font-size:14px;
+      color:var(--muted);
+      margin: 6px 0 10px 0;
+    }
+
+    /* Table header */
+    .headerRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 10px;
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
       color:var(--muted);
       font-size:13px;
-      border-top:1px solid var(--line);
-      border-bottom:1px solid var(--line);
-      background:#fcfcfd;
-      position:sticky; top:0; z-index:2;
+      user-select:none;
     }
-    .hdr .hcell{display:flex;align-items:center;justify-content:flex-end}
-    .hdr .hcell.left{justify-content:flex-start}
-    .filterIcon{
-      width:32px;height:32px;border-radius:999px;border:1px solid #d9d9d9;background:#fff;
-      display:inline-flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
-      color:var(--muted2); font-size:16px;
-    }
-    .filterIcon:hover{background:var(--chip)}
-    .filterIcon.on{border-color:rgba(22,119,255,.35); box-shadow:0 0 0 3px rgba(22,119,255,.12); color:var(--accent)}
-
-    #list{border-bottom:1px solid var(--line)}
-    .row{
-      display:grid;
-      grid-template-columns: 1fr 90px 70px 80px 60px;
-      gap:10px;
+    .colTitle{ flex:1; }
+    .colActions{
+      display:flex;
       align-items:center;
-      padding:6px 6px;              /* ✅ sıkı satır */
-      border-bottom:1px solid var(--line);
-      cursor:pointer
+      gap:10px;
+      width: 220px; /* right area */
+      justify-content:flex-end;
     }
-    .row:hover{background:#fafafa}
-    .row.active{background:rgba(22,119,255,.09)}
+
+    .iconBtn{
+      width:34px;
+      height:34px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 999px;
+      border:1px solid var(--btnBorder);
+      background:#fff;
+      cursor:pointer;
+      user-select:none;
+      font-size:16px;
+      line-height:1;
+      opacity:.85;
+    }
+    .iconBtn:hover{ opacity:1; background:#fafafa; }
+    .iconBtn.active{
+      border-color:#a5b4fc;
+      box-shadow:0 0 0 3px rgba(99,102,241,.12);
+      opacity:1;
+    }
+
+    /* List rows */
+    #list{ border-bottom:1px solid var(--border); }
+
+    .item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 10px;       /* ↓ satır aralığı burada */
+      border-bottom: 1px solid var(--border);
+      cursor:pointer;
+    }
+    .item:hover{ background: var(--rowHover); }
+    .item.active{ background: var(--rowActive); }
 
     .title{
-      min-width:0;font-size:15px;font-weight:400;
-      line-height:1.15;             /* ✅ daha sıkı */
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+      flex:1;
+      font-size:16px;
+      line-height:1.25;
+      font-weight: 400;         /* bold olmasın */
     }
 
-    .cell{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
-    .count{width:22px;text-align:right;color:var(--muted2);font-size:13px;font-variant-numeric:tabular-nums}
-
-    .iconbtn{
-      width:32px;height:32px;border-radius:999px;border:1px solid #d9d9d9;background:#fff;
-      display:inline-flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
-      color:var(--muted2); font-size:16px;
+    .actions{
+      width: 220px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      flex-shrink:0;
     }
-    .iconbtn:hover{background:var(--chip)}
-    .iconbtn:active{transform:translateY(1px)}
 
-    .heart{color:var(--muted2)} .heart.on{color:var(--danger)}
-    .star{color:var(--muted2)}  .star.on{color:var(--star)}
-    .check{color:var(--muted2)}
-    .check.on{color:#fff;background:var(--accent);border-color:var(--accent)}
+    .likeCount{
+      min-width:18px;
+      text-align:right;
+      font-size:14px;
+      color:var(--muted);
+      margin-right:2px;
+    }
 
     /* Floating player */
     #floatingPlayer{
-      position:fixed;left:18px;bottom:18px;width:min(720px,calc(100vw - 36px));
-      background:#fff;border:1px solid #e6e6e6;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.12);
-      z-index:9999;overflow:hidden
+      position:fixed;
+      left: 18px;
+      bottom: 18px;
+      width: 520px;
+      max-width: calc(100vw - 36px);
+      background: var(--bg);
+      border: 1px solid var(--btnBorder);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      z-index: 9999;
+      display:flex;
+      flex-direction:column;
     }
-    #fpHeader{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:8px 10px;border-bottom:1px solid var(--line);background:#fcfcfd;
-      cursor:grab;user-select:none
-    }
-    #fpHeader:active{cursor:grabbing}
-    #fpTitle{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
-    #fpControls{display:flex;align-items:center;gap:8px;flex-shrink:0}
-    .tiny{width:38px;height:32px;border-radius:10px;border:1px solid #d9d9d9;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;user-select:none;font-size:16px}
-    .tiny:hover{background:var(--chip)}
-    .tiny:active{transform:translateY(1px)}
-    #fpStatus{padding:6px 10px;font-size:13px;color:var(--muted)}
-    #fpStatus a{color:var(--accent);text-decoration:underline}
-    #fpBody{padding:6px 8px 10px}
 
-    @media (max-width:700px){
-      .hdr,.row{grid-template-columns: 1fr 84px 62px 72px 54px}
+    .fpHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 12px;
+      border-bottom:1px solid var(--border);
+      cursor: grab;
+      user-select:none;
     }
-    @media (max-width:520px){
-      #floatingPlayer{width:calc(100vw - 24px);left:12px;bottom:12px}
-      .hdr,.row{grid-template-columns: 1fr 84px 62px 72px 54px}
+    .fpHead:active{ cursor: grabbing; }
+
+    #fpTitle{
+      font-size:14px;
+      color:#111;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:600;
+      flex:1;
+    }
+    .fpRight{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+    }
+
+    .miniBtn{
+      width:36px;
+      height:32px;
+      border-radius: 10px;
+      border:1px solid var(--btnBorder);
+      background:#fff;
+      cursor:pointer;
+      font-size:15px;
+      opacity:.9;
+    }
+    .miniBtn:hover{ opacity:1; background:#fafafa; }
+    .miniBtn:active{ transform: translateY(1px); }
+
+    #fpMsg{
+      padding: 8px 12px 0 12px;
+      font-size:13px;
+      color:var(--muted);
+      min-height: 18px;
+    }
+
+    .fpBody{
+      padding: 8px 12px 12px 12px;
+    }
+
+    /* Plyr inside fixed box */
+    .plyr--audio .plyr__controls{
+      border-radius: 12px;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 560px){
+      #floatingPlayer{ width: calc(100vw - 36px); }
+      .colActions, .actions{ width: 200px; }
     }
   </style>
 </head>
-<body>
 
+<body>
   <h1>Alfabetik FSP A–Z</h1>
 
   <div class="topbar">
     <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
-    <button id="clearAll" class="pill" title="Filtreleri + aramayı temizle">Hepsi</button>
+    <button id="btnAll" class="pill primary">Hepsi</button>
   </div>
 
-  <div class="meta" id="meta">Yükleniyor...</div>
+  <div class="meta" id="meta">Yükleniyor…</div>
 
-  <!-- Header icons only -->
-  <div class="hdr">
-    <div class="hcell left"></div>
-
-    <div class="hcell">
-      <button id="fltLike" class="filterIcon" title="Sadece liked">♥</button>
+  <div class="headerRow">
+    <div class="colTitle">Kayıt</div>
+    <div class="colActions" title="Filtre ikonları">
+      <button id="filterLiked" class="iconBtn" title="Liked filtre">♥</button>
+      <button id="filterFav"   class="iconBtn" title="Favori filtre">★</button>
+      <button id="filterSel"   class="iconBtn" title="Seçili filtre">✓</button>
     </div>
-
-    <div class="hcell">
-      <button id="fltSel" class="filterIcon" title="Sadece seçili">✓</button>
-    </div>
-
-    <div class="hcell">
-      <button id="fltFav" class="filterIcon" title="Sadece favoriler">★</button>
-    </div>
-
-    <div class="hcell"></div>
   </div>
 
   <div id="list"></div>
 
-  <!-- Floating player -->
-  <div id="floatingPlayer">
-    <div id="fpHeader">
+  <!-- Floating Player -->
+  <div id="floatingPlayer" aria-live="polite">
+    <div class="fpHead" id="fpDrag">
       <div id="fpTitle">Bir kayıt seç…</div>
-      <div id="fpControls">
-        <button id="btnPrev" class="tiny" title="Önceki">⏮</button>
-        <button id="btnNext" class="tiny" title="Sonraki">⏭</button>
-        <span style="color:#888;font-size:13px;margin-left:6px">Sürükle</span>
+      <div class="fpRight">
+        <button class="miniBtn" id="btnPrev" title="Önceki">⟪</button>
+        <button class="miniBtn" id="btnNext" title="Sonraki">⟫</button>
+        <div style="font-size:13px;color:var(--muted);padding-left:6px;">Sürükle</div>
       </div>
     </div>
-
-    <div id="fpStatus"></div>
-
-    <div id="fpBody">
-      <audio id="player" class="js-player" controls preload="none" crossorigin="anonymous"></audio>
+    <div id="fpMsg"></div>
+    <div class="fpBody">
+      <audio id="player" class="js-player" controls preload="metadata"></audio>
     </div>
   </div>
 
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
   <script>
-    const BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
-    const ITEMS_URL = "./items.json";
+    // ====== CONFIG ======
+    // Archive.org base URL (identifier klasörü)
+    const ARCHIVE_BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
 
+    // items.json'ı repoda köke koyuyorsun (sende zaten var)
+    const ITEMS_JSON = "items.json";
+
+    // ====== STATE ======
+    let items = [];          // { title, file, url, ext }
+    let activeIndex = null;  // index in items array
+    let viewIndexes = [];    // current filtered indexes
+
+    // Filters (AND)
+    let filterLiked = false;
+    let filterFav   = false;
+    let filterSel   = false;
+
+    // LocalStorage keys
+    const LS = {
+      liked:   "fsp_liked_v1",
+      fav:     "fsp_fav_v1",
+      sel:     "fsp_sel_v1",
+      likeCnt: "fsp_likeCnt_v1",
+      playerPos:"fsp_playerPos_v1"
+    };
+
+    const likedSet   = new Set(JSON.parse(localStorage.getItem(LS.liked)   || "[]"));
+    const favSet     = new Set(JSON.parse(localStorage.getItem(LS.fav)     || "[]"));
+    const selSet     = new Set(JSON.parse(localStorage.getItem(LS.sel)     || "[]"));
+    const likeCounts = JSON.parse(localStorage.getItem(LS.likeCnt) || "{}"); // {file: number}
+
+    // ====== DOM ======
     const listEl = document.getElementById("list");
     const searchEl = document.getElementById("search");
     const metaEl = document.getElementById("meta");
 
-    const fltLikeBtn = document.getElementById("fltLike");
-    const fltSelBtn  = document.getElementById("fltSel");
-    const fltFavBtn  = document.getElementById("fltFav");
+    const btnAll = document.getElementById("btnAll");
+    const btnFilterLiked = document.getElementById("filterLiked");
+    const btnFilterFav   = document.getElementById("filterFav");
+    const btnFilterSel   = document.getElementById("filterSel");
 
+    const fp = document.getElementById("floatingPlayer");
     const fpTitle = document.getElementById("fpTitle");
-    const fpStatus = document.getElementById("fpStatus");
-
+    const fpMsg = document.getElementById("fpMsg");
     const btnPrev = document.getElementById("btnPrev");
     const btnNext = document.getElementById("btnNext");
 
-    const playerEl = document.getElementById("player");
+    const audioEl = document.getElementById("player");
 
-    const plyr = new Plyr(playerEl, {
+    // Plyr controls: prev/next bizde ayrı; burada 5sn ileri/geri + normal kontroller
+    const plyr = new Plyr(audioEl, {
       seekTime: 5,
-      controls: ["rewind","play","fast-forward","progress","current-time","duration","mute","volume"]
+      controls: [
+        "rewind",
+        "play",
+        "fast-forward",
+        "progress",
+        "current-time",
+        "duration",
+        "mute",
+        "volume"
+      ]
     });
 
-    let items = [];
-    let activeIndex = null;
-    let filteredIdx = [];
-
-    const LS_LIKES = "fsp_likes_v4";
-    const LS_FAVS  = "fsp_favs_v4";
-    const LS_SEL   = "fsp_selected_v4";
-
-    const likes = JSON.parse(localStorage.getItem(LS_LIKES) || "{}");
-    const favs  = JSON.parse(localStorage.getItem(LS_FAVS)  || "{}");
-    const sel   = JSON.parse(localStorage.getItem(LS_SEL)   || "{}");
-
-    const saveLikes = () => localStorage.setItem(LS_LIKES, JSON.stringify(likes));
-    const saveFavs  = () => localStorage.setItem(LS_FAVS,  JSON.stringify(favs));
-    const saveSel   = () => localStorage.setItem(LS_SEL,   JSON.stringify(sel));
-
-    let filterLike = false;
-    let filterFav  = false;
-    let filterSel  = false;
-
-    function syncFilterUI(){
-      fltLikeBtn.classList.toggle("on", filterLike);
-      fltFavBtn.classList.toggle("on",  filterFav);
-      fltSelBtn.classList.toggle("on",  filterSel);
+    // ====== Helpers ======
+    function saveSets(){
+      localStorage.setItem(LS.liked, JSON.stringify([...likedSet]));
+      localStorage.setItem(LS.fav,   JSON.stringify([...favSet]));
+      localStorage.setItem(LS.sel,   JSON.stringify([...selSet]));
+      localStorage.setItem(LS.likeCnt, JSON.stringify(likeCounts));
     }
 
-    function urlFor(item){
-      return encodeURI(BASE + item.file);
+    function buildUrl(file){
+      return ARCHIVE_BASE + encodeURIComponent(file).replace(/%2F/g,"/");
     }
 
-    function buildFiltered(){
-      const q = (searchEl.value || "").trim().toLowerCase();
-      filteredIdx = [];
+    function downloadUrl(file){
+      // Çoğu durumda indirmeye zorlar
+      return buildUrl(file) + "?download=1";
+    }
 
+    function extOf(file){
+      const m = file.toLowerCase().match(/\.(m4a|mp3)$/);
+      return m ? m[1] : "";
+    }
+
+    function mimeOf(ext){
+      if (ext === "mp3") return "audio/mpeg";
+      if (ext === "m4a") return "audio/mp4";
+      return "audio/*";
+    }
+
+    function passesFilters(file){
+      if (filterLiked && !likedSet.has(file)) return false;
+      if (filterFav   && !favSet.has(file))   return false;
+      if (filterSel   && !selSet.has(file))   return false;
+      return true;
+    }
+
+    function computeView(){
+      const q = searchEl.value.trim().toLowerCase();
+      viewIndexes = [];
       for (let i=0;i<items.length;i++){
         const it = items[i];
         if (q && !it.title.toLowerCase().includes(q)) continue;
-        if (filterLike && !((likes[it.file]||0)>0)) continue;
-        if (filterFav  && !(!!favs[it.file])) continue;
-        if (filterSel  && !(!!sel[it.file])) continue;
-        filteredIdx.push(i);
+        if (!passesFilters(it.file)) continue;
+        viewIndexes.push(i);
       }
-
-      metaEl.textContent = `Görünen: ${filteredIdx.length} / Toplam: ${items.length}`;
+      metaEl.textContent = `Görünen: ${viewIndexes.length} / Toplam: ${items.length}`;
     }
 
     function render(){
-      buildFiltered();
-      syncFilterUI();
-      listEl.innerHTML = "";
+      computeView();
 
-      for (const idx of filteredIdx){
+      listEl.innerHTML = "";
+      for (const idx of viewIndexes){
         const it = items[idx];
 
         const row = document.createElement("div");
-        row.className = "row" + (idx===activeIndex ? " active":"");
+        row.className = "item" + (idx === activeIndex ? " active" : "");
         row.dataset.index = String(idx);
 
         const title = document.createElement("div");
         title.className = "title";
         title.textContent = it.title;
 
-        // Like
-        const likeCell = document.createElement("div");
-        likeCell.className = "cell";
-        const likeCount = document.createElement("span");
-        likeCount.className = "count";
-        likeCount.textContent = String(likes[it.file] || 0);
+        const actions = document.createElement("div");
+        actions.className = "actions";
 
-        const likeBtn = document.createElement("button");
-        likeBtn.className = "iconbtn";
-        likeBtn.title = "Like (+1)";
-        const heart = document.createElement("span");
-        heart.className = "heart" + ((likes[it.file]||0)>0 ? " on":"");
-        heart.textContent = "♥";
-        likeBtn.appendChild(heart);
+        const count = document.createElement("div");
+        count.className = "likeCount";
+        count.textContent = String(likeCounts[it.file] || 0);
 
-        likeBtn.addEventListener("click",(e)=>{
+        const bLike = document.createElement("button");
+        bLike.className = "iconBtn" + (likedSet.has(it.file) ? " active" : "");
+        bLike.title = "Like";
+        bLike.textContent = "♥";
+
+        const bFav = document.createElement("button");
+        bFav.className = "iconBtn" + (favSet.has(it.file) ? " active" : "");
+        bFav.title = "Favori";
+        bFav.textContent = "★";
+
+        const bSel = document.createElement("button");
+        bSel.className = "iconBtn" + (selSet.has(it.file) ? " active" : "");
+        bSel.title = "Seç";
+        bSel.textContent = "✓";
+
+        const bDl = document.createElement("button");
+        bDl.className = "iconBtn";
+        bDl.title = "İndir";
+        bDl.textContent = "⬇";
+
+        // Stop row click for buttons
+        bLike.addEventListener("click", (e)=>{
           e.stopPropagation();
-          likes[it.file] = (likes[it.file]||0) + 1;
-          saveLikes();
+          // toggle + counter (tek tarayıcı için)
+          if (likedSet.has(it.file)){
+            likedSet.delete(it.file);
+            likeCounts[it.file] = Math.max(0, (likeCounts[it.file]||0) - 1);
+          } else {
+            likedSet.add(it.file);
+            likeCounts[it.file] = (likeCounts[it.file]||0) + 1;
+          }
+          saveSets();
           render();
         });
 
-        likeCell.appendChild(likeCount);
-        likeCell.appendChild(likeBtn);
-
-        // Select
-        const selCell = document.createElement("div");
-        selCell.className = "cell";
-        const selBtn = document.createElement("button");
-        selBtn.className = "iconbtn check" + (sel[it.file] ? " on":"");
-        selBtn.title = "Seç";
-        selBtn.textContent = "✓";
-        selBtn.addEventListener("click",(e)=>{
+        bFav.addEventListener("click", (e)=>{
           e.stopPropagation();
-          if (sel[it.file]) delete sel[it.file];
-          else sel[it.file] = true;
-          saveSel();
+          if (favSet.has(it.file)) favSet.delete(it.file);
+          else favSet.add(it.file);
+          saveSets();
           render();
         });
-        selCell.appendChild(selBtn);
 
-        // Fav
-        const favCell = document.createElement("div");
-        favCell.className = "cell";
-        const favBtn = document.createElement("button");
-        favBtn.className = "iconbtn";
-        favBtn.title = "Favori";
-        const star = document.createElement("span");
-        star.className = "star" + (favs[it.file] ? " on":"");
-        star.textContent = "★";
-        favBtn.appendChild(star);
-
-        favBtn.addEventListener("click",(e)=>{
+        bSel.addEventListener("click", (e)=>{
           e.stopPropagation();
-          if (favs[it.file]) delete favs[it.file];
-          else favs[it.file] = true;
-          saveFavs();
+          if (selSet.has(it.file)) selSet.delete(it.file);
+          else selSet.add(it.file);
+          saveSets();
           render();
         });
-        favCell.appendChild(favBtn);
 
-        // Download
-        const dlCell = document.createElement("div");
-        dlCell.className = "cell";
-        const dl = document.createElement("a");
-        dl.className = "iconbtn";
-        dl.title = "İndir / Aç";
-        dl.href = urlFor(it);
-        dl.target = "_blank";
-        dl.rel = "noopener";
-        dl.textContent = "⬇";
-        dl.addEventListener("click",(e)=>e.stopPropagation());
-        dlCell.appendChild(dl);
+        bDl.addEventListener("click", (e)=>{
+          e.stopPropagation();
+          // Download attempt (cross-origin "download" attribute genelde çalışmaz)
+          const a = document.createElement("a");
+          a.href = downloadUrl(it.file);
+          a.target = "_blank";
+          a.rel = "noopener";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        });
+
+        actions.appendChild(count);
+        actions.appendChild(bLike);
+        actions.appendChild(bFav);
+        actions.appendChild(bSel);
+        actions.appendChild(bDl);
 
         row.appendChild(title);
-        row.appendChild(likeCell);
-        row.appendChild(selCell);
-        row.appendChild(favCell);
-        row.appendChild(dlCell);
+        row.appendChild(actions);
 
-        row.addEventListener("click", ()=> playIndex(idx, true));
-
+        row.addEventListener("click", ()=> playByIndex(idx, true));
         listEl.appendChild(row);
       }
+
+      // header filter active states
+      btnFilterLiked.classList.toggle("active", filterLiked);
+      btnFilterFav.classList.toggle("active", filterFav);
+      btnFilterSel.classList.toggle("active", filterSel);
     }
 
-    function findActivePos(){
-      if (activeIndex==null) return -1;
-      return filteredIdx.indexOf(activeIndex);
+    async function playByIndex(idx, tryAutoplay){
+      const it = items[idx];
+      if (!it) return;
+
+      activeIndex = idx;
+      fpTitle.textContent = it.title;
+      fpMsg.textContent = "";
+
+      const url = it.url;
+      const type = mimeOf(it.ext);
+
+      // Plyr source set (daha stabil)
+      plyr.source = {
+        type: "audio",
+        title: it.title,
+        sources: [{ src: url, type }]
+      };
+
+      render();
+
+      if (!tryAutoplay) return;
+
+      // autoplay bazen engellenir -> yakala ve kullanıcıya söyle
+      try{
+        await plyr.play();
+      }catch(err){
+        fpMsg.innerHTML = `Oynatma başlatılamadı. Player’daki ▶ tuşuna bas. <a href="${url}" target="_blank" rel="noopener">dosyayı yeni sekmede aç</a>`;
+      }
     }
 
     function playPrev(){
-      if(!filteredIdx.length) return;
-      const pos = findActivePos();
-      const p = (pos<=0) ? (filteredIdx.length-1) : (pos-1);
-      playIndex(filteredIdx[p], true);
+      if (!viewIndexes.length) return;
+      if (activeIndex == null){
+        playByIndex(viewIndexes[0], true);
+        return;
+      }
+      const pos = viewIndexes.indexOf(activeIndex);
+      const prev = viewIndexes[(pos - 1 + viewIndexes.length) % viewIndexes.length];
+      playByIndex(prev, true);
     }
+
     function playNext(){
-      if(!filteredIdx.length) return;
-      const pos = findActivePos();
-      const p = (pos===-1 || pos>=filteredIdx.length-1) ? 0 : (pos+1);
-      playIndex(filteredIdx[p], true);
+      if (!viewIndexes.length) return;
+      if (activeIndex == null){
+        playByIndex(viewIndexes[0], true);
+        return;
+      }
+      const pos = viewIndexes.indexOf(activeIndex);
+      const next = viewIndexes[(pos + 1) % viewIndexes.length];
+      playByIndex(next, true);
     }
 
-    btnPrev.addEventListener("click", playPrev);
-    btnNext.addEventListener("click", playNext);
+    btnPrev.addEventListener("click", (e)=>{ e.stopPropagation(); playPrev(); });
+    btnNext.addEventListener("click", (e)=>{ e.stopPropagation(); playNext(); });
 
-    async function playIndex(index, userInitiated){
-      const it = items[index];
-      if(!it) return;
-
-      activeIndex = index;
-      fpTitle.textContent = it.title;
-
-      const src = urlFor(it);
-      fpStatus.innerHTML = `Yükleniyor… <a href="${src}" target="_blank" rel="noopener">dosyayı yeni sekmede aç</a>`;
-
-      playerEl.src = src;
-      playerEl.load();
-
-      render();
-
-      if(userInitiated){
-        try{
-          await plyr.play();
-          fpStatus.textContent = "";
-        }catch{
-          fpStatus.innerHTML =
-            `Oynatma başlatılamadı. Player’daki ▶ tuşuna bas. ` +
-            `<a href="${src}" target="_blank" rel="noopener">dosyayı yeni sekmede aç</a>`;
-        }
-      }
-    }
-
-    playerEl.addEventListener("ended", playNext);
-
-    document.addEventListener("keydown", async (e)=>{
-      const tag = (document.activeElement && document.activeElement.tagName) || "";
-      if(tag==="INPUT"||tag==="TEXTAREA") return;
-      if(e.code==="Space"){
-        e.preventDefault();
-        try{
-          if(plyr.playing) plyr.pause();
-          else await plyr.play();
-        }catch{}
-      }
+    // Space play/pause (input focus değilken)
+    document.addEventListener("keydown", (e)=>{
+      if (e.code !== "Space") return;
+      const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : "";
+      if (tag === "input" || tag === "textarea") return;
+      e.preventDefault();
+      plyr.togglePlay();
     });
 
-    fltLikeBtn.addEventListener("click", ()=>{ filterLike = !filterLike; render(); });
-    fltFavBtn.addEventListener("click",  ()=>{ filterFav  = !filterFav;  render(); });
-    fltSelBtn.addEventListener("click",  ()=>{ filterSel  = !filterSel;  render(); });
+    // Search
+    searchEl.addEventListener("input", ()=> render());
 
-    document.getElementById("clearAll").addEventListener("click", ()=>{
+    // Hepsi: filtreleri + aramayı sıfırla
+    btnAll.addEventListener("click", ()=>{
+      filterLiked = false;
+      filterFav = false;
+      filterSel = false;
       searchEl.value = "";
-      filterLike = filterFav = filterSel = false;
       render();
     });
 
-    searchEl.addEventListener("input", render);
+    // Header icon filters (toggle)
+    btnFilterLiked.addEventListener("click", ()=>{ filterLiked = !filterLiked; render(); });
+    btnFilterFav.addEventListener("click",   ()=>{ filterFav   = !filterFav;   render(); });
+    btnFilterSel.addEventListener("click",   ()=>{ filterSel   = !filterSel;   render(); });
 
-    // draggable player
-    (function(){
-      const box = document.getElementById("floatingPlayer");
-      const handle = document.getElementById("fpHeader");
-      let dragging=false, sx=0, sy=0, ox=0, oy=0;
+    // Track end -> next
+    audioEl.addEventListener("ended", ()=> playNext());
 
-      handle.addEventListener("pointerdown",(e)=>{
-        dragging=true; handle.setPointerCapture(e.pointerId);
-        const r = box.getBoundingClientRect();
-        ox=r.left; oy=r.top; sx=e.clientX; sy=e.clientY;
+    // ====== Draggable player (header-only) ======
+    (function initDrag(){
+      const drag = document.getElementById("fpDrag");
+      let isDown = false;
+      let startX=0, startY=0, startLeft=0, startTop=0;
+
+      // restore pos
+      try{
+        const p = JSON.parse(localStorage.getItem(LS.playerPos) || "null");
+        if (p && typeof p.left==="number" && typeof p.top==="number"){
+          fp.style.left = p.left + "px";
+          fp.style.top  = p.top + "px";
+          fp.style.bottom = "auto";
+        }
+      }catch{}
+
+      drag.addEventListener("pointerdown", (e)=>{
+        isDown = true;
+        drag.setPointerCapture(e.pointerId);
+        const rect = fp.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        startLeft = rect.left;
+        startTop  = rect.top;
       });
-      handle.addEventListener("pointermove",(e)=>{
-        if(!dragging) return;
-        const dx=e.clientX-sx, dy=e.clientY-sy;
-        let nx=ox+dx, ny=oy+dy;
-        const vw=innerWidth, vh=innerHeight;
-        const r=box.getBoundingClientRect();
-        nx=Math.max(8, Math.min(nx, vw-r.width-8));
-        ny=Math.max(8, Math.min(ny, vh-r.height-8));
-        box.style.left=nx+"px";
-        box.style.top=ny+"px";
-        box.style.bottom="auto";
+
+      drag.addEventListener("pointermove", (e)=>{
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        let left = startLeft + dx;
+        let top  = startTop  + dy;
+
+        // clamp
+        const maxLeft = window.innerWidth - fp.offsetWidth - 8;
+        const maxTop  = window.innerHeight - fp.offsetHeight - 8;
+        left = Math.max(8, Math.min(maxLeft, left));
+        top  = Math.max(8, Math.min(maxTop, top));
+
+        fp.style.left = left + "px";
+        fp.style.top  = top  + "px";
+        fp.style.bottom = "auto";
       });
-      handle.addEventListener("pointerup",()=>dragging=false);
-      handle.addEventListener("pointercancel",()=>dragging=false);
+
+      drag.addEventListener("pointerup", ()=>{
+        if (!isDown) return;
+        isDown = false;
+        const rect = fp.getBoundingClientRect();
+        localStorage.setItem(LS.playerPos, JSON.stringify({left: rect.left, top: rect.top}));
+      });
     })();
 
+    // ====== Load items.json ======
     async function loadItems(){
-      metaEl.textContent = "Yükleniyor…";
-      const res = await fetch(ITEMS_URL, { cache: "no-store" });
-      items = await res.json();
-      items.sort((a,b)=>a.title.localeCompare(b.title,"tr",{sensitivity:"base"}));
+      const res = await fetch(ITEMS_JSON + "?v=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("items.json okunamadı: " + res.status);
+      const data = await res.json();
+
+      // Çok toleranslı mapping: array veya {items:[]}
+      const arr = Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
+      const mapped = [];
+
+      for (const x of arr){
+        // olası formatlar:
+        // - "filename.m4a"
+        // - {file:"...", title:"..."}
+        // - {name:"...", title:"..."}
+        // - {name:"...", format:"..." ...}
+        const file = (typeof x === "string") ? x : (x.file || x.name || x.filename || "");
+        if (!file) continue;
+
+        const ext = extOf(file);
+        if (!ext) continue; // sadece mp3/m4a
+
+        // başlık
+        const title =
+          (typeof x === "string")
+            ? decodeURIComponent(file).replace(/\.(m4a|mp3)$/i,"")
+            : (x.title || x.display || x.label || decodeURIComponent(file).replace(/\.(m4a|mp3)$/i,""));
+
+        mapped.push({
+          file,
+          title,
+          ext,
+          url: buildUrl(file)
+        });
+      }
+
+      // alfabetik
+      mapped.sort((a,b)=> a.title.localeCompare(b.title, "tr", { sensitivity: "base" }));
+
+      items = mapped;
       render();
     }
 
     loadItems().catch(err=>{
       console.error(err);
-      metaEl.textContent = "items.json yüklenemedi (Pages yayınlandı mı?)";
+      metaEl.textContent = "Hata: items.json yüklenemedi.";
+      listEl.innerHTML = `<div style="padding:14px;color:#b91c1c">items.json yüklenemedi. Repo kökünde olduğuna emin ol.</div>`;
     });
   </script>
-
 </body>
 </html>
