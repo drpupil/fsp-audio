@@ -459,23 +459,26 @@
     }
 
     // dd.mm.yy veya dd.mm.yyyy (stringin SONUNDA olmasa da son eşleşmeyi alacağız)
-    const DATE_GLOBAL = /(\d{2})[.\-_](\d{2})[.\-_](\d{2}|\d{4})/g;
+   function parseEndDate(item){
+  const s = `${item.title || ""} ${item.file || ""}`;
 
-    function parseEndDate(item){
-      const s = `${item.title || ""} ${item.file || ""}`;
-      let m, last = null;
-      while ((m = DATE_GLOBAL.exec(s)) !== null){
-        last = m;
-      }
-      DATE_GLOBAL.lastIndex = 0; // reset global regex
-      if (!last) return null;
+  // lastIndex problemi yok: matchAll ile tüm eşleşmeleri al
+  const matches = Array.from(
+    s.matchAll(/(\d{2})[.\-_](\d{2})[.\-_](\d{2}|\d{4})/g)
+  );
 
-      const dd = Number(last[1]);
-      const mm = Number(last[2]);
-      let yy = Number(last[3]);
-      if (yy < 100) yy = 2000 + yy;
-      const t = Date.UTC(yy, mm - 1, dd);
-      return Number.isFinite(t) ? t : null;
+  if (!matches.length) return null;
+
+  const last = matches[matches.length - 1]; // en sondaki tarih
+  const dd = Number(last[1]);
+  const mm = Number(last[2]);
+  let yy = Number(last[3]);
+
+  if (yy < 100) yy = 2000 + yy; // 24 -> 2024
+
+  const t = Date.UTC(yy, mm - 1, dd);
+  return Number.isFinite(t) ? t : null;
+
     }
 
     function arrowSvg(isAsc){
