@@ -2,274 +2,301 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Alfabetik FSP A–Z</title>
 
+  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <style>
     :root{
-      --blue:#1a73e8;
-      --gold:#f3c969;
-      --border:#e7e7e7;
+      --bg:#ffffff;
+      --text:#111;
       --muted:#666;
-      --bgHover:#f7f7f7;
-      --bgActive:#e6f1ff;
+      --line:#eee;
+      --chip:#f6f6f6;
+      --chipBorder:#e5e5e5;
+      --active:#e5f2ff;
+      --btn:#ffffff;
+      --btnBorder:#dcdcdc;
+      --shadow: 0 10px 30px rgba(0,0,0,.12);
+      --radius: 12px;
     }
 
     body{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 1.5rem;
-      max-width: 980px;
-      padding-bottom: 210px;
+      margin: 18px;
+      max-width: 1100px;
+      color: var(--text);
+      background: var(--bg);
+      font-weight: 400; /* bold yok */
     }
-    h1{ font-size: 1.45rem; margin: 0 0 0.9rem; }
 
+    h1{
+      font-size: 1.5rem;
+      margin: 0 0 12px 0;
+      font-weight: 600; /* başlık hariç */
+    }
+
+    /* Controls row */
     .topbar{
       display:flex;
-      flex-wrap:wrap;
-      gap: .6rem;
+      flex-wrap: wrap;
+      gap: 10px;
       align-items:center;
-      margin-bottom: 0.6rem;
+      margin-bottom: 10px;
     }
 
     #search{
-      flex: 1;
-      min-width: 240px;
-      max-width: 620px;
-      padding: 0.55rem 0.7rem;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      font-size: 0.98rem;
+      flex: 1 1 320px;
+      padding: 10px 12px;
+      border: 1px solid #cfcfcf;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      font-weight: 400;
     }
 
-    .btn{
-      padding: .52rem .7rem;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      background:#fff;
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 12px;
+      border: 1px solid var(--chipBorder);
+      background: var(--chip);
+      border-radius: 10px;
       cursor:pointer;
-      font-size:.92rem;
-      white-space:nowrap;
       user-select:none;
-      display:flex;
-      align-items:center;
-      gap:.45rem;
+      font-size: .95rem;
+      font-weight: 500;
+      white-space: nowrap;
     }
-    .btn:hover{ background:#f2f2f2; }
-    .btn.primary{ border-color:#8ab4ff; }
-    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+    .chip:active{ transform: translateY(1px); }
 
-    .pill{
-      font-size:.82rem;
-      padding:.18rem .45rem;
-      border-radius:999px;
-      border:1px solid #ddd;
-      color:#444;
-    }
-    .pill.on{
-      border-color:#bcd6ff;
-      background:#eaf2ff;
-      color: var(--blue);
+    .chip select{
+      border: none;
+      background: transparent;
+      font-size: .95rem;
+      outline:none;
+      cursor:pointer;
+      font-weight: 500;
     }
 
-    #metaLine{
-      font-size:.88rem;
+    #meta{
+      margin: 8px 0 10px 2px;
+      font-size: .95rem;
       color: var(--muted);
-      margin: .35rem 0 1rem;
+      font-weight: 400;
     }
 
+    /* List */
     #list{
-      border-top: 1px solid var(--border);
-      margin-bottom: 1rem;
+      border-top: 1px solid var(--line);
+      margin-bottom: 110px; /* floating player yer aç */
     }
 
-    .item{
-      padding: 0.52rem 0.55rem;
-      border-bottom: 1px solid #f2f2f2;
+    .row{
       display:flex;
       align-items:center;
-      gap: .65rem;
-      font-size: 0.98rem;
-      position: relative;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 6px;
+      border-bottom: 1px solid #f2f2f2;
+      cursor: pointer;
+      font-size: 1.02rem;
+      font-weight: 400; /* bold yok */
     }
-    .item:hover{ background: var(--bgHover); }
-    .item.active{
-      background: var(--bgActive);
-      border-left: 4px solid var(--blue);
-      padding-left: calc(0.55rem - 4px);
-    }
+    .row:hover{ background:#fafafa; }
+    .row.active{ background: var(--active); }
 
+    .left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
     .title{
       flex: 1;
       min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
+      overflow:hidden;
       text-overflow: ellipsis;
-      cursor: pointer;
-      font-weight: 600;
+      white-space: nowrap;
+      font-weight: 400; /* bold yok */
+    }
+
+    .right{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 0 0 auto;
     }
 
     .badge{
-      font-size: 0.85rem;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-      white-space:nowrap;
+      font-size: .9rem;
+      color: #555;
       min-width: 56px;
       text-align:right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 400; /* bold yok */
     }
 
     .actions{
       display:flex;
-      gap: .35rem;
       align-items:center;
-      flex: 0 0 auto;
+      gap: 8px;
     }
 
     .iconBtn{
-      width: 30px;
-      height: 30px;
-      border: 1px solid #dcdcdc;
-      background:#fff;
-      border-radius: 10px;
-      cursor:pointer;
-      display:flex;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--btnBorder);
+      background: var(--btn);
+      display:inline-flex;
       align-items:center;
       justify-content:center;
-      font-size: 14px;
-      line-height: 1;
+      cursor:pointer;
       user-select:none;
-      padding: 0;
+      padding:0;
     }
-    .iconBtn:hover{ background:#f2f2f2; }
+    .iconBtn:active{ transform: translateY(1px); }
 
-    /* SELECT */
+    /* Selected */
     .iconBtn.select{
       border-width: 2px;
-      border-color: #cfcfcf;
-      background:#fff;
     }
     .iconBtn.select::before{
-      content:"☐";
-      font-size:16px;
-      color:#888;
+      content:"✓";
+      font-size: 16px;
+      color:#9aa0a6;
       transform: translateY(-0.5px);
     }
     .iconBtn.select.active{
-      background: var(--blue);
-      border-color: var(--blue);
+      border-color:#2563eb;
+      background:#2563eb;
     }
     .iconBtn.select.active::before{
-      content:"✓";
       color:#fff;
-      font-weight: 900;
     }
 
-    /* FAVORITE */
+    /* Favorite */
     .iconBtn.star{
       border-width: 2px;
-      border-color:#d8d8d8;
     }
     .iconBtn.star::before{
       content:"☆";
-      font-size:16px;
+      font-size: 16px;
       color:#777;
       transform: translateY(-0.5px);
     }
     .iconBtn.star.active{
-      border-color: var(--gold);
-      background: #fff8e6;
+      border-color:#f59e0b;
+      background:#fff7ed;
     }
     .iconBtn.star.active::before{
       content:"★";
-      color: #c69200;
+      color:#f59e0b;
     }
 
-    /* DOWNLOAD */
-    .iconBtn.dl{
-      border-radius: 999px;
-      width: 30px;
-      height: 30px;
-      font-size: 14px;
-    }
-    .iconBtn.dl::before{
-      content:"⬇︎";
-      transform: translateY(-0.5px);
+    /* Like + counter */
+    .likeCount{
+      font-size: 0.85rem;
       color:#444;
+      min-width: 22px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 400;
     }
-    .iconBtn.dl:hover{
-      background: #eaf2ff;
-      border-color: #bcd6ff;
+    .iconBtn.like{
+      border-width: 2px;
     }
-    .iconBtn.dl:hover::before{
-      color: var(--blue);
+    .iconBtn.like::before{
+      content:"♡";
+      font-size: 15px;
+      color:#777;
+      transform: translateY(-0.5px);
+    }
+    .iconBtn.like.active{
+      border-color:#f43f5e;
+      background:#fff0f3;
+    }
+    .iconBtn.like.active::before{
+      content:"♥";
+      color:#e11d48;
     }
 
-    /* Floating draggable player */
+    /* Download */
+    .iconBtn.dl::before{
+      content:"⤓";
+      font-size: 16px;
+      color:#111;
+      transform: translateY(-0.5px);
+    }
+
+    /* Floating player */
     #floatingPlayer{
       position: fixed;
-      left: 16px;
-      bottom: 16px;
-      width: min(560px, calc(100vw - 32px));
+      left: 18px;
+      bottom: 18px;
+      width: min(520px, calc(100vw - 36px));
       background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.12);
-      padding: 10px 12px;
+      border: 1px solid #e6e6e6;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       z-index: 9999;
+      overflow:hidden;
     }
-    #floatingPlayer.dragging{
-      opacity: .93;
-      cursor: grabbing;
-    }
-    #fpTitle{
-      font-size: 0.92rem;
-      font-weight: 750;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+
+    #fpHeader{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #efefef;
       cursor: grab;
       user-select:none;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:.6rem;
+      background: #fafafa;
     }
-    #fpTitleLeft{
-      min-width:0;
-      flex:1;
-      white-space:nowrap;
+    #fpHeader:active{ cursor: grabbing; }
+
+    #fpTitle{
+      font-size: .95rem;
+      color:#222;
       overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    #fpTitleRight{
-      display:flex;
-      align-items:center;
-      gap:.45rem;
-      flex:0 0 auto;
-    }
-
-    #fpStatus{
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-      white-space: nowrap;
-      overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+      flex: 1;
+      min-width:0;
+    }
+    #fpHint{
+      font-size: .8rem;
+      color:#888;
+      font-weight: 400;
+      white-space:nowrap;
     }
 
-    .smallNote{
-      font-size:.82rem;
-      color:#777;
-      margin-top:.4rem;
+    #fpBody{
+      padding: 10px 12px 12px 12px;
+    }
+
+    #status{
+      font-size: .9rem;
+      color:#666;
+      margin: 0 0 8px 2px;
+      font-weight: 400;
+    }
+
+    /* Plyr */
+    .plyr{
+      border-radius: 10px;
     }
 
     @media (max-width: 520px){
-      body{ margin: 1rem; }
-      .iconBtn{ width: 36px; height: 36px; font-size: 15px; border-radius: 12px; }
-      .iconBtn.dl{ width: 36px; height: 36px; }
-      .badge{ min-width: 52px; }
+      .badge{ min-width: 48px; }
+      .iconBtn{ width: 32px; height: 32px; }
     }
   </style>
 </head>
@@ -280,368 +307,297 @@
   <div class="topbar">
     <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
 
-    <button id="toggleFavs" class="btn primary" type="button">⭐ Sadece favoriler</button>
-    <button id="toggleShuffle" class="btn" type="button">
-      🔀 Karışık
-      <span id="shufflePill" class="pill">Kapalı</span>
-    </button>
-    <button id="clearSelection" class="btn" type="button">Seçimi temizle</button>
+    <div class="chip" title="Filtre">
+      <span>Filtre:</span>
+      <select id="filterMode">
+        <option value="all">Hepsi</option>
+        <option value="fav">Sadece favoriler</option>
+        <option value="liked">Sadece liked</option>
+        <option value="smart">Favori + Liked (akıllı)</option>
+      </select>
+    </div>
+
+    <div class="chip" title="Sıralama">
+      <span>Sırala:</span>
+      <select id="sortMode">
+        <option value="az">A → Z</option>
+        <option value="za">Z → A</option>
+        <option value="likes">En çok beğenilen</option>
+      </select>
+    </div>
+
+    <div class="chip" id="clearSelectionBtn" title="Seçimi temizle">Seçimi temizle</div>
   </div>
 
-  <div id="metaLine">Yükleniyor…</div>
+  <div id="meta">Yükleniyor…</div>
+
   <div id="list"></div>
 
-  <div id="floatingPlayer">
-    <div id="fpTitle">
-      <span id="fpTitleLeft">Seçili kayıt yok</span>
-      <span id="fpTitleRight">
-        <span id="modePill" class="pill">Sıralı</span>
-      </span>
+  <!-- Floating player -->
+  <div id="floatingPlayer" aria-label="Audio player">
+    <div id="fpHeader">
+      <div id="fpTitle">Seçili kayıt yok</div>
+      <div id="fpHint">Sürükle</div>
     </div>
-    <div id="fpStatus">Bir kayıt seç.</div>
-
-    <audio id="player" class="js-player" controls preload="auto"></audio>
-
-    <div class="smallNote">İpucu: Başlıktan tutup sürükleyebilirsin. 5 sn ileri/geri + hız: ⚙︎</div>
+    <div id="fpBody">
+      <div id="status"></div>
+      <audio id="player" class="js-player" controls preload="auto"></audio>
+    </div>
   </div>
 
+  <!-- Plyr JS -->
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
   <script>
-    // === Archive item identifier ===
-    const IDENT = "vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
-    const BASE  = `https://archive.org/download/${IDENT}/`;
+    // === AYAR: Archive.org koleksiyon URL'i (download klasörü) ===
+    const BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
 
-    const listEl   = document.getElementById("list");
+    // === LocalStorage keys ===
+    const LS_FAVS = "favs_v1";        // [file]
+    const LS_SELECTED = "selected_v1";// [file]
+    const LS_LIKES = "likes_count_v1";// { file: number }
+
+    // === State ===
+    let items = [];         // loaded from items.json
+    let favs = new Set();
+    let selected = new Set();
+    let likesCount = {};    // map: file -> number
+    let activeFile = null;
+
+    // === Elements ===
+    const listEl = document.getElementById("list");
     const searchEl = document.getElementById("search");
-    const metaEl   = document.getElementById("metaLine");
+    const metaEl = document.getElementById("meta");
+    const filterEl = document.getElementById("filterMode");
+    const sortEl = document.getElementById("sortMode");
+    const clearSelectionBtn = document.getElementById("clearSelectionBtn");
 
-    const playerEl = document.getElementById("player");
-    const titleLeftEl = document.getElementById("fpTitleLeft");
-    const statusEl = document.getElementById("fpStatus");
+    const fp = document.getElementById("floatingPlayer");
+    const fpHeader = document.getElementById("fpHeader");
+    const fpTitle = document.getElementById("fpTitle");
+    const statusEl = document.getElementById("status");
 
-    const btnToggleFavs = document.getElementById("toggleFavs");
-    const btnToggleShuffle = document.getElementById("toggleShuffle");
-    const shufflePill = document.getElementById("shufflePill");
-    const modePill = document.getElementById("modePill");
-    const btnClearSel   = document.getElementById("clearSelection");
+    const audioEl = document.getElementById("player");
 
-    // Plyr: 5sn ileri/geri, hız ayarı, prev/next + download
-    const plyr = new Plyr(playerEl, {
+    // Plyr: 5 sn geri/ileri
+    const plyr = new Plyr(audioEl, {
       seekTime: 5,
       controls: [
-        "rewind",
+        "rewind",       // -5 sn
         "play",
-        "fast-forward",
+        "fast-forward", // +5 sn
         "progress",
         "current-time",
         "duration",
         "mute",
-        "volume",
-        "settings",
-        "download"
-      ],
-      settings: ["speed"],
-      speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
+        "volume"
+      ]
     });
 
-    let items = [];              // {file,title,info,url}
-    let activeIndex = null;
-
-    // state
-    const LS_FAVS = "favs_v3";
-    const LS_SEL  = "sel_v3";
-    const LS_POS  = "floatingPlayerPos_v3";
-    const LS_RESUME_PREFIX = "resume_v3_";
-    const LS_LAST = "last_played_file_v3";
-    const LS_SHUFFLE = "shuffle_v3";
-
-    let favs = new Set();
-    let selected = new Set();
-    let onlyFavs = false;
-    let shuffle = false;
-
-    // shuffle order
-    let playQueue = [];     // array of indices (filtered)
-    let queuePos = -1;
-
-    function escapeHtml(s){
-      return String(s)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    // === Helpers ===
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
-    function setStatus(text){
-      statusEl.textContent = text || "";
+    function fileUrl(file){
+      // dosya adlarında boşluk/özel karakter olabiliyor -> encode
+      const encoded = encodeURIComponent(file).replace(/%2F/g, "/");
+      return BASE + encoded;
     }
 
-    function titleFromFilename(name){
-      return name
-        .replace(/\.(m4a|mp3)$/i, "")
-        .replaceAll("_", " ")
-        .replace(/\s+/g, " ")
-        .trim();
+    function downloadUrl(file){
+      // Bazı tarayıcılar cross-origin "download" attribute'u yok sayar.
+      // Yine de ?download=1 çoğu yerde indirmeyi tetikleyebiliyor.
+      return fileUrl(file) + "?download=1";
     }
 
-    function fileUrl(fileName){
-      return new URL(fileName, BASE).href;
-    }
-
-    function formatSecondsToHMS(totalSeconds){
-      const s = Math.max(0, Math.round(Number(totalSeconds) || 0));
-      const h = Math.floor(s / 3600);
-      const m = Math.floor((s % 3600) / 60);
-      const r = s % 60;
-      const mm = String(m).padStart(2, "0");
-      const rr = String(r).padStart(2, "0");
-      return h > 0 ? `${h}:${mm}:${rr}` : `${m}:${rr.padStart(2,"0")}`;
-    }
-
-    function normalizeDuration(raw){
-      if (!raw) return "";
-      const v = String(raw).trim();
-      if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(v)) return v;
-      if (/^\d+(\.\d+)?$/.test(v)) return formatSecondsToHMS(parseFloat(v));
-      return "";
-    }
-
-    function saveFavs(){ localStorage.setItem(LS_FAVS, JSON.stringify(Array.from(favs))); }
     function loadFavs(){
       try{
-        const a = JSON.parse(localStorage.getItem(LS_FAVS) || "[]");
-        favs = new Set(Array.isArray(a) ? a : []);
+        const arr = JSON.parse(localStorage.getItem(LS_FAVS) || "[]");
+        favs = new Set(Array.isArray(arr) ? arr : []);
       } catch { favs = new Set(); }
     }
+    function saveFavs(){
+      localStorage.setItem(LS_FAVS, JSON.stringify([...favs]));
+    }
 
-    function saveSelection(){ localStorage.setItem(LS_SEL, JSON.stringify(Array.from(selected))); }
-    function loadSelection(){
+    function loadSelected(){
       try{
-        const a = JSON.parse(localStorage.getItem(LS_SEL) || "[]");
-        selected = new Set(Array.isArray(a) ? a : []);
+        const arr = JSON.parse(localStorage.getItem(LS_SELECTED) || "[]");
+        selected = new Set(Array.isArray(arr) ? arr : []);
       } catch { selected = new Set(); }
     }
-
-    function resumeKey(file){ return LS_RESUME_PREFIX + file; }
-    function saveResume(file, seconds){
-      try{ localStorage.setItem(resumeKey(file), String(Math.floor(seconds || 0))); } catch {}
-    }
-    function loadResume(file){
-      const v = localStorage.getItem(resumeKey(file));
-      const n = v == null ? 0 : Number(v);
-      return Number.isFinite(n) ? n : 0;
+    function saveSelected(){
+      localStorage.setItem(LS_SELECTED, JSON.stringify([...selected]));
     }
 
-    function updateMetaLine(){
+    function loadLikes(){
+      try{
+        likesCount = JSON.parse(localStorage.getItem(LS_LIKES) || "{}") || {};
+      } catch { likesCount = {}; }
+    }
+    function saveLikes(){
+      localStorage.setItem(LS_LIKES, JSON.stringify(likesCount));
+    }
+    function getLikeCount(file){
+      return Number(likesCount[file] || 0);
+    }
+
+    function updateMetaLine(viewCount){
       metaEl.textContent =
-        `Toplam: ${items.length}  •  Favori: ${favs.size}  •  Seçili: ${selected.size}` +
-        (onlyFavs ? "  •  (Favori filtresi açık)" : "");
+        `Toplam: ${items.length}  •  Görünen: ${viewCount}  •  Favori: ${favs.size}  •  Seçili: ${selected.size}`;
     }
 
-    function passesFilters(item){
+    function buildView(){
       const q = searchEl.value.trim().toLowerCase();
-      if (q && !item.title.toLowerCase().includes(q)) return false;
-      if (onlyFavs && !favs.has(item.file)) return false;
-      return true;
+      const mode = filterEl.value; // all / fav / liked / smart
+      const sortMode = sortEl.value; // az / za / likes
+
+      // filter
+      let view = items.filter(it => {
+        const matchQ = !q || (it.title || "").toLowerCase().includes(q);
+        if (!matchQ) return false;
+
+        const isFav = favs.has(it.file);
+        const likeN = getLikeCount(it.file);
+        const isLiked = likeN > 0;
+
+        if (mode === "fav") return isFav;
+        if (mode === "liked") return isLiked;
+        if (mode === "smart") return (isFav || isLiked);
+        return true;
+      });
+
+      // sort
+      if (sortMode === "likes"){
+        view.sort((a,b) => {
+          const la = getLikeCount(a.file);
+          const lb = getLikeCount(b.file);
+          if (lb !== la) return lb - la; // desc
+          return String(a.title).localeCompare(String(b.title), "tr");
+        });
+      } else if (sortMode === "za"){
+        view.sort((a,b) => String(b.title).localeCompare(String(a.title), "tr"));
+      } else {
+        view.sort((a,b) => String(a.title).localeCompare(String(b.title), "tr"));
+      }
+
+      return view;
     }
 
     function renderList(){
+      const view = buildView();
       listEl.innerHTML = "";
-      let shown = 0;
 
-      items.forEach((item, index) => {
-        if (!passesFilters(item)) return;
-        shown++;
+      for (const it of view){
+        const isActive = (it.file === activeFile);
+        const isFav = favs.has(it.file);
+        const isSel = selected.has(it.file);
+
+        const likeN = getLikeCount(it.file);
+        const isLiked = likeN > 0;
 
         const row = document.createElement("div");
-        row.className = "item" + (index === activeIndex ? " active" : "");
-
-        const isFav = favs.has(item.file);
-        const isSel = selected.has(item.file);
+        row.className = "row" + (isActive ? " active" : "");
+        row.dataset.file = it.file;
 
         row.innerHTML = `
-          <span class="title" data-action="play" data-index="${index}" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</span>
-          <span class="badge">${escapeHtml(item.info || "")}</span>
-          <span class="actions">
-            <button class="iconBtn select ${isSel ? "active" : ""}" data-action="select" data-file="${escapeHtml(item.file)}" title="Seç"></button>
-            <button class="iconBtn star ${isFav ? "active" : ""}" data-action="fav" data-file="${escapeHtml(item.file)}" title="Favori"></button>
-            <button class="iconBtn dl" data-action="dl" data-file="${escapeHtml(item.file)}" title="İndir"></button>
-          </span>
+          <div class="left">
+            <div class="title" data-action="play" title="${escapeHtml(it.title)}">
+              ${escapeHtml(it.title)}
+            </div>
+          </div>
+
+          <div class="right">
+            <div class="badge" title="Süre">${escapeHtml(it.info || "")}</div>
+
+            <div class="actions">
+              <div class="likeCount" title="Like">${likeN}</div>
+              <button class="iconBtn like ${isLiked ? "active" : ""}" data-action="like" title="Like"></button>
+
+              <button class="iconBtn select ${isSel ? "active" : ""}" data-action="select" title="Seç"></button>
+              <button class="iconBtn star ${isFav ? "active" : ""}" data-action="fav" title="Favori"></button>
+              <button class="iconBtn dl" data-action="dl" title="İndir"></button>
+            </div>
+          </div>
         `;
 
         listEl.appendChild(row);
-      });
-
-      if (!shown){
-        listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Sonuç yok.</div>";
       }
 
-      updateMetaLine();
-      rebuildQueue(); // filtre değişince kuyruk güncellensin
+      updateMetaLine(view.length);
     }
 
-    // --- Queue (ordered or shuffled) ---
-    function buildFilteredIndices(){
-      const arr = [];
-      items.forEach((it, idx) => { if (passesFilters(it)) arr.push(idx); });
-      return arr;
+    function setStatus(msg){
+      statusEl.textContent = msg || "";
     }
 
-    function shuffleArray(a){
-      for (let i = a.length - 1; i > 0; i--){
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    function rebuildQueue(){
-      const filtered = buildFilteredIndices();
-      if (!filtered.length){
-        playQueue = [];
-        queuePos = -1;
-        return;
-      }
-
-      // if currently playing, keep it in the queue and keep position
-      const current = activeIndex;
-
-      if (!shuffle){
-        playQueue = filtered; // alphabetical list order (items already sorted)
-      } else {
-        playQueue = shuffleArray(filtered.slice());
-      }
-
-      if (current != null){
-        const pos = playQueue.indexOf(current);
-        queuePos = pos >= 0 ? pos : -1;
-      } else {
-        queuePos = -1;
-      }
-    }
-
-    function setShuffle(on){
-      shuffle = !!on;
-      localStorage.setItem(LS_SHUFFLE, shuffle ? "1" : "0");
-      shufflePill.textContent = shuffle ? "Açık" : "Kapalı";
-      shufflePill.classList.toggle("on", shuffle);
-      modePill.textContent = shuffle ? "Karışık" : "Sıralı";
-      modePill.classList.toggle("on", shuffle);
-      rebuildQueue();
-    }
-
-    function nextIndex(){
-      if (!playQueue.length) return null;
-      if (queuePos < 0){
-        // not in queue yet
-        return playQueue[0];
-      }
-      queuePos = (queuePos + 1) % playQueue.length;
-      return playQueue[queuePos];
-    }
-
-    function prevIndex(){
-      if (!playQueue.length) return null;
-      if (queuePos < 0){
-        return playQueue[0];
-      }
-      queuePos = (queuePos - 1 + playQueue.length) % playQueue.length;
-      return playQueue[queuePos];
-    }
-
-    async function playIndex(index, reason = "manual"){
-      const item = items[index];
-      if (!item) return;
-
-      activeIndex = index;
-
-      // Ensure queue is built and position set
-      rebuildQueue();
-      queuePos = playQueue.indexOf(index);
-
-      const src = item.url;
-      titleLeftEl.textContent = item.title;
+    async function playFile(file, title){
+      activeFile = file;
+      fpTitle.textContent = title || "Seçili kayıt";
       setStatus("Yükleniyor…");
 
-      // Plyr download button points to file
-      plyr.config.urls = { download: src };
+      audioEl.src = fileUrl(file);
 
-      renderList();
-
-      try { playerEl.pause(); } catch {}
-      playerEl.src = src;
-      playerEl.load();
-
-      const resumeAt = loadResume(item.file);
-      const applyResumeOnce = () => {
-        playerEl.removeEventListener("loadedmetadata", applyResumeOnce);
-        if (resumeAt > 3 && playerEl.duration && resumeAt < playerEl.duration - 2) {
-          playerEl.currentTime = resumeAt;
-          setStatus(`Kaldığın yerden devam: ${formatSecondsToHMS(resumeAt)}`);
-        }
-      };
-      playerEl.addEventListener("loadedmetadata", applyResumeOnce);
-
-      try{ localStorage.setItem(LS_LAST, item.file); } catch {}
+      // Plyr bazen eski state yüzünden duruyor; load + play zorlayalım
+      try{
+        audioEl.load();
+      } catch {}
 
       try{
-        await playerEl.play();
-        setStatus(shuffle ? "Oynatılıyor (karışık)..." : "Oynatılıyor (sıralı)...");
-      } catch {
+        await plyr.play();
+        setStatus("");
+      } catch (e){
+        // Autoplay / gesture / network vs.
         setStatus("Oynatma başlatılamadı. Play tuşuna bas.");
       }
+
+      renderList();
     }
 
-    // Auto next on ended
-    playerEl.addEventListener("ended", () => {
-      const n = nextIndex();
-      if (n != null) playIndex(n, "ended");
-    });
+    function triggerDownload(file){
+      const url = downloadUrl(file);
 
-    // Resume autosave
-    let lastResumeWrite = 0;
-    playerEl.addEventListener("timeupdate", () => {
-      if (activeIndex == null) return;
-      const item = items[activeIndex];
-      if (!item) return;
-      const now = Date.now();
-      if (now - lastResumeWrite < 5000) return;
-      lastResumeWrite = now;
-      if (playerEl.currentTime > 2) saveResume(item.file, playerEl.currentTime);
-    });
+      // Cross-origin: download attribute bazı tarayıcılarda yok sayılabilir.
+      // Yine de çoğu durumda indirir; olmazsa yeni sekme açılır.
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.download = file; // cross-origin ise tarayıcı yok sayabilir
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
 
-    // Keyboard: next/prev
-    document.addEventListener("keydown", (e) => {
-      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-
-      if (e.key === "ArrowRight"){
-        e.preventDefault();
-        const n = nextIndex();
-        if (n != null) playIndex(n, "key");
-      }
-      if (e.key === "ArrowLeft"){
-        e.preventDefault();
-        const p = prevIndex();
-        if (p != null) playIndex(p, "key");
-      }
-    });
-
-    // Click actions
+    // === Events ===
     listEl.addEventListener("click", (e) => {
-      const el = e.target.closest("[data-action]");
-      if (!el) return;
+      const btn = e.target.closest("[data-action]");
+      const row = e.target.closest(".row");
+      if (!row) return;
 
-      const action = el.dataset.action;
+      const file = row.dataset.file;
+      const item = items.find(x => x.file === file);
+      if (!item) return;
 
-      if (action === "play"){
-        playIndex(Number(el.dataset.index));
+      // Play (title click)
+      if (!btn){
+        // satırın boş yerinden tık -> play
+        playFile(item.file, item.title);
         return;
       }
 
-      const file = el.dataset.file;
-      if (!file) return;
+      const action = btn.dataset.action;
+
+      if (action === "play"){
+        playFile(item.file, item.title);
+        return;
+      }
 
       if (action === "fav"){
         if (favs.has(file)) favs.delete(file);
@@ -654,239 +610,121 @@
       if (action === "select"){
         if (selected.has(file)) selected.delete(file);
         else selected.add(file);
-        saveSelection();
+        saveSelected();
+        renderList();
+        return;
+      }
+
+      if (action === "like"){
+        const cur = getLikeCount(file);
+        likesCount[file] = (cur > 0) ? 0 : 1; // toggle (istersen +1 yaparız)
+        saveLikes();
         renderList();
         return;
       }
 
       if (action === "dl"){
-        // “Yeni sekme” YOK. Direkt indirmeyi dene.
-        const url = fileUrl(file);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file;      // bazı tarayıcılarda cross-origin’de ignore edilebilir ama en iyi pratik bu
-        a.rel = "noreferrer";
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        triggerDownload(file);
         return;
       }
     });
 
-    // Search
-    searchEl.addEventListener("input", () => renderList());
+    searchEl.addEventListener("input", renderList);
+    filterEl.addEventListener("change", renderList);
+    sortEl.addEventListener("change", renderList);
 
-    // Only favs toggle
-    btnToggleFavs.addEventListener("click", () => {
-      onlyFavs = !onlyFavs;
-      btnToggleFavs.textContent = onlyFavs ? "⭐ Favoriler açık" : "⭐ Sadece favoriler";
-      renderList();
-    });
-
-    // Shuffle toggle
-    btnToggleShuffle.addEventListener("click", () => {
-      setShuffle(!shuffle);
-      // karışık açılınca o anda çalan varsa kuyruğu yeniden düzenledik
-      setStatus(shuffle ? "Karışık mod açıldı." : "Sıralı mod açıldı.");
-    });
-
-    // Clear selection
-    btnClearSel.addEventListener("click", () => {
+    clearSelectionBtn.addEventListener("click", () => {
       selected.clear();
-      saveSelection();
+      saveSelected();
       renderList();
     });
 
-    // Load from Archive metadata (durations included)
-    async function loadFromArchive(){
-      metaEl.textContent = "Archive.org’dan liste alınıyor…";
-      titleLeftEl.textContent = "Yükleniyor…";
-      setStatus("Liste hazırlanıyor…");
-
-      const metaUrl = `https://archive.org/metadata/${IDENT}`;
-      const res = await fetch(metaUrl, { cache: "no-store" });
-      if (!res.ok) throw new Error("metadata alınamadı");
-
-      const meta = await res.json();
-      const files = Array.isArray(meta.files) ? meta.files : [];
-
-      items = files
-        .filter(f => f && typeof f === "object" && typeof f.name === "string")
-        .filter(f => f.name.toLowerCase().endsWith(".m4a"))
-        .map(f => {
-          const durRaw = f.length ?? f.duration ?? "";
-          return {
-            file: f.name,
-            title: titleFromFilename(f.name),
-            info: normalizeDuration(durRaw),
-            url: fileUrl(f.name),
-          };
-        })
-        .sort((a, b) => a.title.localeCompare(b.title, "de"));
-
-      updateMetaLine();
-      renderList();
-
-      titleLeftEl.textContent = `Toplam kayıt: ${items.length}`;
-      setStatus("Bir kayıt seç.");
-
-      // restore last played hint
-      const last = localStorage.getItem(LS_LAST);
-      if (last){
-        const idx = items.findIndex(x => x.file === last);
-        if (idx >= 0){
-          activeIndex = idx;
-          titleLeftEl.textContent = items[idx].title;
-          const resumeAt = loadResume(items[idx].file);
-          if (resumeAt > 2) setStatus(`Son dinleme: ${formatSecondsToHMS(resumeAt)} (tıklayınca devam eder)`);
-          renderList();
-        }
-      }
-    }
-
-    // draggable floating player
-    (function enableDrag(){
-      const box = document.getElementById("floatingPlayer");
-      const handle = document.getElementById("fpTitle");
-
-      try{
-        const saved = JSON.parse(localStorage.getItem(LS_POS) || "null");
-        if (saved && typeof saved.x === "number" && typeof saved.y === "number") {
-          box.style.left = saved.x + "px";
-          box.style.top = saved.y + "px";
-          box.style.right = "auto";
-          box.style.bottom = "auto";
-        }
-      } catch {}
-
-      let startX = 0, startY = 0;
-      let boxX = 0, boxY = 0;
+    // === Floating drag ===
+    (function makeDraggable(){
       let dragging = false;
+      let startX = 0, startY = 0;
+      let startLeft = 0, startTop = 0;
 
       function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
-      function pointerDown(e){
-        if (e.target.closest(".plyr__controls")) return;
-
+      function onDown(clientX, clientY){
+        const rect = fp.getBoundingClientRect();
         dragging = true;
-        box.classList.add("dragging");
-
-        const rect = box.getBoundingClientRect();
-        boxX = rect.left;
-        boxY = rect.top;
-
-        const p = e.touches ? e.touches[0] : e;
-        startX = p.clientX;
-        startY = p.clientY;
-
-        box.style.left = boxX + "px";
-        box.style.top = boxY + "px";
-        box.style.right = "auto";
-        box.style.bottom = "auto";
-
-        document.addEventListener(e.touches ? "touchmove" : "mousemove", pointerMove, { passive: false });
-        document.addEventListener(e.touches ? "touchend" : "mouseup", pointerUp, { passive: false });
+        startX = clientX;
+        startY = clientY;
+        startLeft = rect.left;
+        startTop = rect.top;
+        fp.style.right = "auto";
+        fp.style.bottom = "auto";
       }
 
-      function pointerMove(e){
+      function onMove(clientX, clientY){
         if (!dragging) return;
-        if (e.cancelable) e.preventDefault();
+        const dx = clientX - startX;
+        const dy = clientY - startY;
 
-        const p = e.touches ? e.touches[0] : e;
-        const dx = p.clientX - startX;
-        const dy = p.clientY - startY;
+        const newLeft = startLeft + dx;
+        const newTop  = startTop + dy;
 
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const rect = box.getBoundingClientRect();
+        const maxLeft = window.innerWidth - fp.offsetWidth - 6;
+        const maxTop  = window.innerHeight - fp.offsetHeight - 6;
 
-        const newLeft = clamp(boxX + dx, 8, vw - rect.width - 8);
-        const newTop  = clamp(boxY + dy, 8, vh - rect.height - 8);
-
-        box.style.left = newLeft + "px";
-        box.style.top  = newTop + "px";
+        fp.style.left = clamp(newLeft, 6, maxLeft) + "px";
+        fp.style.top  = clamp(newTop, 6, maxTop) + "px";
       }
 
-      function pointerUp(){
+      function onUp(){ dragging = false; }
+
+      fpHeader.addEventListener("mousedown", (e) => {
+        onDown(e.clientX, e.clientY);
+        e.preventDefault();
+      });
+      window.addEventListener("mousemove", (e) => onMove(e.clientX, e.clientY));
+      window.addEventListener("mouseup", onUp);
+
+      fpHeader.addEventListener("touchstart", (e) => {
+        const t = e.touches[0];
+        onDown(t.clientX, t.clientY);
+      }, {passive:true});
+      window.addEventListener("touchmove", (e) => {
         if (!dragging) return;
-        dragging = false;
-        box.classList.remove("dragging");
-
-        const rect = box.getBoundingClientRect();
-        localStorage.setItem(LS_POS, JSON.stringify({ x: rect.left, y: rect.top }));
-
-        document.removeEventListener("mousemove", pointerMove);
-        document.removeEventListener("mouseup", pointerUp);
-        document.removeEventListener("touchmove", pointerMove);
-        document.removeEventListener("touchend", pointerUp);
-      }
-
-      handle.addEventListener("mousedown", pointerDown);
-      handle.addEventListener("touchstart", pointerDown, { passive: false });
+        const t = e.touches[0];
+        onMove(t.clientX, t.clientY);
+      }, {passive:true});
+      window.addEventListener("touchend", onUp);
     })();
 
-    // init
-    loadFavs();
-    loadSelection();
-    setShuffle(localStorage.getItem(LS_SHUFFLE) === "1");
+    // === Init ===
+    async function loadItems(){
+      loadFavs();
+      loadSelected();
+      loadLikes();
 
-    // Add prev/next buttons into Plyr controls (custom)
-    // (Plyr has no built-in prev/next; we inject two buttons next to rewind/play.)
-    (function injectPrevNext(){
-      const tryInject = () => {
-        const controls = document.querySelector("#floatingPlayer .plyr__controls");
-        if (!controls) return false;
+      try{
+        const res = await fetch("./items.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("items.json okunamadı");
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("items.json formatı yanlış");
 
-        // avoid duplicates
-        if (controls.querySelector("[data-custom='prev']")) return true;
+        // beklenen format: [{title,file,info}, ...]
+        items = data
+          .filter(x => x && x.file)
+          .map(x => ({
+            title: String(x.title || x.file),
+            file: String(x.file),
+            info: String(x.info || "")
+          }));
 
-        const makeBtn = (label, title, onClick) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "plyr__control";
-          btn.setAttribute("data-custom", label);
-          btn.setAttribute("title", title);
-          btn.setAttribute("aria-label", title);
-          btn.innerHTML = label === "prev" ? "⏮" : "⏭";
-          btn.addEventListener("click", (e) => { e.preventDefault(); onClick(); });
-          return btn;
-        };
+        renderList();
+        setStatus("");
+      } catch (err){
+        console.error(err);
+        metaEl.textContent = "Liste yüklenemedi. items.json kontrol et.";
+        setStatus("Liste yüklenemedi.");
+      }
+    }
 
-        const prevBtn = makeBtn("prev", "Önceki", () => {
-          const p = prevIndex();
-          if (p != null) playIndex(p, "prev");
-        });
-        const nextBtn = makeBtn("next", "Sonraki", () => {
-          const n = nextIndex();
-          if (n != null) playIndex(n, "next");
-        });
-
-        // insert near play button
-        const playBtn = controls.querySelector("[data-plyr='play']");
-        if (playBtn){
-          controls.insertBefore(prevBtn, playBtn);
-          controls.insertBefore(nextBtn, playBtn.nextSibling);
-        } else {
-          controls.prepend(prevBtn, nextBtn);
-        }
-        return true;
-      };
-
-      // wait a bit until plyr mounts
-      const t = setInterval(() => {
-        if (tryInject()) clearInterval(t);
-      }, 200);
-      setTimeout(() => clearInterval(t), 5000);
-    })();
-
-    loadFromArchive().catch(err => {
-      console.error(err);
-      metaEl.textContent = "Liste yüklenemedi (Archive.org metadata hatası).";
-      titleLeftEl.textContent = "Liste yüklenemedi";
-      setStatus("Ağ/geçici sorun olabilir. Yenile veya sonra tekrar dene.");
-      listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Liste yüklenemedi.</div>";
-    });
+    loadItems();
   </script>
 </body>
 </html>
