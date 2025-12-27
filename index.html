@@ -9,325 +9,258 @@
 
   <style>
     :root{
-      --bg:#fff; --text:#111; --muted:#666; --line:#eee;
-      --soft:#f6f6f6; --softBorder:#e5e5e5;
-      --active:#e5f2ff; --shadow: 0 10px 30px rgba(0,0,0,.12);
-      --radius: 12px; --blue:#2563eb; --amber:#f59e0b; --rose:#e11d48;
+      --bg:#fff;
+      --line:#eee;
+      --muted:#666;
+      --muted2:#888;
+      --accent:#1677ff;
+      --danger:#e11d48;
+      --star:#f59e0b;
+      --chip:#f5f5f7;
     }
-
     body{
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       margin: 18px;
       max-width: 1100px;
-      color: var(--text);
-      background: var(--bg);
-      font-weight: 400;
+      background:var(--bg);
+      color:#111;
     }
-
-    h1{
-      font-size: 1.5rem;
-      margin: 0 0 12px 0;
-      font-weight: 600;
-    }
+    h1{ font-size: 22px; margin: 0 0 12px; font-weight: 700; }
 
     .topbar{
       display:flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      gap:10px;
       align-items:center;
-      margin-bottom: 8px;
+      flex-wrap:wrap;
+      margin-bottom: 10px;
     }
-
     #search{
-      flex: 1 1 380px;
+      flex:1;
+      min-width: 260px;
       padding: 10px 12px;
-      border: 1px solid #cfcfcf;
+      border:1px solid #d9d9d9;
       border-radius: 10px;
-      font-size: 1rem;
-      outline: none;
-      font-weight: 400;
+      outline:none;
+      font-size: 15px;
     }
+    #search:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(22,119,255,.15); }
 
-    .chipBtn{
+    .pill{
       padding: 9px 12px;
-      border:1px solid var(--softBorder);
-      background: var(--soft);
-      border-radius:10px;
+      border:1px solid #d9d9d9;
+      border-radius: 10px;
+      background:#fff;
       cursor:pointer;
-      user-select:none;
-      font-weight:600;
-      font-size:.95rem;
-      white-space:nowrap;
-    }
-    .chipBtn:active{ transform: translateY(1px); }
-
-    #statusTop{
-      font-size: .95rem;
-      color: var(--muted);
-      margin: 6px 0 10px 2px;
-      font-weight: 400;
-    }
-
-    /* Kolon üstü ikon filtre satırı */
-    #iconFilters{
-      display:flex;
-      align-items:center;
-      justify-content: flex-end;
-      gap: 10px;
-      padding: 10px 6px;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      color: var(--muted);
+      font-size: 14px;
       user-select:none;
     }
-    #iconFilters .hint{
-      margin-right:auto;
-      font-size:.92rem;
+    .pill:hover{ background: var(--chip); }
+
+    .meta{
+      font-size: 13px;
       color: var(--muted);
+      margin: 6px 0 10px;
     }
 
     #list{
-      margin-bottom: 140px; /* floating player boşluğu */
+      border-top:1px solid var(--line);
     }
-
-    /* Daha sık satır */
     .row{
       display:flex;
+      gap:10px;
       align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 6px 6px;
-      border-bottom: 1px solid #f2f2f2;
-      cursor: pointer;
-      font-size: 0.95rem;
-      line-height: 1.25;
-      font-weight: 400;
+      justify-content:space-between;
+      padding: 8px 6px;           /* ✅ satır aralığı sıkı */
+      border-bottom:1px solid var(--line);
+      cursor:pointer;
     }
     .row:hover{ background:#fafafa; }
-    .row.active{ background: var(--active); }
+    .row.active{ background: rgba(22,119,255,.09); }
 
-    .left{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      min-width: 0;
-      flex: 1;
-    }
     .title{
       flex: 1;
       min-width: 0;
+      font-size: 15px;            /* ✅ bold kaldırdım */
+      font-weight: 400;
+      line-height: 1.25;
+      white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
-      font-weight: 400;
     }
 
     .right{
       display:flex;
       align-items:center;
-      gap: 8px;
-      flex: 0 0 auto;
+      gap:8px;
+      white-space:nowrap;
+      flex-shrink:0;
+    }
+    .dur{
+      min-width: 52px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 13px;
     }
 
-    .actions{
-      display:flex;
-      align-items:center;
-      gap: 8px;
-    }
-
-    .iconBtn{
-      width: 28px;
-      height: 28px;
+    .iconbtn{
+      width: 34px;
+      height: 34px;
       border-radius: 999px;
-      border: 2px solid #dcdcdc;
-      background: #fff;
+      border:1px solid #d9d9d9;
+      background:#fff;
       display:inline-flex;
       align-items:center;
       justify-content:center;
       cursor:pointer;
       user-select:none;
-      padding:0;
     }
-    .iconBtn:active{ transform: translateY(1px); }
+    .iconbtn:hover{ background: var(--chip); }
+    .iconbtn:active{ transform: translateY(1px); }
 
+    .likeWrap{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      min-width: 54px;
+      justify-content:flex-end;
+    }
     .likeCount{
-      font-size: 0.85rem;
-      color:#444;
-      min-width: 16px;
+      width: 18px;
       text-align:right;
+      color: var(--muted2);
+      font-size: 13px;
       font-variant-numeric: tabular-nums;
-      font-weight: 400;
     }
 
-    /* Like */
-    .iconBtn.like::before{ content:"♡"; font-size: 14px; color:#777; transform: translateY(-0.5px); }
-    .iconBtn.like.active{ border-color: var(--rose); background:#fff0f3; }
-    .iconBtn.like.active::before{ content:"♥"; color: var(--rose); }
+    .heart{ color: var(--muted2); }
+    .heart.on{ color: var(--danger); }
 
-    /* Favorite */
-    .iconBtn.star::before{ content:"☆"; font-size: 15px; color:#777; transform: translateY(-0.5px); }
-    .iconBtn.star.active{ border-color: var(--amber); background:#fff7ed; }
-    .iconBtn.star.active::before{ content:"★"; color: var(--amber); }
-
-    /* Selected */
-    .iconBtn.select::before{ content:"✓"; font-size: 15px; color:#9aa0a6; transform: translateY(-0.5px); }
-    .iconBtn.select.active{ border-color: var(--blue); background: var(--blue); }
-    .iconBtn.select.active::before{ color:#fff; }
-
-    /* Download */
-    .iconBtn.dl::before{ content:"⤓"; font-size: 15px; color:#111; transform: translateY(-0.5px); }
+    .star{ color: var(--muted2); }
+    .star.on{ color: var(--star); }
 
     /* Floating player */
     #floatingPlayer{
       position: fixed;
       left: 18px;
       bottom: 18px;
-      width: min(680px, calc(100vw - 36px));
+      width: min(620px, calc(100vw - 36px));
       background: #fff;
       border: 1px solid #e6e6e6;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
       z-index: 9999;
       overflow:hidden;
     }
-
     #fpHeader{
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      gap: 10px;
+      justify-content:space-between;
+      gap:10px;
       padding: 10px 12px;
-      border-bottom: 1px solid #efefef;
-      cursor: grab;
+      border-bottom: 1px solid var(--line);
+      background: #fcfcfd;
+      cursor: grab;               /* ✅ sürüklenebilir */
       user-select:none;
-      background: #fafafa;
     }
     #fpHeader:active{ cursor: grabbing; }
 
     #fpTitle{
-      font-size: .95rem;
-      color:#222;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
-      font-weight: 600;
-      flex: 1;
-      min-width:0;
+      flex:1;
     }
-    #fpHint{
-      font-size: .8rem;
-      color:#888;
-      font-weight: 400;
-      white-space:nowrap;
+    #fpStatus{
+      padding: 0 12px 8px;
+      font-size: 13px;
+      color: var(--muted);
     }
-
-    #fpBody{ padding: 10px 12px 12px 12px; }
-
-    #playerStatus{
-      font-size: .9rem;
-      color:#666;
-      margin: 0 0 8px 2px;
-      font-weight: 400;
+    .fpControls{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
     }
+    .tiny{
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      border: 1px solid #d9d9d9;
+      background:#fff;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+    }
+    .tiny:hover{ background: var(--chip); }
+    .tiny:active{ transform: translateY(1px); }
 
-    .plyr{ border-radius: 10px; }
+    /* Plyr iç boşluk */
+    #fpBody{ padding: 8px 10px 10px; }
 
-    /* Plyr custom prev/next ikonları biraz büyüsün */
-    .plyr__control[data-plyr="prev"],
-    .plyr__control[data-plyr="next"]{
-      font-size: 16px;
-      line-height: 1;
+    /* Mobilde biraz küçült */
+    @media (max-width: 520px){
+      .dur{ display:none; }
+      .likeWrap{ min-width: auto; }
+      #floatingPlayer{ width: calc(100vw - 24px); left:12px; bottom:12px; }
     }
   </style>
 </head>
-
 <body>
+
   <h1>Alfabetik FSP A–Z</h1>
 
   <div class="topbar">
     <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
-    <button class="chipBtn" id="clearFiltersBtn" title="Filtreleri temizle">Hepsi</button>
+    <button id="clearFilter" class="pill" title="Aramayı temizle + filtreleri sıfırla">Hepsi</button>
   </div>
 
-  <div id="statusTop"></div>
-
-  <div id="iconFilters">
-    <div class="hint">Kayıt</div>
-
-    <div class="likeCount" title="Like"></div>
-    <button class="iconBtn like" id="filterLikeBtn" title="Sadece liked"></button>
-    <button class="iconBtn select" id="filterSelectBtn" title="Sadece seçili"></button>
-    <button class="iconBtn star" id="filterFavBtn" title="Sadece favoriler"></button>
-    <button class="iconBtn dl" disabled style="opacity:.45; cursor:default;" title="İndir (satırda var)"></button>
-  </div>
+  <div class="meta" id="meta">Yükleniyor...</div>
 
   <div id="list"></div>
 
-  <div id="floatingPlayer" aria-label="Audio player">
+  <!-- Floating player -->
+  <div id="floatingPlayer" role="region" aria-label="Player">
     <div id="fpHeader">
-      <div id="fpTitle">Seçili kayıt yok</div>
-      <div id="fpHint">Sürükle</div>
+      <div id="fpTitle">Bir kayıt seç…</div>
+      <div class="fpControls">
+        <button id="btnPrev" class="tiny" title="Önceki">⏮</button>
+        <button id="btnNext" class="tiny" title="Sonraki">⏭</button>
+      </div>
     </div>
-
+    <div id="fpStatus"></div>
     <div id="fpBody">
-      <div id="playerStatus"></div>
-
-      <!-- Crossorigin + Plyr -->
-      <audio id="player" class="js-player" controls preload="auto" crossorigin="anonymous"></audio>
+      <audio id="player" class="js-player" controls preload="none" crossorigin="anonymous"></audio>
     </div>
   </div>
 
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
   <script>
-    // Archive download base
     const BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
+    const ITEMS_URL = "./items.json";
 
-    // Storage keys
-    const LS_FAVS = "favs_v5";
-    const LS_SELECTED = "selected_v5";
-    const LS_LIKES = "likes_count_v5";
-
-    // State
-    let items = [];
-    let favs = new Set();
-    let selected = new Set();
-    let likesCount = {};
-    let activeFile = null;
-
-    // filter: all | fav | liked | selected
-    let filterMode = "all";
-
-    // view for prev/next
-    let currentView = [];
-    let currentIndex = -1;
-
-    // Elements
-    const listEl = document.getElementById("list");
+    const listEl   = document.getElementById("list");
     const searchEl = document.getElementById("search");
-    const statusTopEl = document.getElementById("statusTop");
+    const metaEl   = document.getElementById("meta");
 
-    const clearFiltersBtn = document.getElementById("clearFiltersBtn");
-    const filterFavBtn = document.getElementById("filterFavBtn");
-    const filterLikeBtn = document.getElementById("filterLikeBtn");
-    const filterSelectBtn = document.getElementById("filterSelectBtn");
+    const fpTitle  = document.getElementById("fpTitle");
+    const fpStatus = document.getElementById("fpStatus");
+    const btnPrev  = document.getElementById("btnPrev");
+    const btnNext  = document.getElementById("btnNext");
 
-    const fp = document.getElementById("floatingPlayer");
-    const fpHeader = document.getElementById("fpHeader");
-    const fpTitle = document.getElementById("fpTitle");
-    const playerStatusEl = document.getElementById("playerStatus");
+    const playerEl = document.getElementById("player");
 
-    const audioEl = document.getElementById("player");
-
-    // Plyr with custom Prev/Next buttons INSIDE controls
-    const plyr = new Plyr(audioEl, {
-      seekTime: 5,
+    // Plyr
+    const plyr = new Plyr(playerEl, {
+      seekTime: 5, // ✅ -5/+5
       controls: [
-        '<button type="button" class="plyr__control" data-plyr="prev" aria-label="Önceki" title="Önceki (←)">⏮</button>',
         "rewind",
         "play",
         "fast-forward",
-        '<button type="button" class="plyr__control" data-plyr="next" aria-label="Sonraki" title="Sonraki (→)">⏭</button>',
         "progress",
         "current-time",
         "duration",
@@ -336,326 +269,304 @@
       ]
     });
 
-    function escapeHtml(str){
-      return String(str ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+    let items = [];
+    let activeIndex = null; // items[] index
+    let filteredIdx = [];   // items index list
+
+    // Local storage (device bazlı)
+    const LS_LIKES = "fsp_likes_v1";
+    const LS_FAVS  = "fsp_favs_v1";
+    const LS_DURS  = "fsp_durations_v1";
+
+    const likes = JSON.parse(localStorage.getItem(LS_LIKES) || "{}");   // file -> number
+    const favs  = JSON.parse(localStorage.getItem(LS_FAVS)  || "{}");   // file -> true
+    const durs  = JSON.parse(localStorage.getItem(LS_DURS)  || "{}");   // file -> "mm:ss"
+
+    function saveLikes(){ localStorage.setItem(LS_LIKES, JSON.stringify(likes)); }
+    function saveFavs(){  localStorage.setItem(LS_FAVS,  JSON.stringify(favs));  }
+    function saveDurs(){  localStorage.setItem(LS_DURS,  JSON.stringify(durs));  }
+
+    function urlFor(item){
+      return BASE + item.file;
     }
 
-    function fileUrl(file){
-      const encoded = encodeURIComponent(file).replace(/%2F/g, "/");
-      return BASE + encoded;
+    function fmtTime(sec){
+      if (!isFinite(sec) || sec <= 0) return "";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
     }
 
-    function downloadUrl(file){
-      return fileUrl(file) + "?download=1";
+    function buildFiltered(){
+      const q = (searchEl.value || "").trim().toLowerCase();
+      filteredIdx = [];
+      for (let i = 0; i < items.length; i++){
+        if (!q || items[i].title.toLowerCase().includes(q)) filteredIdx.push(i);
+      }
+      metaEl.textContent = `Görünen: ${filteredIdx.length} / Toplam: ${items.length}`;
     }
 
-    function loadSet(key){
-      try{
-        const arr = JSON.parse(localStorage.getItem(key) || "[]");
-        return new Set(Array.isArray(arr) ? arr : []);
-      } catch { return new Set(); }
-    }
-    function saveSet(key, set){
-      localStorage.setItem(key, JSON.stringify([...set]));
-    }
-
-    function loadLikes(){
-      try{
-        const obj = JSON.parse(localStorage.getItem(LS_LIKES) || "{}");
-        return (obj && typeof obj === "object") ? obj : {};
-      } catch { return {}; }
-    }
-    function saveLikes(){
-      localStorage.setItem(LS_LIKES, JSON.stringify(likesCount));
-    }
-    function getLikeCount(file){
-      return Number(likesCount[file] || 0);
-    }
-
-    function setTopStatus(msg){ statusTopEl.textContent = msg || ""; }
-    function setPlayerStatus(msg){ playerStatusEl.textContent = msg || ""; }
-
-    function updateFilterIcons(){
-      filterFavBtn.classList.toggle("active", filterMode === "fav");
-      filterLikeBtn.classList.toggle("active", filterMode === "liked");
-      filterSelectBtn.classList.toggle("active", filterMode === "selected");
-    }
-
-    function buildView(){
-      const q = searchEl.value.trim().toLowerCase();
-
-      let view = items.filter(it => {
-        const t = (it.title || "").toLowerCase();
-        if (q && !t.includes(q)) return false;
-
-        const isFav = favs.has(it.file);
-        const isSel = selected.has(it.file);
-        const isLiked = getLikeCount(it.file) > 0;
-
-        if (filterMode === "fav") return isFav;
-        if (filterMode === "liked") return isLiked;
-        if (filterMode === "selected") return isSel;
-        return true;
-      });
-
-      view.sort((a,b) => String(a.title).localeCompare(String(b.title), "tr"));
-      return view;
-    }
-
-    function renderList(){
-      updateFilterIcons();
-
-      currentView = buildView();
+    function render(){
+      buildFiltered();
       listEl.innerHTML = "";
 
-      const likedN = Object.values(likesCount).filter(n => Number(n) > 0).length;
-      setTopStatus(`Görünen: ${currentView.length} • Favori: ${favs.size} • Liked: ${likedN}`);
-
-      for (const it of currentView){
-        const isActive = (it.file === activeFile);
-        const isFav = favs.has(it.file);
-        const isSel = selected.has(it.file);
-
-        const likeN = getLikeCount(it.file);
-        const isLiked = likeN > 0;
-
+      for (const idx of filteredIdx){
+        const it = items[idx];
         const row = document.createElement("div");
-        row.className = "row" + (isActive ? " active" : "");
-        row.dataset.file = it.file;
+        row.className = "row" + (idx === activeIndex ? " active" : "");
+        row.dataset.index = String(idx);
 
-        row.innerHTML = `
-          <div class="left">
-            <div class="title" data-action="play" title="${escapeHtml(it.title)}">
-              ${escapeHtml(it.title)}
-            </div>
-          </div>
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = it.title;
 
-          <div class="right">
-            <div class="actions">
-              <div class="likeCount" title="Like">${likeN}</div>
-              <button class="iconBtn like ${isLiked ? "active" : ""}" data-action="like" title="Like"></button>
+        const right = document.createElement("div");
+        right.className = "right";
 
-              <button class="iconBtn select ${isSel ? "active" : ""}" data-action="select" title="Seç"></button>
-              <button class="iconBtn star ${isFav ? "active" : ""}" data-action="fav" title="Favori"></button>
-              <button class="iconBtn dl" data-action="dl" title="İndir"></button>
-            </div>
-          </div>
-        `;
+        // duration (önceden biliniyorsa göster)
+        const dur = document.createElement("div");
+        dur.className = "dur";
+        dur.textContent = durs[it.file] || "";
+        right.appendChild(dur);
+
+        // like
+        const likeWrap = document.createElement("div");
+        likeWrap.className = "likeWrap";
+
+        const likeCount = document.createElement("div");
+        likeCount.className = "likeCount";
+        likeCount.textContent = String(likes[it.file] || 0);
+
+        const likeBtn = document.createElement("button");
+        likeBtn.className = "iconbtn";
+        likeBtn.title = "Like";
+        const heart = document.createElement("span");
+        heart.className = "heart" + ((likes[it.file] || 0) > 0 ? " on" : "");
+        heart.textContent = "♥";
+        likeBtn.appendChild(heart);
+
+        likeBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          likes[it.file] = (likes[it.file] || 0) + 1;
+          saveLikes();
+          render();
+        });
+
+        likeWrap.appendChild(likeCount);
+        likeWrap.appendChild(likeBtn);
+        right.appendChild(likeWrap);
+
+        // fav
+        const favBtn = document.createElement("button");
+        favBtn.className = "iconbtn";
+        favBtn.title = "Favori";
+        const star = document.createElement("span");
+        star.className = "star" + (favs[it.file] ? " on" : "");
+        star.textContent = "★";
+        favBtn.appendChild(star);
+
+        favBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          favs[it.file] = !favs[it.file];
+          if (!favs[it.file]) delete favs[it.file];
+          saveFavs();
+          render();
+        });
+
+        right.appendChild(favBtn);
+
+        // download (küçük ikon)
+        const dl = document.createElement("a");
+        dl.className = "iconbtn";
+        dl.title = "İndir / Aç";
+        dl.href = urlFor(it);
+        dl.target = "_blank";
+        dl.rel = "noopener";
+        dl.textContent = "⬇";
+        dl.addEventListener("click", (e) => e.stopPropagation());
+        right.appendChild(dl);
+
+        row.appendChild(title);
+        row.appendChild(right);
+
+        row.addEventListener("click", () => {
+          // ✅ satır tıklaması user-gesture => autoplay denemesi burada
+          playIndex(idx, true);
+        });
+
         listEl.appendChild(row);
       }
-
-      currentIndex = currentView.findIndex(x => x.file === activeFile);
     }
 
-    async function safePlay(){
-      try{
-        const p = plyr.play();
-        if (p && typeof p.then === "function") await p;
-        setPlayerStatus("");
-      } catch {
-        setPlayerStatus("Oynatma başlatılamadı. Player’daki ▶ tuşuna bas (tarayıcı kısıtı olabilir).");
-      }
-    }
-
-    function playByIndex(idx){
-      const it = currentView[idx];
-      if (!it) return;
-
-      activeFile = it.file;
-      currentIndex = idx;
-
-      fpTitle.textContent = it.title || "Seçili kayıt";
-      setPlayerStatus("Yükleniyor…");
-
-      audioEl.crossOrigin = "anonymous";
-      audioEl.src = fileUrl(it.file);
-      try { audioEl.load(); } catch {}
-
-      safePlay();
-      renderList();
-    }
-
-    function playFile(file){
-      const idx = currentView.findIndex(x => x.file === file);
-      if (idx >= 0) playByIndex(idx);
+    function findActivePos(){
+      if (activeIndex == null) return -1;
+      return filteredIdx.indexOf(activeIndex);
     }
 
     function playPrev(){
-      if (currentIndex > 0) playByIndex(currentIndex - 1);
+      if (!filteredIdx.length) return;
+      const pos = findActivePos();
+      const nextPos = (pos <= 0) ? (filteredIdx.length - 1) : (pos - 1);
+      playIndex(filteredIdx[nextPos], true);
     }
+
     function playNext(){
-      if (currentIndex >= 0 && currentIndex < currentView.length - 1) playByIndex(currentIndex + 1);
+      if (!filteredIdx.length) return;
+      const pos = findActivePos();
+      const nextPos = (pos === -1 || pos >= filteredIdx.length - 1) ? 0 : (pos + 1);
+      playIndex(filteredIdx[nextPos], true);
     }
 
-    function triggerDownload(file){
-      const url = downloadUrl(file);
-      const a = document.createElement("a");
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+    btnPrev.addEventListener("click", playPrev);
+    btnNext.addEventListener("click", playNext);
+
+    async function playIndex(index, userInitiated){
+      const it = items[index];
+      if (!it) return;
+
+      activeIndex = index;
+      fpTitle.textContent = it.title;
+      fpStatus.textContent = "Yükleniyor…";
+
+      // Kaynak değiştir
+      playerEl.src = urlFor(it);
+      playerEl.load(); // ✅ önce yükle
+
+      render();
+
+      // Autoplay denemesi: sadece gerçekten kullanıcı tıklamasıyla geldiyse
+      if (userInitiated){
+        try{
+          // play() promise döner; yakalayalım
+          await plyr.play();
+          fpStatus.textContent = "";
+        }catch(err){
+          // Tarayıcı engelledi
+          fpStatus.innerHTML =
+            "Oynatma başlatılamadı. Player’daki ▶ tuşuna bas (tarayıcı kısıtı olabilir).";
+        }
+      } else {
+        fpStatus.textContent = "Hazır. Oynatmak için ▶ veya Space.";
+      }
     }
 
-    // Plyr custom prev/next handler (player içinde)
-    document.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-plyr]");
-      if (!b) return;
-      const action = b.getAttribute("data-plyr");
-      if (action === "prev") playPrev();
-      if (action === "next") playNext();
+    // Metadata geldiğinde süreyi kaydet (cihazında birikir)
+    playerEl.addEventListener("loadedmetadata", () => {
+      const dur = fmtTime(playerEl.duration);
+      if (activeIndex != null){
+        const f = items[activeIndex].file;
+        if (dur && durs[f] !== dur){
+          durs[f] = dur;
+          saveDurs();
+          render();
+        }
+      }
     });
 
-    // Space: play/pause, arrows: prev/next (input dışında)
-    document.addEventListener("keydown", (e) => {
-      const tag = (document.activeElement && document.activeElement.tagName || "").toLowerCase();
-      if (tag === "input" || tag === "textarea") return;
+    // Track bitince otomatik sonraki
+    playerEl.addEventListener("ended", () => {
+      playNext();
+    });
+
+    // Arama
+    searchEl.addEventListener("input", render);
+
+    // Hepsi butonu: aramayı temizle + aktif filtreyi sıfırla
+    document.getElementById("clearFilter").addEventListener("click", () => {
+      searchEl.value = "";
+      render();
+    });
+
+    // Space: play/pause (inputta yazarken devre dışı)
+    document.addEventListener("keydown", async (e) => {
+      const tag = (document.activeElement && document.activeElement.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
 
       if (e.code === "Space"){
         e.preventDefault();
-        try { plyr.togglePlay(); } catch {}
-      }
-      if (e.key === "ArrowLeft"){
+        try{
+          if (plyr.playing) plyr.pause();
+          else await plyr.play();
+        }catch{
+          // autoplay engeli olabilir -> kullanıcı zaten space’e bastı, bazen yine de engelleyebilir
+          fpStatus.textContent = "Oynatma başlatılamadı. ▶ tuşuna basmayı dene.";
+        }
+      } else if (e.key === "ArrowDown"){
         e.preventDefault();
-        playPrev();
-      }
-      if (e.key === "ArrowRight"){
+        if (!filteredIdx.length) return;
+        const pos = findActivePos();
+        const nextPos = (pos === -1 || pos >= filteredIdx.length - 1) ? 0 : (pos + 1);
+        // ok ile sadece seç/ hazırla, autoplay zorlamayalım
+        playIndex(filteredIdx[nextPos], false);
+      } else if (e.key === "ArrowUp"){
         e.preventDefault();
-        playNext();
+        if (!filteredIdx.length) return;
+        const pos = findActivePos();
+        const nextPos = (pos <= 0) ? (filteredIdx.length - 1) : (pos - 1);
+        playIndex(filteredIdx[nextPos], false);
       }
     });
 
-    // Filters (ikon satırı)
-    function setFilter(mode){
-      filterMode = (filterMode === mode) ? "all" : mode;
-      renderList();
-    }
-    filterFavBtn.addEventListener("click", () => setFilter("fav"));
-    filterLikeBtn.addEventListener("click", () => setFilter("liked"));
-    filterSelectBtn.addEventListener("click", () => setFilter("selected"));
-    clearFiltersBtn.addEventListener("click", () => { filterMode = "all"; renderList(); });
-
-    // Search
-    searchEl.addEventListener("input", renderList);
-
-    // List click
-    listEl.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-action]");
-      const row = e.target.closest(".row");
-      if (!row) return;
-
-      const file = row.dataset.file;
-      const action = btn ? btn.dataset.action : "play";
-
-      if (action === "play"){ playFile(file); return; }
-
-      if (action === "fav"){
-        if (favs.has(file)) favs.delete(file); else favs.add(file);
-        saveSet(LS_FAVS, favs); renderList(); return;
-      }
-
-      if (action === "select"){
-        if (selected.has(file)) selected.delete(file); else selected.add(file);
-        saveSet(LS_SELECTED, selected); renderList(); return;
-      }
-
-      if (action === "like"){
-        likesCount[file] = (getLikeCount(file) > 0) ? 0 : 1;
-        saveLikes(); renderList(); return;
-      }
-
-      if (action === "dl"){
-        triggerDownload(file); return;
-      }
-    });
-
-    // Floating drag
+    // Floating player drag
     (function makeDraggable(){
+      const box = document.getElementById("floatingPlayer");
+      const handle = document.getElementById("fpHeader");
+
       let dragging = false;
       let startX = 0, startY = 0;
-      let startLeft = 0, startTop = 0;
+      let origX = 0, origY = 0;
 
-      function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+      function getRect(){
+        const r = box.getBoundingClientRect();
+        return { x: r.left, y: r.top };
+      }
 
-      function onDown(clientX, clientY){
-        const rect = fp.getBoundingClientRect();
+      handle.addEventListener("pointerdown", (e) => {
         dragging = true;
-        startX = clientX; startY = clientY;
-        startLeft = rect.left; startTop = rect.top;
-        fp.style.right = "auto"; fp.style.bottom = "auto";
-      }
-      function onMove(clientX, clientY){
-        if (!dragging) return;
-        const dx = clientX - startX;
-        const dy = clientY - startY;
-        const newLeft = startLeft + dx;
-        const newTop  = startTop + dy;
-        const maxLeft = window.innerWidth - fp.offsetWidth - 6;
-        const maxTop  = window.innerHeight - fp.offsetHeight - 6;
-        fp.style.left = clamp(newLeft, 6, maxLeft) + "px";
-        fp.style.top  = clamp(newTop, 6, maxTop) + "px";
-      }
-      function onUp(){ dragging = false; }
+        handle.setPointerCapture(e.pointerId);
+        const r = getRect();
+        origX = r.x; origY = r.y;
+        startX = e.clientX; startY = e.clientY;
+      });
 
-      fpHeader.addEventListener("mousedown", (e) => { onDown(e.clientX, e.clientY); e.preventDefault(); });
-      window.addEventListener("mousemove", (e) => onMove(e.clientX, e.clientY));
-      window.addEventListener("mouseup", onUp);
-
-      fpHeader.addEventListener("touchstart", (e) => {
-        const t = e.touches[0]; onDown(t.clientX, t.clientY);
-      }, {passive:true});
-      window.addEventListener("touchmove", (e) => {
+      handle.addEventListener("pointermove", (e) => {
         if (!dragging) return;
-        const t = e.touches[0]; onMove(t.clientX, t.clientY);
-      }, {passive:true});
-      window.addEventListener("touchend", onUp);
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        let nx = origX + dx;
+        let ny = origY + dy;
+
+        // ekran içinde tut
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const r = box.getBoundingClientRect();
+        nx = Math.max(8, Math.min(nx, vw - r.width - 8));
+        ny = Math.max(8, Math.min(ny, vh - r.height - 8));
+
+        box.style.left = nx + "px";
+        box.style.top = ny + "px";
+        box.style.bottom = "auto";
+      });
+
+      handle.addEventListener("pointerup", () => { dragging = false; });
+      handle.addEventListener("pointercancel", () => { dragging = false; });
     })();
 
-    // Auto next on ended
-    audioEl.addEventListener("ended", () => playNext());
-
-    // Init
     async function loadItems(){
-      favs = loadSet(LS_FAVS);
-      selected = loadSet(LS_SELECTED);
-      likesCount = loadLikes();
-
-      setTopStatus("Yükleniyor…");
-      setPlayerStatus("");
-
-      try{
-        const res = await fetch("./items.json", { cache: "no-store" });
-        if (!res.ok) throw new Error("items.json okunamadı");
-        const data = await res.json();
-        if (!Array.isArray(data)) throw new Error("items.json formatı yanlış");
-
-        items = data
-          .filter(x => x && x.file)
-          .map(x => ({ title: String(x.title || x.file), file: String(x.file) }));
-
-        renderList();
-        setTopStatus("");
-      } catch (err){
-        console.error(err);
-        setTopStatus("Liste yüklenemedi. items.json kontrol et.");
-        setPlayerStatus("Liste yüklenemedi.");
-      }
+      metaEl.textContent = "Yükleniyor…";
+      const res = await fetch(ITEMS_URL, { cache: "no-store" });
+      items = await res.json();
+      // alfabetik
+      items.sort((a,b) => a.title.localeCompare(b.title, "tr", { sensitivity: "base" }));
+      render();
+      metaEl.textContent = `Görünen: ${filteredIdx.length} / Toplam: ${items.length}`;
     }
 
-    function loadLikes(){ return (function(){
-      try{
-        const obj = JSON.parse(localStorage.getItem(LS_LIKES) || "{}");
-        return (obj && typeof obj === "object") ? obj : {};
-      } catch { return {}; }
-    })(); }
-
-    loadItems();
+    loadItems().catch(err => {
+      metaEl.textContent = "items.json yüklenemedi. (Pages yayınlandı mı?)";
+      console.error(err);
+    });
   </script>
 </body>
 </html>
