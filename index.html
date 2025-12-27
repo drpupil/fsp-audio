@@ -1,164 +1,325 @@
-<!doctype html>
-<html lang="tr">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Alfabetik FSP A–Z</title>
-
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-
-<style>
-:root{
-  --bg:#fff; --text:#111; --muted:#6b7280; --line:#e5e7eb;
-  --accent:#2563eb; --rowHover:#eff6ff; --rowActive:#dbeafe;
-  --shadow:0 8px 30px rgba(0,0,0,.12); --radius:16px;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:var(--bg);color:var(--text);font-weight:400;
-}
-.wrap{max-width:1200px;margin:24px auto 120px;padding:0 16px}
-h1{font-size:clamp(36px,5vw,64px);margin:4px 0 16px;font-weight:700}
-.topbar{display:flex;gap:12px;flex-wrap:wrap}
-.search{
-  flex:1;padding:14px 16px;font-size:18px;
-  border:1px solid var(--line);border-radius:16px
-}
-.btn{padding:12px 16px;border:1px solid #93c5fd;border-radius:16px}
-.meta{margin:8px 0;color:var(--muted);font-size:18px}
-
-/* GRID: 6 kolon */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 56px 56px 56px 56px 56px;
-  gap:10px;align-items:center
-}
-
-.header{border-bottom:1px solid var(--line);padding:12px 8px;color:var(--muted)}
-.row{padding:10px 8px;border-bottom:1px solid var(--line);cursor:pointer}
-.row:hover{background:var(--rowHover)}
-.row.active{background:var(--rowActive)}
-.title{font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-.iconBtn{
-  width:44px;height:44px;border-radius:999px;border:1px solid #d1d5db;
-  display:flex;align-items:center;justify-content:center;background:#fff
-}
-.iconBtn.on{box-shadow:0 0 0 4px rgba(37,99,235,.12)}
-.ic{width:22px;height:22px;stroke:#6b7280;fill:none;stroke-width:2}
-
-.likeCount{text-align:right;font-size:18px;color:var(--muted);padding-right:2px}
-
-#floatingPlayer{
-  position:fixed;left:16px;bottom:16px;width:min(760px,calc(100vw - 32px));
-  border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:var(--shadow);background:#fff;z-index:9999
-}
-#fpHeader{display:flex;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:grab}
-#fpTitle{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#playerWrap{padding:12px}
-.plyr,.plyr *{font-weight:400!important}
-
-@media(max-width:720px){
-  .grid{grid-template-columns:1fr 44px 44px 44px 44px 44px}
-  .title{font-size:20px}
-}
-</style>
-</head>
-
-<body>
-<div class="wrap">
-<h1>Alfabetik FSP A–Z</h1>
-
-<div class="topbar">
-<input id="search" class="search" placeholder="Arama..." />
-<button id="resetBtn" class="btn">Hepsi</button>
-</div>
-
-<div id="meta" class="meta">Yükleniyor…</div>
-
-<div class="header grid">
-<div>Kayıt</div>
-<div style="text-align:right">Like</div>
-<div id="filterLike" class="iconBtn">❤</div>
-<div id="filterFav" class="iconBtn">★</div>
-<div id="filterSel" class="iconBtn">✔</div>
-<div></div>
-</div>
-
-<div id="rows"></div>
-</div>
-
-<div id="floatingPlayer">
-<div id="fpHeader"><div id="fpTitle">Bir kayıt seç…</div></div>
-<div id="playerWrap"><audio id="player" controls></audio></div>
-</div>
-
-<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 <script>
-/* === ARCHIVE IDENTIFIER (Action ile birebir) === */
-const ARCHIVE_IDENTIFIER =
-"vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
+/****************************************************************
+ * 1) BUNU ACTION'DAKİYLE AYNI TUT
+ ****************************************************************/
+const ARCHIVE_IDENTIFIER = "vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
 
-const ITEMS_JSON="./items.json";
-const BASE=`https://archive.org/download/${ARCHIVE_IDENTIFIER}/`;
+/****************************************************************
+ * 2) items.json için fallback path'ler
+ * - Pages root yayınlıyorsa: ./items.json
+ * - Pages docs yayınlıyorsa: ./items.json (docs içinde olacağı için yine çalışır)
+ * - bazı durumlarda sayfa root, dosya docs: ./docs/items.json
+ ****************************************************************/
+const ITEMS_JSON_CANDIDATES = [
+  "./items.json",
+  "./docs/items.json"
+];
 
-const rowsEl=document.getElementById("rows");
-const metaEl=document.getElementById("meta");
-const searchEl=document.getElementById("search");
-const resetBtn=document.getElementById("resetBtn");
+const ARCHIVE_BASE = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/`;
 
-const audio=document.getElementById("player");
-const plyr=new Plyr(audio);
+// ---- DOM ----
+const rowsEl = document.getElementById("rows");
+const metaEl = document.getElementById("meta");
+const searchEl = document.getElementById("search");
+const resetBtn = document.getElementById("resetBtn");
 
-let allItems=[],viewItems=[],activeIndex=-1;
-let filterMode=null;
+const filterLikeBtn = document.getElementById("filterLike");
+const filterFavBtn  = document.getElementById("filterFav");
+const filterSelBtn  = document.getElementById("filterSel");
 
-function buildUrl(f){
-  return BASE+encodeURIComponent(f).replace(/%2F/g,"/");
+const fpTitle = document.getElementById("fpTitle");
+const fpMsg   = document.getElementById("fpMsg");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const audio   = document.getElementById("player");
+
+const plyr = new Plyr(audio, {
+  controls: ["rewind","play","fast-forward","progress","current-time","duration","mute","volume","settings"],
+  seekTime: 5,
+  settings: ["speed"],
+  speed: { selected: 1.0, options: [0.8,0.9,1.0,1.1,1.2] }
+});
+
+// ---- state (localStorage) ----
+const LS_KEY = "fsp_audio_state_v1";
+const defaultState = { likes:{}, favs:{}, sels:{}, likeCounts:{} };
+const state = (() => {
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return structuredClone(defaultState);
+    const s = JSON.parse(raw);
+    return { ...structuredClone(defaultState), ...s };
+  }catch(e){
+    return structuredClone(defaultState);
+  }
+})();
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+// ---- data ----
+let allItems = [];
+let viewItems = [];
+let activeIndex = -1;
+let filterMode = null; // "like" | "fav" | "sel" | null
+
+function buildUrl(file){
+  const enc = encodeURIComponent(file).replace(/%2F/g, "/");
+  return ARCHIVE_BASE + enc;
 }
+function isPlayable(file){
+  const f = (file || "").toLowerCase();
+  return f.endsWith(".m4a") || f.endsWith(".mp3");
+}
+
+function setMeta(){
+  metaEl.textContent = `Görünen: ${viewItems.length} / Toplam: ${allItems.length}`;
+}
+function showMsg(text){
+  fpMsg.style.display = "block";
+  fpMsg.textContent = text;
+}
+function clearMsg(){
+  fpMsg.style.display = "none";
+  fpMsg.textContent = "";
+}
+function iconBtn(on, extraClass){
+  return `iconBtn ${on ? "on "+extraClass : ""}`.trim();
+}
+
 function render(){
-  const q=(searchEl.value||"").toLowerCase();
-  viewItems=allItems.filter(i=>{
-    if(q && !i.title.toLowerCase().includes(q))return false;
-    if(filterMode==="like")return i.like;
-    if(filterMode==="fav")return i.fav;
-    if(filterMode==="sel")return i.sel;
+  const q = (searchEl.value || "").trim().toLowerCase();
+
+  viewItems = allItems.filter((it) => {
+    if(!it || !it.title) return false;
+    if(q && !it.title.toLowerCase().includes(q)) return false;
+
+    if(filterMode === "like") return !!state.likes[it.file];
+    if(filterMode === "fav")  return !!state.favs[it.file];
+    if(filterMode === "sel")  return !!state.sels[it.file];
     return true;
   });
-  metaEl.textContent=`Görünen: ${viewItems.length} / ${allItems.length}`;
-  rowsEl.innerHTML="";
-  viewItems.forEach((it,idx)=>{
-    const r=document.createElement("div");
-    r.className="row grid"+(idx===activeIndex?" active":"");
-    r.onclick=()=>play(idx);
 
-    const t=document.createElement("div");t.className="title";t.textContent=it.title;
-    const lc=document.createElement("div");lc.className="likeCount";lc.textContent=it.likes||0;
-    const like=document.createElement("div");like.className="iconBtn";like.textContent="❤";
-    const fav=document.createElement("div");fav.className="iconBtn";fav.textContent="★";
-    const sel=document.createElement("div");sel.className="iconBtn";sel.textContent="✔";
-    const dl=document.createElement("div");dl.className="iconBtn";dl.textContent="⬇";
+  setMeta();
 
-    dl.onclick=e=>{e.stopPropagation();window.open(buildUrl(it.file))};
+  filterLikeBtn.className = "iconBtn" + (filterMode==="like" ? " on like" : "");
+  filterFavBtn.className  = "iconBtn" + (filterMode==="fav"  ? " on fav"  : "");
+  filterSelBtn.className  = "iconBtn" + (filterMode==="sel"  ? " on sel"  : "");
 
-    r.append(t,lc,like,fav,sel,dl);
-    rowsEl.appendChild(r);
+  rowsEl.innerHTML = "";
+
+  viewItems.forEach((it, idx) => {
+    const row = document.createElement("div");
+    row.className = "row grid" + (idx === activeIndex ? " active" : "");
+
+    const likeCount = Number(state.likeCounts[it.file] || 0);
+
+    const t = document.createElement("div");
+    t.className = "title";
+    t.textContent = it.title;
+
+    const lc = document.createElement("div");
+    lc.className = "likeCount";
+    lc.textContent = String(likeCount);
+
+    const like = document.createElement("div");
+    like.className = iconBtn(!!state.likes[it.file], "like");
+    like.title = "Like";
+    like.innerHTML = `
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 21s-7-4.6-9.5-8.5C.6 9.4 2.4 6.5 5.7 6.5c1.7 0 3.2.9 4.1 2.2.9-1.3 2.4-2.2 4.1-2.2 3.3 0 5.1 2.9 3.2 6.0C19 16.4 12 21 12 21z"/>
+      </svg>
+    `;
+
+    const fav = document.createElement("div");
+    fav.className = iconBtn(!!state.favs[it.file], "fav");
+    fav.title = "Favori";
+    fav.innerHTML = `
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 17.3l-6.2 3.5 1.7-7.0L2 9.2l7.2-.6L12 2l2.8 6.6 7.2.6-5.5 4.6 1.7 7z"/>
+      </svg>
+    `;
+
+    const sel = document.createElement("div");
+    sel.className = iconBtn(!!state.sels[it.file], "sel");
+    sel.title = "Seç";
+    sel.innerHTML = `
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    `;
+
+    const dl = document.createElement("div");
+    dl.className = "iconBtn download";
+    dl.title = "İndir";
+    dl.innerHTML = `
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/>
+      </svg>
+    `;
+
+    row.addEventListener("click", (e) => {
+      if(e.target.closest(".iconBtn")) return;
+      playIndex(idx, true);
+    });
+
+    like.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const key = it.file;
+      const now = !state.likes[key];
+      state.likes[key] = now;
+      const cur = Number(state.likeCounts[key] || 0);
+      state.likeCounts[key] = Math.max(0, cur + (now ? 1 : -1));
+      saveState();
+      render();
+    });
+
+    fav.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const key = it.file;
+      state.favs[key] = !state.favs[key];
+      saveState();
+      render();
+    });
+
+    sel.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const key = it.file;
+      state.sels[key] = !state.sels[key];
+      saveState();
+      render();
+    });
+
+    dl.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const url = buildUrl(it.file);
+      try{
+        const resp = await fetch(url, { mode:"cors" });
+        if(!resp.ok) throw new Error("download http " + resp.status);
+        const blob = await resp.blob();
+        const a = document.createElement("a");
+        const objUrl = URL.createObjectURL(blob);
+        a.href = objUrl;
+        a.download = it.file;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(objUrl);
+      }catch(err){
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    });
+
+    // ✅ 6 kolon: title + likeCount + like + fav + sel + download
+    row.appendChild(t);
+    row.appendChild(lc);
+    row.appendChild(like);
+    row.appendChild(fav);
+    row.appendChild(sel);
+    row.appendChild(dl);
+
+    rowsEl.appendChild(row);
   });
 }
-function play(i){
-  activeIndex=i;
-  audio.src=buildUrl(viewItems[i].file);
-  plyr.play();
+
+async function playIndex(idx, userInitiated){
+  if(idx < 0 || idx >= viewItems.length) return;
+  activeIndex = idx;
+  const it = viewItems[idx];
+
+  clearMsg();
+
+  if(!isPlayable(it.file)){
+    showMsg("Uygun .m4a/.mp3 değil.");
+    render();
+    return;
+  }
+
+  fpTitle.textContent = it.title;
+  audio.src = buildUrl(it.file);
+  audio.load();
+  render();
+
+  if(userInitiated){
+    try{ await plyr.play(); clearMsg(); }
+    catch(e){ showMsg("Oynatma başlatılamadı. Player’daki ▶ tuşuna bas."); }
+  }else{
+    showMsg("Player’daki ▶ tuşuna bas.");
+  }
+}
+
+prevBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if(viewItems.length === 0) return;
+  const next = (activeIndex <= 0) ? (viewItems.length - 1) : (activeIndex - 1);
+  playIndex(next, true);
+});
+
+nextBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if(viewItems.length === 0) return;
+  const next = (activeIndex >= viewItems.length - 1) ? 0 : (activeIndex + 1);
+  playIndex(next, true);
+});
+
+document.addEventListener("keydown", (e) => {
+  if(e.code !== "Space") return;
+  const tag = (document.activeElement && document.activeElement.tagName || "").toLowerCase();
+  if(tag === "input" || tag === "textarea") return;
+  e.preventDefault();
+  plyr.togglePlay();
+});
+
+function setFilter(mode){
+  filterMode = (filterMode === mode) ? null : mode;
+  activeIndex = -1;
   render();
 }
-fetch(ITEMS_JSON).then(r=>r.json()).then(d=>{
-  allItems=d.map(x=>({...x,likes:0}));
+
+filterLikeBtn.addEventListener("click", () => setFilter("like"));
+filterFavBtn.addEventListener("click", () => setFilter("fav"));
+filterSelBtn.addEventListener("click", () => setFilter("sel"));
+
+resetBtn.addEventListener("click", () => {
+  filterMode = null;
+  searchEl.value = "";
+  activeIndex = -1;
   render();
 });
-searchEl.oninput=render;
-resetBtn.onclick=()=>{filterMode=null;searchEl.value="";render()};
+
+searchEl.addEventListener("input", () => {
+  activeIndex = -1;
+  render();
+});
+
+/* ✅ items.json yükleme: fallback + ekranda hata göster */
+async function loadItems(){
+  metaEl.textContent = "Yükleniyor…";
+
+  let lastErr = null;
+
+  for(const path of ITEMS_JSON_CANDIDATES){
+    try{
+      const r = await fetch(path, { cache: "no-store" });
+      if(!r.ok) throw new Error(`${path} HTTP ${r.status}`);
+      const data = await r.json();
+      if(!Array.isArray(data)) throw new Error(`${path} JSON array değil`);
+
+      allItems = data
+        .filter(x => x && x.title && x.file && isPlayable(x.file))
+        .sort((a,b) => a.title.localeCompare(b.title, "tr"));
+
+      render();
+
+      if(allItems.length === 0){
+        metaEl.textContent = `items.json yüklendi (${path}) ama uygun .m4a/.mp3 yok.`;
+      }
+      return; // ✅ başarı
+    }catch(e){
+      lastErr = e;
+    }
+  }
+
+  metaEl.textContent = "items.json okunamadı: " + (lastErr ? lastErr.message : "bilinmeyen hata");
+}
+
+loadItems();
 </script>
-</body>
-</html>
