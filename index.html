@@ -16,35 +16,33 @@
       --accent:#1677ff; --danger:#e11d48; --star:#f59e0b;
     }
     body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:18px;max-width:1100px}
-    h1{font-size:22px;margin:0 0 12px;font-weight:700}
+    h1{font-size:22px;margin:0 0 10px;font-weight:700}
 
-    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
     #search{flex:1;min-width:260px;padding:10px 12px;border:1px solid #d9d9d9;border-radius:12px;outline:none;font-size:15px}
     #search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(22,119,255,.15)}
     .pill{padding:9px 12px;border:1px solid #d9d9d9;border-radius:12px;background:#fff;cursor:pointer;font-size:14px;user-select:none}
     .pill:hover{background:var(--chip)}
-    .meta{font-size:13px;color:var(--muted);margin:6px 0 10px}
+    .meta{font-size:13px;color:var(--muted);margin:6px 0 8px}
 
-    /* Header row */
+    /* Header row (icon-only) */
     .hdr{
       display:grid;
       grid-template-columns: 1fr 90px 70px 80px 60px;
       gap:10px;
       align-items:center;
-      padding:10px 6px;
+      padding:8px 6px;
       color:var(--muted);
       font-size:13px;
       border-top:1px solid var(--line);
       border-bottom:1px solid var(--line);
       background:#fcfcfd;
-      position:sticky;
-      top:0;
-      z-index:2;
+      position:sticky; top:0; z-index:2;
     }
-    .hdr .hcell{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+    .hdr .hcell{display:flex;align-items:center;justify-content:flex-end}
     .hdr .hcell.left{justify-content:flex-start}
     .filterIcon{
-      width:34px;height:34px;border-radius:999px;border:1px solid #d9d9d9;background:#fff;
+      width:32px;height:32px;border-radius:999px;border:1px solid #d9d9d9;background:#fff;
       display:inline-flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
       color:var(--muted2); font-size:16px;
     }
@@ -57,19 +55,24 @@
       grid-template-columns: 1fr 90px 70px 80px 60px;
       gap:10px;
       align-items:center;
-      padding:8px 6px;
+      padding:6px 6px;              /* ✅ sıkı satır */
       border-bottom:1px solid var(--line);
       cursor:pointer
     }
     .row:hover{background:#fafafa}
     .row.active{background:rgba(22,119,255,.09)}
 
-    .title{min-width:0;font-size:15px;font-weight:400;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .cell{display:flex;align-items:center;justify-content:flex-end;gap:8px;white-space:nowrap}
+    .title{
+      min-width:0;font-size:15px;font-weight:400;
+      line-height:1.15;             /* ✅ daha sıkı */
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+    }
+
+    .cell{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
     .count{width:22px;text-align:right;color:var(--muted2);font-size:13px;font-variant-numeric:tabular-nums}
 
     .iconbtn{
-      width:34px;height:34px;border-radius:999px;border:1px solid #d9d9d9;background:#fff;
+      width:32px;height:32px;border-radius:999px;border:1px solid #d9d9d9;background:#fff;
       display:inline-flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
       color:var(--muted2); font-size:16px;
     }
@@ -79,11 +82,7 @@
     .heart{color:var(--muted2)} .heart.on{color:var(--danger)}
     .star{color:var(--muted2)}  .star.on{color:var(--star)}
     .check{color:var(--muted2)}
-    .check.on{
-      color:#fff;
-      background:var(--accent);
-      border-color:var(--accent);
-    }
+    .check.on{color:#fff;background:var(--accent);border-color:var(--accent)}
 
     /* Floating player */
     #floatingPlayer{
@@ -93,18 +92,19 @@
     }
     #fpHeader{
       display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:10px 12px;border-bottom:1px solid var(--line);background:#fcfcfd;
+      padding:8px 10px;border-bottom:1px solid var(--line);background:#fcfcfd;
       cursor:grab;user-select:none
     }
     #fpHeader:active{cursor:grabbing}
     #fpTitle{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
     #fpControls{display:flex;align-items:center;gap:8px;flex-shrink:0}
-    .tiny{width:40px;height:34px;border-radius:10px;border:1px solid #d9d9d9;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;user-select:none;font-size:16px}
+    .tiny{width:38px;height:32px;border-radius:10px;border:1px solid #d9d9d9;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;user-select:none;font-size:16px}
     .tiny:hover{background:var(--chip)}
     .tiny:active{transform:translateY(1px)}
-    #fpStatus{padding:8px 12px;font-size:13px;color:var(--muted)}
+    #fpStatus{padding:6px 10px;font-size:13px;color:var(--muted)}
     #fpStatus a{color:var(--accent);text-decoration:underline}
-    #fpBody{padding:8px 10px 10px}
+    #fpBody{padding:6px 8px 10px}
+
     @media (max-width:700px){
       .hdr,.row{grid-template-columns: 1fr 84px 62px 72px 54px}
     }
@@ -125,26 +125,23 @@
 
   <div class="meta" id="meta">Yükleniyor...</div>
 
-  <!-- Column header with filter icons -->
+  <!-- Header icons only -->
   <div class="hdr">
-    <div class="hcell left">Kayıt</div>
+    <div class="hcell left"></div>
 
     <div class="hcell">
-      <span>Like</span>
       <button id="fltLike" class="filterIcon" title="Sadece liked">♥</button>
     </div>
 
     <div class="hcell">
-      <span>Seç</span>
       <button id="fltSel" class="filterIcon" title="Sadece seçili">✓</button>
     </div>
 
     <div class="hcell">
-      <span>Fav</span>
       <button id="fltFav" class="filterIcon" title="Sadece favoriler">★</button>
     </div>
 
-    <div class="hcell"><span>İndir</span></div>
+    <div class="hcell"></div>
   </div>
 
   <div id="list"></div>
@@ -198,22 +195,18 @@
     let activeIndex = null;
     let filteredIdx = [];
 
-    const LS_LIKES = "fsp_likes_v3";     // file -> number
-    const LS_FAVS  = "fsp_favs_v3";      // file -> true
-    const LS_SEL   = "fsp_selected_v3";  // file -> true
-    const LS_DURS  = "fsp_durations_v3"; // file -> "mm:ss"
+    const LS_LIKES = "fsp_likes_v4";
+    const LS_FAVS  = "fsp_favs_v4";
+    const LS_SEL   = "fsp_selected_v4";
 
     const likes = JSON.parse(localStorage.getItem(LS_LIKES) || "{}");
     const favs  = JSON.parse(localStorage.getItem(LS_FAVS)  || "{}");
     const sel   = JSON.parse(localStorage.getItem(LS_SEL)   || "{}");
-    const durs  = JSON.parse(localStorage.getItem(LS_DURS)  || "{}");
 
     const saveLikes = () => localStorage.setItem(LS_LIKES, JSON.stringify(likes));
     const saveFavs  = () => localStorage.setItem(LS_FAVS,  JSON.stringify(favs));
     const saveSel   = () => localStorage.setItem(LS_SEL,   JSON.stringify(sel));
-    const saveDurs  = () => localStorage.setItem(LS_DURS,  JSON.stringify(durs));
 
-    // Filters
     let filterLike = false;
     let filterFav  = false;
     let filterSel  = false;
@@ -224,13 +217,6 @@
       fltSelBtn.classList.toggle("on",  filterSel);
     }
 
-    function fmtTime(sec){
-      if (!isFinite(sec) || sec <= 0) return "";
-      const m = Math.floor(sec/60), s = Math.floor(sec%60);
-      return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
-    }
-
-    // ✅ Fix: encode URL
     function urlFor(item){
       return encodeURI(BASE + item.file);
     }
@@ -267,10 +253,9 @@
         title.className = "title";
         title.textContent = it.title;
 
-        // Like cell
+        // Like
         const likeCell = document.createElement("div");
         likeCell.className = "cell";
-
         const likeCount = document.createElement("span");
         likeCount.className = "count";
         likeCount.textContent = String(likes[it.file] || 0);
@@ -293,10 +278,9 @@
         likeCell.appendChild(likeCount);
         likeCell.appendChild(likeBtn);
 
-        // Select cell
+        // Select
         const selCell = document.createElement("div");
         selCell.className = "cell";
-
         const selBtn = document.createElement("button");
         selBtn.className = "iconbtn check" + (sel[it.file] ? " on":"");
         selBtn.title = "Seç";
@@ -308,13 +292,11 @@
           saveSel();
           render();
         });
-
         selCell.appendChild(selBtn);
 
-        // Fav cell
+        // Fav
         const favCell = document.createElement("div");
         favCell.className = "cell";
-
         const favBtn = document.createElement("button");
         favBtn.className = "iconbtn";
         favBtn.title = "Favori";
@@ -330,13 +312,11 @@
           saveFavs();
           render();
         });
-
         favCell.appendChild(favBtn);
 
-        // Download cell (keep tiny icon)
+        // Download
         const dlCell = document.createElement("div");
         dlCell.className = "cell";
-
         const dl = document.createElement("a");
         dl.className = "iconbtn";
         dl.title = "İndir / Aç";
@@ -345,7 +325,6 @@
         dl.rel = "noopener";
         dl.textContent = "⬇";
         dl.addEventListener("click",(e)=>e.stopPropagation());
-
         dlCell.appendChild(dl);
 
         row.appendChild(title);
@@ -408,32 +387,11 @@
       }
     }
 
-    playerEl.addEventListener("error", ()=>{
-      const it = (activeIndex!=null) ? items[activeIndex] : null;
-      const src = it ? urlFor(it) : "#";
-      fpStatus.innerHTML =
-        `Dosya yüklenemedi (URL/isim sorunu olabilir). ` +
-        `<a href="${src}" target="_blank" rel="noopener">dosyayı yeni sekmede aç</a>`;
-    });
-
-    playerEl.addEventListener("loadedmetadata", ()=>{
-      const it = (activeIndex!=null) ? items[activeIndex] : null;
-      if(!it) return;
-      const t = fmtTime(playerEl.duration);
-      if(t && durs[it.file] !== t){
-        durs[it.file] = t;
-        saveDurs();
-      }
-      fpStatus.textContent = "";
-    });
-
     playerEl.addEventListener("ended", playNext);
 
-    // Space play/pause (inputta yazarken kapalı)
     document.addEventListener("keydown", async (e)=>{
       const tag = (document.activeElement && document.activeElement.tagName) || "";
       if(tag==="INPUT"||tag==="TEXTAREA") return;
-
       if(e.code==="Space"){
         e.preventDefault();
         try{
@@ -443,21 +401,10 @@
       }
     });
 
-    // Filters from header icons
-    fltLikeBtn.addEventListener("click", ()=>{
-      filterLike = !filterLike;
-      render();
-    });
-    fltFavBtn.addEventListener("click", ()=>{
-      filterFav = !filterFav;
-      render();
-    });
-    fltSelBtn.addEventListener("click", ()=>{
-      filterSel = !filterSel;
-      render();
-    });
+    fltLikeBtn.addEventListener("click", ()=>{ filterLike = !filterLike; render(); });
+    fltFavBtn.addEventListener("click",  ()=>{ filterFav  = !filterFav;  render(); });
+    fltSelBtn.addEventListener("click",  ()=>{ filterSel  = !filterSel;  render(); });
 
-    // Hepsi: arama + filtreleri sıfırla
     document.getElementById("clearAll").addEventListener("click", ()=>{
       searchEl.value = "";
       filterLike = filterFav = filterSel = false;
