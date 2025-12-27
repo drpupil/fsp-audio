@@ -9,6 +9,15 @@
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <style>
+    :root{
+      --blue:#1a73e8;
+      --gold:#f3c969;
+      --border:#e7e7e7;
+      --muted:#666;
+      --bgHover:#f7f7f7;
+      --bgActive:#e6f1ff;
+    }
+
     body{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 1.5rem;
@@ -28,78 +37,161 @@
     #search{
       flex: 1;
       min-width: 240px;
-      max-width: 560px;
+      max-width: 620px;
       padding: 0.55rem 0.7rem;
       border: 1px solid #ccc;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 0.98rem;
     }
 
     .btn{
-      padding: .5rem .65rem;
+      padding: .52rem .7rem;
       border: 1px solid #ccc;
-      border-radius: 10px;
+      border-radius: 12px;
       background:#fff;
       cursor:pointer;
       font-size:.92rem;
       white-space:nowrap;
+      user-select:none;
     }
     .btn:hover{ background:#f2f2f2; }
     .btn.primary{ border-color:#8ab4ff; }
     .btn.danger{ border-color:#ffb3b3; }
-    .btn:disabled{ opacity:.5; cursor:not-allowed; }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
 
     #metaLine{
       font-size:.88rem;
-      color:#666;
+      color: var(--muted);
       margin: .4rem 0 1rem;
     }
 
     #list{
-      border-top: 1px solid #eee;
+      border-top: 1px solid var(--border);
       margin-bottom: 1rem;
     }
 
+    /* LIST ROW */
     .item{
-      padding: 0.48rem 0.55rem;
+      padding: 0.52rem 0.55rem;
       border-bottom: 1px solid #f2f2f2;
-      display: grid;
-      grid-template-columns: 1fr auto auto auto;
-      gap: .5rem;
-      align-items: center;
+      display:flex;
+      align-items:center;
+      gap: .65rem;
       font-size: 0.98rem;
+      position: relative;
     }
-    .item:hover{ background: #f7f7f7; }
-    .item.active{ background: #e6f1ff; }
+    .item:hover{ background: var(--bgHover); }
+    .item.active{
+      background: var(--bgActive);
+      border-left: 4px solid var(--blue); /* sol kenar vurgusu */
+      padding-left: calc(0.55rem - 4px);
+    }
 
     .title{
+      flex: 1;
       min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
+      font-weight: 600;
     }
 
     .badge{
-      font-size: 0.82rem;
-      color:#666;
+      font-size: 0.85rem;
+      color: var(--muted);
       font-variant-numeric: tabular-nums;
       white-space:nowrap;
+      min-width: 56px;
+      text-align:right;
     }
 
+    .actions{
+      display:flex;
+      gap: .35rem;
+      align-items:center;
+      flex: 0 0 auto;
+    }
+
+    /* ICON BUTTONS (small + consistent) */
     .iconBtn{
-      border: 1px solid #ddd;
+      width: 30px;
+      height: 30px;
+      border: 1px solid #dcdcdc;
       background:#fff;
       border-radius: 10px;
-      padding: .35rem .5rem;
       cursor:pointer;
-      font-size: .95rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 14px;
       line-height: 1;
       user-select:none;
+      padding: 0;
     }
     .iconBtn:hover{ background:#f2f2f2; }
-    .iconBtn.star.active{ border-color:#f3c969; }
-    .iconBtn.select.active{ border-color:#8ab4ff; }
+
+    /* SELECT (VERY CLEAR) */
+    .iconBtn.select{
+      border-width: 2px;
+      border-color: #cfcfcf;
+      background:#fff;
+    }
+    .iconBtn.select::before{
+      content:"☐";
+      font-size:16px;
+      color:#888;
+      transform: translateY(-0.5px);
+    }
+    .iconBtn.select.active{
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+    .iconBtn.select.active::before{
+      content:"✓";
+      color:#fff;
+      font-weight: 900;
+    }
+
+    /* FAVORITE (gold) */
+    .iconBtn.star{
+      border-width: 2px;
+      border-color:#d8d8d8;
+    }
+    .iconBtn.star::before{
+      content:"☆";
+      font-size:16px;
+      color:#777;
+      transform: translateY(-0.5px);
+    }
+    .iconBtn.star.active{
+      border-color: var(--gold);
+      background: #fff8e6;
+    }
+    .iconBtn.star.active::before{
+      content:"★";
+      color: #c69200;
+    }
+
+    /* DOWNLOAD (tiny + hover blue) */
+    .iconBtn.dl{
+      border-radius: 999px; /* minicik yuvarlak */
+      width: 30px;
+      height: 30px;
+      font-size: 14px;
+    }
+    .iconBtn.dl::before{
+      content:"⬇︎";
+      transform: translateY(-0.5px);
+      color:#444;
+    }
+    .iconBtn.dl:hover{
+      background: #eaf2ff;
+      border-color: #bcd6ff;
+    }
+    .iconBtn.dl:hover::before{
+      color: var(--blue);
+    }
 
     /* Floating draggable player */
     #floatingPlayer{
@@ -107,7 +199,7 @@
       left: 16px;
       bottom: 16px;
 
-      width: min(520px, calc(100vw - 32px));
+      width: min(540px, calc(100vw - 32px));
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 14px;
@@ -121,7 +213,7 @@
     }
     #fpTitle{
       font-size: 0.92rem;
-      font-weight: 650;
+      font-weight: 750;
       margin-bottom: 4px;
       white-space: nowrap;
       overflow: hidden;
@@ -131,7 +223,7 @@
     }
     #fpStatus{
       font-size: 0.82rem;
-      color:#666;
+      color: var(--muted);
       margin-bottom: 8px;
       white-space: nowrap;
       overflow: hidden;
@@ -145,16 +237,22 @@
       margin-top:.4rem;
     }
 
-    /* Mobilde aksiyon butonları biraz sıkışmasın */
+    /* MOBILE: icons a bit bigger */
     @media (max-width: 520px){
-      .item{
-        grid-template-columns: 1fr auto auto;
-        grid-template-areas:
-          "title title title"
-          "dur  star  dl";
+      body{ margin: 1rem; }
+      .iconBtn{
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+        border-radius: 12px;
       }
-      .title{ grid-area:title; }
-      .badge{ grid-area:dur; justify-self:start; }
+      .iconBtn.dl{
+        width: 36px;
+        height: 36px;
+      }
+      .badge{
+        min-width: 52px;
+      }
     }
   </style>
 </head>
@@ -180,7 +278,7 @@
     <div id="fpTitle">Seçili kayıt yok</div>
     <div id="fpStatus">Bir kayıt seç.</div>
     <audio id="player" class="js-player" controls preload="auto"></audio>
-    <div class="smallNote">İpucu: Başlıktan tutup sürükleyebilirsin. Hız: ⚙︎ menüsünden.</div>
+    <div class="smallNote">İpucu: Başlıktan tutup sürükleyebilirsin. 5 sn ileri/geri + hız: ⚙︎ menüsünden.</div>
   </div>
 
   <!-- Plyr JS -->
@@ -194,8 +292,8 @@
     const BASE  = `https://archive.org/download/${IDENT}/`;
 
     // ZIP güvenlik limiti (tarayıcıyı korumak için)
-    const ZIP_MAX_FILES = 25;  // istersen 50 yap ama 200 yapma 🙂
-    const ZIP_MAX_TOTAL_MB = 600; // yaklaşık limit (çok büyükte zorlanır)
+    const ZIP_MAX_FILES = 25;     // istersen 50 yap; 200+ yapma 🙂
+    const ZIP_MAX_TOTAL_MB = 600; // yaklaşık limit
 
     const listEl   = document.getElementById("list");
     const searchEl = document.getElementById("search");
@@ -234,11 +332,11 @@
     let activeIndex = null;
 
     // state: favorites & selection
-    const LS_FAVS = "favs_v1";
-    const LS_SEL  = "sel_v1";
-    const LS_POS  = "floatingPlayerPos";
-    const LS_RESUME_PREFIX = "resume_"; // resume_<file>
-    const LS_LAST = "last_played_file";
+    const LS_FAVS = "favs_v2";
+    const LS_SEL  = "sel_v2";
+    const LS_POS  = "floatingPlayerPos_v2";
+    const LS_RESUME_PREFIX = "resume_v2_"; // resume_<file>
+    const LS_LAST = "last_played_file_v2";
 
     let favs = new Set();
     let selected = new Set();
@@ -279,7 +377,6 @@
       const h = Math.floor(s / 3600);
       const m = Math.floor((s % 3600) / 60);
       const r = s % 60;
-
       const mm = String(m).padStart(2, "0");
       const rr = String(r).padStart(2, "0");
       return h > 0 ? `${h}:${mm}:${rr}` : `${m}:${rr.padStart(2,"0")}`;
@@ -295,9 +392,7 @@
 
     function bytesToMB(b){ return (Number(b||0) / (1024*1024)); }
 
-    function saveFavs(){
-      localStorage.setItem(LS_FAVS, JSON.stringify(Array.from(favs)));
-    }
+    function saveFavs(){ localStorage.setItem(LS_FAVS, JSON.stringify(Array.from(favs))); }
     function loadFavs(){
       try{
         const a = JSON.parse(localStorage.getItem(LS_FAVS) || "[]");
@@ -305,9 +400,7 @@
       } catch { favs = new Set(); }
     }
 
-    function saveSelection(){
-      localStorage.setItem(LS_SEL, JSON.stringify(Array.from(selected)));
-    }
+    function saveSelection(){ localStorage.setItem(LS_SEL, JSON.stringify(Array.from(selected))); }
     function loadSelection(){
       try{
         const a = JSON.parse(localStorage.getItem(LS_SEL) || "[]");
@@ -316,10 +409,9 @@
     }
 
     function updateMetaLine(){
-      const total = items.length;
-      const favCount = favs.size;
-      const selCount = selected.size;
-      metaEl.textContent = `Toplam: ${total}  •  Favori: ${favCount}  •  Seçili: ${selCount}` + (onlyFavs ? "  •  (Favori filtresi açık)" : "");
+      metaEl.textContent =
+        `Toplam: ${items.length}  •  Favori: ${favs.size}  •  Seçili: ${selected.size}` +
+        (onlyFavs ? "  •  (Favori filtresi açık)" : "");
     }
 
     function passesFilters(item){
@@ -327,6 +419,12 @@
       if (q && !item.title.toLowerCase().includes(q)) return false;
       if (onlyFavs && !favs.has(item.file)) return false;
       return true;
+    }
+
+    function updateZipButtons(){
+      btnZipSel.disabled = selected.size === 0;
+      btnZipFavs.disabled = favs.size === 0;
+      btnClearSel.disabled = selected.size === 0;
     }
 
     function renderList(){
@@ -338,8 +436,7 @@
         shown++;
 
         const row = document.createElement("div");
-        row.className = "item";
-        if (index === activeIndex) row.classList.add("active");
+        row.className = "item" + (index === activeIndex ? " active" : "");
 
         const isFav = favs.has(item.file);
         const isSel = selected.has(item.file);
@@ -347,9 +444,11 @@
         row.innerHTML = `
           <span class="title" data-action="play" data-index="${index}" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</span>
           <span class="badge">${escapeHtml(item.info || "")}</span>
-          <button class="iconBtn select ${isSel ? "active" : ""}" data-action="select" data-file="${escapeHtml(item.file)}" title="Seç">☑︎</button>
-          <button class="iconBtn star ${isFav ? "active" : ""}" data-action="fav" data-file="${escapeHtml(item.file)}" title="Favori">${isFav ? "★" : "☆"}</button>
-          <button class="iconBtn" data-action="dl" data-file="${escapeHtml(item.file)}" title="İndir">⬇︎</button>
+          <span class="actions">
+            <button class="iconBtn select ${isSel ? "active" : ""}" data-action="select" data-file="${escapeHtml(item.file)}" title="Seç"></button>
+            <button class="iconBtn star ${isFav ? "active" : ""}" data-action="fav" data-file="${escapeHtml(item.file)}" title="Favori"></button>
+            <button class="iconBtn dl" data-action="dl" data-file="${escapeHtml(item.file)}" title="İndir"></button>
+          </span>
         `;
 
         listEl.appendChild(row);
@@ -363,21 +462,12 @@
       updateZipButtons();
     }
 
-    function updateZipButtons(){
-      btnZipSel.disabled = selected.size === 0;
-      btnZipFavs.disabled = favs.size === 0;
-      btnClearSel.disabled = selected.size === 0;
-    }
-
     // --- play + resume ---
     function resumeKey(file){ return LS_RESUME_PREFIX + file; }
 
     function saveResume(file, seconds){
-      try{
-        localStorage.setItem(resumeKey(file), String(Math.floor(seconds || 0)));
-      } catch {}
+      try{ localStorage.setItem(resumeKey(file), String(Math.floor(seconds || 0))); } catch {}
     }
-
     function loadResume(file){
       const v = localStorage.getItem(resumeKey(file));
       const n = v == null ? 0 : Number(v);
@@ -399,12 +489,10 @@
 
       renderList();
 
-      // src değiştir
       try { playerEl.pause(); } catch {}
       playerEl.src = src;
       playerEl.load();
 
-      // resume: metadata gelince uygula
       const resumeAt = loadResume(item.file);
       const applyResumeOnce = () => {
         playerEl.removeEventListener("loadedmetadata", applyResumeOnce);
@@ -415,10 +503,9 @@
       };
       playerEl.addEventListener("loadedmetadata", applyResumeOnce);
 
-      // last played
       try { localStorage.setItem(LS_LAST, item.file); } catch {}
 
-      try {
+      try{
         await playerEl.play();
       } catch {
         setStatus("Oynatma başlatılamadı. Play tuşuna bas veya linki yeni sekmede aç.", src);
@@ -426,28 +513,20 @@
     }
 
     // Player events
-    playerEl.addEventListener("playing", () => {
-      setStatus("Oynatılıyor…", playerEl.currentSrc || playerEl.src);
-    });
+    playerEl.addEventListener("playing", () => setStatus("Oynatılıyor…", playerEl.currentSrc || playerEl.src));
     playerEl.addEventListener("pause", () => {
-      if (playerEl.currentTime > 0 && !playerEl.ended) {
-        setStatus("Duraklatıldı.", playerEl.currentSrc || playerEl.src);
-      }
+      if (playerEl.currentTime > 0 && !playerEl.ended) setStatus("Duraklatıldı.", playerEl.currentSrc || playerEl.src);
     });
-    playerEl.addEventListener("ended", () => {
-      setStatus("Bitti.", playerEl.currentSrc || playerEl.src);
-    });
+    playerEl.addEventListener("ended", () => setStatus("Bitti.", playerEl.currentSrc || playerEl.src));
     playerEl.addEventListener("error", () => {
       const err = playerEl.error;
       const code = err ? err.code : 0;
       const src = playerEl.currentSrc || playerEl.src;
-
       const msg =
         code === 2 ? "Ağ hatası (link/erişim sorunu)" :
         code === 3 ? "Decode hatası (codec desteklenmiyor olabilir)" :
         code === 4 ? "Format desteklenmiyor veya link yanlış" :
         "Bilinmeyen hata";
-
       setStatus("Hata: " + msg, src);
     });
 
@@ -457,23 +536,16 @@
       if (activeIndex == null) return;
       const item = items[activeIndex];
       if (!item) return;
-
       const now = Date.now();
       if (now - lastResumeWrite < 5000) return;
       lastResumeWrite = now;
-
-      // çok başı kaydetmeyelim
       if (playerEl.currentTime > 2) saveResume(item.file, playerEl.currentTime);
     });
 
     // --- list click actions ---
     listEl.addEventListener("click", (e) => {
       const el = e.target.closest("[data-action]");
-      if (!el) {
-        const t = e.target.closest(".title");
-        if (t) playIndex(Number(t.dataset.index));
-        return;
-      }
+      if (!el) return;
 
       const action = el.dataset.action;
 
@@ -503,10 +575,9 @@
 
       if (action === "dl"){
         const url = fileUrl(file);
-        // direkt indir
         const a = document.createElement("a");
         a.href = url;
-        a.download = file; // çoğu tarayıcı archive’dan gelene izin verir
+        a.download = file;
         a.target = "_blank";
         a.rel = "noreferrer";
         document.body.appendChild(a);
@@ -560,7 +631,6 @@
     // ZIP helpers
     async function zipFiles(fileList, zipName){
       const list = fileList.slice(0);
-
       if (list.length === 0) return;
 
       if (list.length > ZIP_MAX_FILES){
@@ -568,7 +638,6 @@
         return;
       }
 
-      // yaklaşık boyut kontrolü (metadata size varsa)
       const totalBytes = list.reduce((sum, it) => sum + (Number(it.sizeBytes) || 0), 0);
       if (totalBytes > 0 && bytesToMB(totalBytes) > ZIP_MAX_TOTAL_MB){
         alert(`ZIP toplam boyutu ~${bytesToMB(totalBytes).toFixed(0)}MB. Limit: ${ZIP_MAX_TOTAL_MB}MB. Lütfen daha az dosya seç.`);
@@ -576,11 +645,9 @@
       }
 
       const zip = new JSZip();
-
       titleEl.textContent = "ZIP hazırlanıyor…";
       setStatus("Dosyalar indiriliyor (tarayıcıda)…", "");
 
-      // sırayla indir (aynı anda çok indirmek tarayıcıyı boğar)
       for (let i = 0; i < list.length; i++){
         const it = list[i];
         setStatus(`ZIP: ${i+1}/${list.length} — ${it.title}`, it.url);
@@ -589,8 +656,6 @@
           const resp = await fetch(it.url, { cache: "no-store" });
           if (!resp.ok) throw new Error("fetch failed");
           const blob = await resp.blob();
-
-          // dosya adı: orijinal dosya adı
           zip.file(it.file, blob);
         } catch (e){
           console.error(e);
@@ -663,7 +728,6 @@
       updateMetaLine();
       renderList();
 
-      // son çalınanı otomatik seç (çalma değil; sadece başlık)
       const last = localStorage.getItem(LS_LAST);
       if (last){
         const idx = items.findIndex(x => x.file === last);
@@ -677,12 +741,11 @@
       }
     }
 
-    // --- draggable floating player (desktop + mobile) ---
+    // --- draggable floating player ---
     (function enableDrag(){
       const box = document.getElementById("floatingPlayer");
       const handle = document.getElementById("fpTitle");
 
-      // restore position
       try{
         const saved = JSON.parse(localStorage.getItem(LS_POS) || "null");
         if (saved && typeof saved.x === "number" && typeof saved.y === "number") {
@@ -700,7 +763,6 @@
       function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
       function pointerDown(e){
-        // Plyr kontrollerinde drag olmasın
         if (e.target.closest(".plyr__controls")) return;
 
         dragging = true;
