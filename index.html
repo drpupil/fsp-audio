@@ -269,7 +269,7 @@
     <div class="colActions">
       <button id="filterLike" class="filterBtn" title="Liked filtrele" type="button" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20.8 4.6c-1.8-1.7-4.7-1.5-6.4.4L12 7.5l-2.4-2.5c-1.7-1.9-4.6-2.1-6.4-.4-2 1.9-2 5.1 0 7l8.8 8.7 8.8-8.7c2-1.9 2-5.1 0-7z"/>
+          <path d="M20.8 4.6c-1.8-1.7-4.7-1.5-6.4.4L12 7.5l-2.4-2.5c-1.7-1.9-4.6-2.1-6.4-.4-2 1.9-2 5.1 0 7l8.8 8.7 8.8-8.7c2-1.9-2-5.1 0-7z"/>
         </svg>
       </button>
 
@@ -370,10 +370,18 @@
     let items = [];
     let activeId = null;
 
+    // ✅ (1) Türkçe arama normalize (en gerekli)
+    function normTR(s){
+      return (s || "").toLocaleLowerCase("tr");
+    }
+
+    // ✅ (2) MIME tahmini: querystring'e takılma (pathname)
     function guessMime(url){
-      const u = (url || "").toLowerCase();
-      if (u.endsWith(".mp3")) return "audio/mpeg";
-      if (u.endsWith(".m4a")) return "audio/mp4";
+      try{
+        const p = new URL(url).pathname.toLowerCase();
+        if (p.endsWith(".mp3")) return "audio/mpeg";
+        if (p.endsWith(".m4a")) return "audio/mp4";
+      }catch{}
       return "audio/*";
     }
 
@@ -386,7 +394,8 @@
     async function loadItems(){
       statusEl.textContent = "Yükleniyor...";
       try{
-        const res = await fetch("items.json", { cache: "no-store" });
+        // ✅ (3) Cache-bust: GitHub Pages/CDN eski items.json vermesin
+        const res = await fetch(`items.json?v=${Date.now()}`, { cache: "no-store" });
         if(!res.ok) throw new Error("items.json okunamadı");
         const data = await res.json();
 
@@ -412,9 +421,9 @@
     }
 
     function getVisibleItems(){
-      const q = (searchEl.value || "").trim().toLowerCase();
+      const q = normTR((searchEl.value || "").trim());
       return items.filter(it => {
-        if (q && !it.title.toLowerCase().includes(q)) return false;
+        if (q && !normTR(it.title).includes(q)) return false; // ✅ TR lower
         if (filterLike && !(likes[it.id] > 0)) return false;
         if (filterFav  && !favs[it.id]) return false;
         if (filterSel  && !sels[it.id]) return false;
@@ -584,7 +593,7 @@
 
       // canplay gelmezse fallback
       setTimeout(() => {
-        // hâlâ 0 süre ve paused ise tekrar dene
+        // hâlâ paused ise tekrar dene
         if (playerEl.paused) tryPlay();
       }, 600);
     }
