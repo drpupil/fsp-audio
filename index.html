@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Alfabetik FSP A–Z</title>
 
-  <!-- Plyr CSS -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <style>
@@ -22,7 +21,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 1.5rem;
       max-width: 980px;
-      padding-bottom: 210px; /* floating player kapatmasın */
+      padding-bottom: 210px;
     }
     h1{ font-size: 1.45rem; margin: 0 0 0.9rem; }
 
@@ -31,7 +30,7 @@
       flex-wrap:wrap;
       gap: .6rem;
       align-items:center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.6rem;
     }
 
     #search{
@@ -53,16 +52,31 @@
       font-size:.92rem;
       white-space:nowrap;
       user-select:none;
+      display:flex;
+      align-items:center;
+      gap:.45rem;
     }
     .btn:hover{ background:#f2f2f2; }
     .btn.primary{ border-color:#8ab4ff; }
-    .btn.danger{ border-color:#ffb3b3; }
     .btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+    .pill{
+      font-size:.82rem;
+      padding:.18rem .45rem;
+      border-radius:999px;
+      border:1px solid #ddd;
+      color:#444;
+    }
+    .pill.on{
+      border-color:#bcd6ff;
+      background:#eaf2ff;
+      color: var(--blue);
+    }
 
     #metaLine{
       font-size:.88rem;
       color: var(--muted);
-      margin: .4rem 0 1rem;
+      margin: .35rem 0 1rem;
     }
 
     #list{
@@ -70,7 +84,6 @@
       margin-bottom: 1rem;
     }
 
-    /* LIST ROW */
     .item{
       padding: 0.52rem 0.55rem;
       border-bottom: 1px solid #f2f2f2;
@@ -83,7 +96,7 @@
     .item:hover{ background: var(--bgHover); }
     .item.active{
       background: var(--bgActive);
-      border-left: 4px solid var(--blue); /* sol kenar vurgusu */
+      border-left: 4px solid var(--blue);
       padding-left: calc(0.55rem - 4px);
     }
 
@@ -113,7 +126,6 @@
       flex: 0 0 auto;
     }
 
-    /* ICON BUTTONS (small + consistent) */
     .iconBtn{
       width: 30px;
       height: 30px;
@@ -131,7 +143,7 @@
     }
     .iconBtn:hover{ background:#f2f2f2; }
 
-    /* SELECT (VERY CLEAR) */
+    /* SELECT */
     .iconBtn.select{
       border-width: 2px;
       border-color: #cfcfcf;
@@ -153,7 +165,7 @@
       font-weight: 900;
     }
 
-    /* FAVORITE (gold) */
+    /* FAVORITE */
     .iconBtn.star{
       border-width: 2px;
       border-color:#d8d8d8;
@@ -173,9 +185,9 @@
       color: #c69200;
     }
 
-    /* DOWNLOAD (tiny + hover blue) */
+    /* DOWNLOAD */
     .iconBtn.dl{
-      border-radius: 999px; /* minicik yuvarlak */
+      border-radius: 999px;
       width: 30px;
       height: 30px;
       font-size: 14px;
@@ -198,8 +210,7 @@
       position: fixed;
       left: 16px;
       bottom: 16px;
-
-      width: min(540px, calc(100vw - 32px));
+      width: min(560px, calc(100vw - 32px));
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 14px;
@@ -218,9 +229,27 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      cursor: grab; /* drag handle */
+      cursor: grab;
       user-select:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.6rem;
     }
+    #fpTitleLeft{
+      min-width:0;
+      flex:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #fpTitleRight{
+      display:flex;
+      align-items:center;
+      gap:.45rem;
+      flex:0 0 auto;
+    }
+
     #fpStatus{
       font-size: 0.82rem;
       color: var(--muted);
@@ -229,7 +258,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    #fpStatus a{ color: inherit; text-decoration: underline; }
 
     .smallNote{
       font-size:.82rem;
@@ -237,22 +265,11 @@
       margin-top:.4rem;
     }
 
-    /* MOBILE: icons a bit bigger */
     @media (max-width: 520px){
       body{ margin: 1rem; }
-      .iconBtn{
-        width: 36px;
-        height: 36px;
-        font-size: 15px;
-        border-radius: 12px;
-      }
-      .iconBtn.dl{
-        width: 36px;
-        height: 36px;
-      }
-      .badge{
-        min-width: 52px;
-      }
+      .iconBtn{ width: 36px; height: 36px; font-size: 15px; border-radius: 12px; }
+      .iconBtn.dl{ width: 36px; height: 36px; }
+      .badge{ min-width: 52px; }
     }
   </style>
 </head>
@@ -264,52 +281,52 @@
     <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
 
     <button id="toggleFavs" class="btn primary" type="button">⭐ Sadece favoriler</button>
+    <button id="toggleShuffle" class="btn" type="button">
+      🔀 Karışık
+      <span id="shufflePill" class="pill">Kapalı</span>
+    </button>
     <button id="clearSelection" class="btn" type="button">Seçimi temizle</button>
-    <button id="downloadLinks" class="btn" type="button">⬇︎ Link listesi indir</button>
-    <button id="zipSelected" class="btn danger" type="button">📦 Seçilenleri ZIP</button>
-    <button id="zipFavs" class="btn danger" type="button">📦 Favorileri ZIP</button>
   </div>
 
   <div id="metaLine">Yükleniyor…</div>
-
   <div id="list"></div>
 
   <div id="floatingPlayer">
-    <div id="fpTitle">Seçili kayıt yok</div>
+    <div id="fpTitle">
+      <span id="fpTitleLeft">Seçili kayıt yok</span>
+      <span id="fpTitleRight">
+        <span id="modePill" class="pill">Sıralı</span>
+      </span>
+    </div>
     <div id="fpStatus">Bir kayıt seç.</div>
+
     <audio id="player" class="js-player" controls preload="auto"></audio>
-    <div class="smallNote">İpucu: Başlıktan tutup sürükleyebilirsin. 5 sn ileri/geri + hız: ⚙︎ menüsünden.</div>
+
+    <div class="smallNote">İpucu: Başlıktan tutup sürükleyebilirsin. 5 sn ileri/geri + hız: ⚙︎</div>
   </div>
 
-  <!-- Plyr JS -->
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-  <!-- JSZip (ZIP için) -->
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
   <script>
-    // === AYAR: Archive item identifier ===
+    // === Archive item identifier ===
     const IDENT = "vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25";
     const BASE  = `https://archive.org/download/${IDENT}/`;
-
-    // ZIP güvenlik limiti (tarayıcıyı korumak için)
-    const ZIP_MAX_FILES = 25;     // istersen 50 yap; 200+ yapma 🙂
-    const ZIP_MAX_TOTAL_MB = 600; // yaklaşık limit
 
     const listEl   = document.getElementById("list");
     const searchEl = document.getElementById("search");
     const metaEl   = document.getElementById("metaLine");
 
     const playerEl = document.getElementById("player");
-    const titleEl  = document.getElementById("fpTitle");
+    const titleLeftEl = document.getElementById("fpTitleLeft");
     const statusEl = document.getElementById("fpStatus");
 
     const btnToggleFavs = document.getElementById("toggleFavs");
+    const btnToggleShuffle = document.getElementById("toggleShuffle");
+    const shufflePill = document.getElementById("shufflePill");
+    const modePill = document.getElementById("modePill");
     const btnClearSel   = document.getElementById("clearSelection");
-    const btnLinks      = document.getElementById("downloadLinks");
-    const btnZipSel     = document.getElementById("zipSelected");
-    const btnZipFavs    = document.getElementById("zipFavs");
 
-    // Plyr: 5sn ileri/geri, hız ayarı, download butonu
+    // Plyr: 5sn ileri/geri, hız ayarı, prev/next + download
     const plyr = new Plyr(playerEl, {
       seekTime: 5,
       controls: [
@@ -328,21 +345,26 @@
       speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
     });
 
-    let items = [];              // {file,title,info,url,sizeBytes?}
+    let items = [];              // {file,title,info,url}
     let activeIndex = null;
 
-    // state: favorites & selection
-    const LS_FAVS = "favs_v2";
-    const LS_SEL  = "sel_v2";
-    const LS_POS  = "floatingPlayerPos_v2";
-    const LS_RESUME_PREFIX = "resume_v2_"; // resume_<file>
-    const LS_LAST = "last_played_file_v2";
+    // state
+    const LS_FAVS = "favs_v3";
+    const LS_SEL  = "sel_v3";
+    const LS_POS  = "floatingPlayerPos_v3";
+    const LS_RESUME_PREFIX = "resume_v3_";
+    const LS_LAST = "last_played_file_v3";
+    const LS_SHUFFLE = "shuffle_v3";
 
     let favs = new Set();
     let selected = new Set();
     let onlyFavs = false;
+    let shuffle = false;
 
-    // --- helpers ---
+    // shuffle order
+    let playQueue = [];     // array of indices (filtered)
+    let queuePos = -1;
+
     function escapeHtml(s){
       return String(s)
         .replaceAll("&", "&amp;")
@@ -352,12 +374,8 @@
         .replaceAll("'", "&#039;");
     }
 
-    function setStatus(text, link){
-      if (link){
-        statusEl.innerHTML = `${escapeHtml(text)} — <a href="${link}" target="_blank" rel="noreferrer">dosyayı yeni sekmede aç</a>`;
-      } else {
-        statusEl.textContent = text || "";
-      }
+    function setStatus(text){
+      statusEl.textContent = text || "";
     }
 
     function titleFromFilename(name){
@@ -390,8 +408,6 @@
       return "";
     }
 
-    function bytesToMB(b){ return (Number(b||0) / (1024*1024)); }
-
     function saveFavs(){ localStorage.setItem(LS_FAVS, JSON.stringify(Array.from(favs))); }
     function loadFavs(){
       try{
@@ -408,6 +424,16 @@
       } catch { selected = new Set(); }
     }
 
+    function resumeKey(file){ return LS_RESUME_PREFIX + file; }
+    function saveResume(file, seconds){
+      try{ localStorage.setItem(resumeKey(file), String(Math.floor(seconds || 0))); } catch {}
+    }
+    function loadResume(file){
+      const v = localStorage.getItem(resumeKey(file));
+      const n = v == null ? 0 : Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
     function updateMetaLine(){
       metaEl.textContent =
         `Toplam: ${items.length}  •  Favori: ${favs.size}  •  Seçili: ${selected.size}` +
@@ -419,12 +445,6 @@
       if (q && !item.title.toLowerCase().includes(q)) return false;
       if (onlyFavs && !favs.has(item.file)) return false;
       return true;
-    }
-
-    function updateZipButtons(){
-      btnZipSel.disabled = selected.size === 0;
-      btnZipFavs.disabled = favs.size === 0;
-      btnClearSel.disabled = selected.size === 0;
     }
 
     function renderList(){
@@ -459,32 +479,93 @@
       }
 
       updateMetaLine();
-      updateZipButtons();
+      rebuildQueue(); // filtre değişince kuyruk güncellensin
     }
 
-    // --- play + resume ---
-    function resumeKey(file){ return LS_RESUME_PREFIX + file; }
-
-    function saveResume(file, seconds){
-      try{ localStorage.setItem(resumeKey(file), String(Math.floor(seconds || 0))); } catch {}
-    }
-    function loadResume(file){
-      const v = localStorage.getItem(resumeKey(file));
-      const n = v == null ? 0 : Number(v);
-      return Number.isFinite(n) ? n : 0;
+    // --- Queue (ordered or shuffled) ---
+    function buildFilteredIndices(){
+      const arr = [];
+      items.forEach((it, idx) => { if (passesFilters(it)) arr.push(idx); });
+      return arr;
     }
 
-    async function playIndex(index){
+    function shuffleArray(a){
+      for (let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function rebuildQueue(){
+      const filtered = buildFilteredIndices();
+      if (!filtered.length){
+        playQueue = [];
+        queuePos = -1;
+        return;
+      }
+
+      // if currently playing, keep it in the queue and keep position
+      const current = activeIndex;
+
+      if (!shuffle){
+        playQueue = filtered; // alphabetical list order (items already sorted)
+      } else {
+        playQueue = shuffleArray(filtered.slice());
+      }
+
+      if (current != null){
+        const pos = playQueue.indexOf(current);
+        queuePos = pos >= 0 ? pos : -1;
+      } else {
+        queuePos = -1;
+      }
+    }
+
+    function setShuffle(on){
+      shuffle = !!on;
+      localStorage.setItem(LS_SHUFFLE, shuffle ? "1" : "0");
+      shufflePill.textContent = shuffle ? "Açık" : "Kapalı";
+      shufflePill.classList.toggle("on", shuffle);
+      modePill.textContent = shuffle ? "Karışık" : "Sıralı";
+      modePill.classList.toggle("on", shuffle);
+      rebuildQueue();
+    }
+
+    function nextIndex(){
+      if (!playQueue.length) return null;
+      if (queuePos < 0){
+        // not in queue yet
+        return playQueue[0];
+      }
+      queuePos = (queuePos + 1) % playQueue.length;
+      return playQueue[queuePos];
+    }
+
+    function prevIndex(){
+      if (!playQueue.length) return null;
+      if (queuePos < 0){
+        return playQueue[0];
+      }
+      queuePos = (queuePos - 1 + playQueue.length) % playQueue.length;
+      return playQueue[queuePos];
+    }
+
+    async function playIndex(index, reason = "manual"){
       const item = items[index];
       if (!item) return;
 
       activeIndex = index;
 
-      const src = item.url;
-      titleEl.textContent = item.title;
-      setStatus("Yükleniyor…", src);
+      // Ensure queue is built and position set
+      rebuildQueue();
+      queuePos = playQueue.indexOf(index);
 
-      // Plyr download linkini bu dosyaya bağla
+      const src = item.url;
+      titleLeftEl.textContent = item.title;
+      setStatus("Yükleniyor…");
+
+      // Plyr download button points to file
       plyr.config.urls = { download: src };
 
       renderList();
@@ -498,39 +579,28 @@
         playerEl.removeEventListener("loadedmetadata", applyResumeOnce);
         if (resumeAt > 3 && playerEl.duration && resumeAt < playerEl.duration - 2) {
           playerEl.currentTime = resumeAt;
-          setStatus(`Kaldığın yerden devam: ${formatSecondsToHMS(resumeAt)}`, src);
+          setStatus(`Kaldığın yerden devam: ${formatSecondsToHMS(resumeAt)}`);
         }
       };
       playerEl.addEventListener("loadedmetadata", applyResumeOnce);
 
-      try { localStorage.setItem(LS_LAST, item.file); } catch {}
+      try{ localStorage.setItem(LS_LAST, item.file); } catch {}
 
       try{
         await playerEl.play();
+        setStatus(shuffle ? "Oynatılıyor (karışık)..." : "Oynatılıyor (sıralı)...");
       } catch {
-        setStatus("Oynatma başlatılamadı. Play tuşuna bas veya linki yeni sekmede aç.", src);
+        setStatus("Oynatma başlatılamadı. Play tuşuna bas.");
       }
     }
 
-    // Player events
-    playerEl.addEventListener("playing", () => setStatus("Oynatılıyor…", playerEl.currentSrc || playerEl.src));
-    playerEl.addEventListener("pause", () => {
-      if (playerEl.currentTime > 0 && !playerEl.ended) setStatus("Duraklatıldı.", playerEl.currentSrc || playerEl.src);
-    });
-    playerEl.addEventListener("ended", () => setStatus("Bitti.", playerEl.currentSrc || playerEl.src));
-    playerEl.addEventListener("error", () => {
-      const err = playerEl.error;
-      const code = err ? err.code : 0;
-      const src = playerEl.currentSrc || playerEl.src;
-      const msg =
-        code === 2 ? "Ağ hatası (link/erişim sorunu)" :
-        code === 3 ? "Decode hatası (codec desteklenmiyor olabilir)" :
-        code === 4 ? "Format desteklenmiyor veya link yanlış" :
-        "Bilinmeyen hata";
-      setStatus("Hata: " + msg, src);
+    // Auto next on ended
+    playerEl.addEventListener("ended", () => {
+      const n = nextIndex();
+      if (n != null) playIndex(n, "ended");
     });
 
-    // Resume auto-save (her 5 saniyede bir)
+    // Resume autosave
     let lastResumeWrite = 0;
     playerEl.addEventListener("timeupdate", () => {
       if (activeIndex == null) return;
@@ -542,7 +612,23 @@
       if (playerEl.currentTime > 2) saveResume(item.file, playerEl.currentTime);
     });
 
-    // --- list click actions ---
+    // Keyboard: next/prev
+    document.addEventListener("keydown", (e) => {
+      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+
+      if (e.key === "ArrowRight"){
+        e.preventDefault();
+        const n = nextIndex();
+        if (n != null) playIndex(n, "key");
+      }
+      if (e.key === "ArrowLeft"){
+        e.preventDefault();
+        const p = prevIndex();
+        if (p != null) playIndex(p, "key");
+      }
+    });
+
+    // Click actions
     listEl.addEventListener("click", (e) => {
       const el = e.target.closest("[data-action]");
       if (!el) return;
@@ -574,12 +660,13 @@
       }
 
       if (action === "dl"){
+        // “Yeni sekme” YOK. Direkt indirmeyi dene.
         const url = fileUrl(file);
         const a = document.createElement("a");
         a.href = url;
-        a.download = file;
-        a.target = "_blank";
+        a.download = file;      // bazı tarayıcılarda cross-origin’de ignore edilebilir ama en iyi pratik bu
         a.rel = "noreferrer";
+        a.style.display = "none";
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -597,6 +684,13 @@
       renderList();
     });
 
+    // Shuffle toggle
+    btnToggleShuffle.addEventListener("click", () => {
+      setShuffle(!shuffle);
+      // karışık açılınca o anda çalan varsa kuyruğu yeniden düzenledik
+      setStatus(shuffle ? "Karışık mod açıldı." : "Sıralı mod açıldı.");
+    });
+
     // Clear selection
     btnClearSel.addEventListener("click", () => {
       selected.clear();
@@ -604,101 +698,11 @@
       renderList();
     });
 
-    // Download links list (TXT + M3U)
-    btnLinks.addEventListener("click", () => {
-      const filtered = items.filter(passesFilters);
-      const lines = filtered.map(i => i.url);
-      const m3u = ["#EXTM3U", ...filtered.map(i => `#EXTINF:-1,${i.title}\n${i.url}`)].join("\n");
-
-      const txtBlob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-      const m3uBlob = new Blob([m3u], { type: "audio/x-mpegurl;charset=utf-8" });
-
-      const ts = new Date().toISOString().slice(0,19).replaceAll(":","-");
-
-      const a1 = document.createElement("a");
-      a1.href = URL.createObjectURL(txtBlob);
-      a1.download = `fsp-links-${ts}.txt`;
-      a1.click();
-
-      const a2 = document.createElement("a");
-      a2.href = URL.createObjectURL(m3uBlob);
-      a2.download = `fsp-playlist-${ts}.m3u`;
-      a2.click();
-
-      setTimeout(() => { URL.revokeObjectURL(a1.href); URL.revokeObjectURL(a2.href); }, 4000);
-    });
-
-    // ZIP helpers
-    async function zipFiles(fileList, zipName){
-      const list = fileList.slice(0);
-      if (list.length === 0) return;
-
-      if (list.length > ZIP_MAX_FILES){
-        alert(`ZIP için çok fazla dosya seçildi (${list.length}). Limit: ${ZIP_MAX_FILES}. Lütfen daha az dosya seç.`);
-        return;
-      }
-
-      const totalBytes = list.reduce((sum, it) => sum + (Number(it.sizeBytes) || 0), 0);
-      if (totalBytes > 0 && bytesToMB(totalBytes) > ZIP_MAX_TOTAL_MB){
-        alert(`ZIP toplam boyutu ~${bytesToMB(totalBytes).toFixed(0)}MB. Limit: ${ZIP_MAX_TOTAL_MB}MB. Lütfen daha az dosya seç.`);
-        return;
-      }
-
-      const zip = new JSZip();
-      titleEl.textContent = "ZIP hazırlanıyor…";
-      setStatus("Dosyalar indiriliyor (tarayıcıda)…", "");
-
-      for (let i = 0; i < list.length; i++){
-        const it = list[i];
-        setStatus(`ZIP: ${i+1}/${list.length} — ${it.title}`, it.url);
-
-        try{
-          const resp = await fetch(it.url, { cache: "no-store" });
-          if (!resp.ok) throw new Error("fetch failed");
-          const blob = await resp.blob();
-          zip.file(it.file, blob);
-        } catch (e){
-          console.error(e);
-          alert(`ZIP sırasında hata: ${it.file}\nBu dosya indirilemedi. (CORS/ağ/erişim)\nDilersen tek tek indirmeyi dene.`);
-          titleEl.textContent = it.title;
-          setStatus("ZIP iptal edildi.", it.url);
-          return;
-        }
-      }
-
-      setStatus("ZIP paketleniyor…", "");
-      const outBlob = await zip.generateAsync({ type: "blob" });
-
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(outBlob);
-      a.download = zipName;
-      a.click();
-
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-
-      titleEl.textContent = "ZIP hazır";
-      setStatus("ZIP indirildi.", "");
-    }
-
-    btnZipSel.addEventListener("click", async () => {
-      const list = items.filter(i => selected.has(i.file));
-      const ts = new Date().toISOString().slice(0,19).replaceAll(":","-");
-      await zipFiles(list, `fsp-selected-${ts}.zip`);
-      updateMetaLine();
-    });
-
-    btnZipFavs.addEventListener("click", async () => {
-      const list = items.filter(i => favs.has(i.file));
-      const ts = new Date().toISOString().slice(0,19).replaceAll(":","-");
-      await zipFiles(list, `fsp-favorites-${ts}.zip`);
-      updateMetaLine();
-    });
-
-    // --- load from Archive metadata (durations + size) ---
+    // Load from Archive metadata (durations included)
     async function loadFromArchive(){
       metaEl.textContent = "Archive.org’dan liste alınıyor…";
-      titleEl.textContent = "Yükleniyor…";
-      setStatus("Liste hazırlanıyor…", "");
+      titleLeftEl.textContent = "Yükleniyor…";
+      setStatus("Liste hazırlanıyor…");
 
       const metaUrl = `https://archive.org/metadata/${IDENT}`;
       const res = await fetch(metaUrl, { cache: "no-store" });
@@ -712,36 +716,36 @@
         .filter(f => f.name.toLowerCase().endsWith(".m4a"))
         .map(f => {
           const durRaw = f.length ?? f.duration ?? "";
-          const sizeBytes = f.size ? Number(f.size) : 0;
           return {
             file: f.name,
             title: titleFromFilename(f.name),
             info: normalizeDuration(durRaw),
             url: fileUrl(f.name),
-            sizeBytes
           };
         })
         .sort((a, b) => a.title.localeCompare(b.title, "de"));
 
-      titleEl.textContent = `Toplam kayıt: ${items.length}`;
-      setStatus("Bir kayıt seç.", "");
       updateMetaLine();
       renderList();
 
+      titleLeftEl.textContent = `Toplam kayıt: ${items.length}`;
+      setStatus("Bir kayıt seç.");
+
+      // restore last played hint
       const last = localStorage.getItem(LS_LAST);
       if (last){
         const idx = items.findIndex(x => x.file === last);
         if (idx >= 0){
           activeIndex = idx;
-          titleEl.textContent = items[idx].title;
+          titleLeftEl.textContent = items[idx].title;
           const resumeAt = loadResume(items[idx].file);
-          if (resumeAt > 2) setStatus(`Son dinleme: ${formatSecondsToHMS(resumeAt)} (tıklayınca devam eder)`, items[idx].url);
+          if (resumeAt > 2) setStatus(`Son dinleme: ${formatSecondsToHMS(resumeAt)} (tıklayınca devam eder)`);
           renderList();
         }
       }
     }
 
-    // --- draggable floating player ---
+    // draggable floating player
     (function enableDrag(){
       const box = document.getElementById("floatingPlayer");
       const handle = document.getElementById("fpTitle");
@@ -822,17 +826,65 @@
       handle.addEventListener("touchstart", pointerDown, { passive: false });
     })();
 
-    // init state
+    // init
     loadFavs();
     loadSelection();
-    updateZipButtons();
+    setShuffle(localStorage.getItem(LS_SHUFFLE) === "1");
 
-    // start
+    // Add prev/next buttons into Plyr controls (custom)
+    // (Plyr has no built-in prev/next; we inject two buttons next to rewind/play.)
+    (function injectPrevNext(){
+      const tryInject = () => {
+        const controls = document.querySelector("#floatingPlayer .plyr__controls");
+        if (!controls) return false;
+
+        // avoid duplicates
+        if (controls.querySelector("[data-custom='prev']")) return true;
+
+        const makeBtn = (label, title, onClick) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "plyr__control";
+          btn.setAttribute("data-custom", label);
+          btn.setAttribute("title", title);
+          btn.setAttribute("aria-label", title);
+          btn.innerHTML = label === "prev" ? "⏮" : "⏭";
+          btn.addEventListener("click", (e) => { e.preventDefault(); onClick(); });
+          return btn;
+        };
+
+        const prevBtn = makeBtn("prev", "Önceki", () => {
+          const p = prevIndex();
+          if (p != null) playIndex(p, "prev");
+        });
+        const nextBtn = makeBtn("next", "Sonraki", () => {
+          const n = nextIndex();
+          if (n != null) playIndex(n, "next");
+        });
+
+        // insert near play button
+        const playBtn = controls.querySelector("[data-plyr='play']");
+        if (playBtn){
+          controls.insertBefore(prevBtn, playBtn);
+          controls.insertBefore(nextBtn, playBtn.nextSibling);
+        } else {
+          controls.prepend(prevBtn, nextBtn);
+        }
+        return true;
+      };
+
+      // wait a bit until plyr mounts
+      const t = setInterval(() => {
+        if (tryInject()) clearInterval(t);
+      }, 200);
+      setTimeout(() => clearInterval(t), 5000);
+    })();
+
     loadFromArchive().catch(err => {
       console.error(err);
       metaEl.textContent = "Liste yüklenemedi (Archive.org metadata hatası).";
-      titleEl.textContent = "Liste yüklenemedi";
-      setStatus("Ağ/CORS/geçici sorun olabilir. Yenile veya sonra tekrar dene.", "");
+      titleLeftEl.textContent = "Liste yüklenemedi";
+      setStatus("Ağ/geçici sorun olabilir. Yenile veya sonra tekrar dene.");
       listEl.innerHTML = "<div style='padding:0.9rem;color:#666'>Liste yüklenemedi.</div>";
     });
   </script>
