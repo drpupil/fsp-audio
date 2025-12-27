@@ -3,8 +3,11 @@ name: Generate items.json from Archive.org
 on:
   workflow_dispatch:
   schedule:
-    # Her gün Türkiye saatiyle ~06:00 (UTC 03:00)
+    # Her gün 03:00 UTC (Berlin kışın 04:00 / yazın 05:00 civarı)
     - cron: "0 3 * * *"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -19,7 +22,7 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Generate items.json
+      - name: Generate items.json (m4a + mp3)
         run: |
           python - << 'EOF'
           import json, re
@@ -32,13 +35,22 @@ jobs:
           class LinkParser(HTMLParser):
               def __init__(self):
                   super().__init__()
-                  self.links = []
+                  self.files = []
 
               def handle_starttag(self, tag, attrs):
-                  if tag == "a":
-                      for k, v in attrs:
-                          if k == "href" and v.endswith(".m4a"):
-                              self.links.append(unquote(v))
+                  if tag != "a":
+                      return
+                  href = None
+                  for k, v in attrs:
+                      if k == "href":
+                          href = v
+                          break
+                  if not href:
+                      return
+
+                  h = href.lower()
+                  if h.endswith(".m4a") or h.endswith(".mp3"):
+                      self.files.append(unquote(href))
 
           req = Request(BASE, headers={"User-Agent": "Mozilla/5.0"})
           html = urlopen(req).read().decode("utf-8", errors="ignore")
@@ -46,21 +58,28 @@ jobs:
           parser = LinkParser()
           parser.feed(html)
 
+          # de-dup
+          seen = set()
+          files = []
+          for f in parser.files:
+              if f in seen:
+                  continue
+              seen.add(f)
+              files.append(f)
+
           items = []
-          for f in parser.links:
-              title = re.sub(r"\.m4a$", "", f)
+          for f in files:
+              title = re.sub(r"\.(m4a|mp3)$", "", f, flags=re.IGNORECASE)
+              # başlık temizleme (istersen daha agresif temizleriz)
               title = title.replace("_", " ").replace("%20", " ")
-              items.append({
-                  "title": title,
-                  "file": f
-              })
+              items.append({"title": title, "file": f})
 
           items.sort(key=lambda x: x["title"].lower())
 
           with open("items.json", "w", encoding="utf-8") as out:
               json.dump(items, out, ensure_ascii=False, indent=2)
 
-          print(f"{len(items)} kayıt üretildi.")
+          print(f"{len(items)} kayıt üretildi (m4a + mp3).")
           EOF
 
       - name: Commit items.json if changed
@@ -68,9 +87,9 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          if git status --porcelain | grep items.json; then
+          if git status --porcelain | grep -q "items.json"; then
             git add items.json
-            git commit -m "Auto-update items.json from Archive.org"
+            git commit -m "Auto-update items.json (m4a+mp3) from Archive.org"
             git push
           else
             echo "Değişiklik yok."
