@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Alfabetik FSP A–Z</title>
 
-  <!-- Plyr -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
 
   <style>
@@ -14,62 +13,56 @@
       --muted:#666;
       --line:#e7e7e7;
       --bg:#fff;
-      --chip:#f7f7f8;
       --chip-border:#d8d8dd;
       --accent:#0a66ff;
       --row-hover:#f3f7ff;
       --row-active:#e6f1ff;
       --shadow:0 10px 30px rgba(0,0,0,.08);
-      --radius:18px;
     }
-    html,body{background:var(--bg); color:var(--fg); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; font-weight:400;}
+    html,body{background:var(--bg); color:var(--fg); margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
     *{box-sizing:border-box;}
     .wrap{max-width:1100px; margin:26px auto 120px; padding:0 18px;}
     h1{font-size:54px; line-height:1.05; margin:0 0 14px; letter-spacing:-.02em; font-weight:800;}
     @media (max-width:700px){ h1{font-size:40px;} }
 
-    .topbar{
-      display:flex; gap:12px; align-items:center; flex-wrap:wrap;
-      margin:10px 0 8px;
-    }
+    .topbar{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:10px 0 8px;}
     .search{
       flex:1; min-width:260px;
       border:1px solid var(--line); background:#fff;
       padding:14px 16px; border-radius:20px;
       font-size:20px; outline:none;
+      font-weight:400;
     }
     .btn{
       border:1px solid var(--chip-border);
       background:#fff; border-radius:16px;
       padding:12px 16px; font-size:18px;
       cursor:pointer;
+      font-weight:400;
     }
-    .btn:active{transform:translateY(1px);}
-    .btn.primary{
-      border-color:rgba(10,102,255,.35);
-      color:var(--accent);
-      background:#fff;
-    }
-
-    .meta{color:var(--muted); font-size:20px; margin:10px 0 14px;}
+    .btn.primary{border-color:rgba(10,102,255,.35); color:var(--accent);}
+    .meta{color:var(--muted); font-size:20px; margin:10px 0 14px; font-weight:400;}
     @media (max-width:700px){ .meta{font-size:18px;} }
 
-    .table{
-      border-top:1px solid var(--line);
-    }
+    .table{border-top:1px solid var(--line);}
 
-    /* header row */
-    .head{
+    /* ✅ 6 kolon: title | likecount | like | fav | sel | download */
+    .head, .row{
       display:grid;
-      grid-template-columns: 1fr 54px 54px 54px 54px;
+      grid-template-columns: 1fr 56px 54px 54px 54px 54px;
       align-items:center;
       gap:10px;
-      padding:12px 6px;
+      padding:10px 6px;            /* daha dar */
+    }
+
+    .head{
       color:var(--muted);
       border-bottom:1px solid var(--line);
       font-size:18px;
+      font-weight:400;
     }
     .head .hlabel{padding-left:4px;}
+
     .hicon{
       width:44px; height:44px; border-radius:999px;
       border:1px solid var(--chip-border);
@@ -82,33 +75,22 @@
       box-shadow:0 0 0 3px rgba(10,102,255,.10);
     }
 
-    /* rows */
     .row{
-      display:grid;
-      grid-template-columns: 1fr 54px 54px 54px 54px;
-      align-items:center;
-      gap:10px;
-      padding:12px 6px;
       border-bottom:1px solid var(--line);
       font-size:24px;
+      font-weight:400 !important;  /* ✅ bold kapat */
     }
     .row:hover{background:var(--row-hover);}
     .row.active{background:var(--row-active);}
-    @media (max-width:700px){
-      .row{font-size:22px;}
-    }
+    @media (max-width:700px){ .row{font-size:22px;} }
 
-    .title{
-      min-width:0; /* important for ellipsis */
-      display:flex; align-items:center; gap:10px;
-      cursor:pointer;
-    }
+    .title{min-width:0; display:flex; align-items:center; cursor:pointer;}
     .title span{
       display:block;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      font-weight:400;
+      font-weight:400 !important; /* ✅ bold kapat */
     }
 
     .likecount{
@@ -117,6 +99,7 @@
       text-align:right;
       padding-right:2px;
       user-select:none;
+      font-weight:400;
     }
 
     .iconbtn{
@@ -136,12 +119,10 @@
 
     .dl svg{stroke:#444;}
     .iconbtn.dl{border-color:#e0e0e0;}
-    .iconbtn.dl:active{transform:translateY(1px);}
 
     /* Floating player */
     #floatingPlayer{
-      position:fixed;
-      left:18px; bottom:18px;
+      position:fixed; left:18px; bottom:18px;
       width:min(860px, calc(100vw - 36px));
       background:#fff;
       border:1px solid var(--line);
@@ -150,26 +131,23 @@
       z-index:9999;
       overflow:hidden;
       touch-action:none;
+      font-weight:400;
     }
     #fpBar{
       display:flex; align-items:center; justify-content:space-between;
-      padding:12px 12px 10px 14px;
+      padding:10px 12px 8px 14px; /* daha dar */
       border-bottom:1px solid var(--line);
       cursor:grab;
       user-select:none;
-      background:#fff;
       gap:10px;
     }
     #fpTitle{
       font-size:20px;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      font-weight:700;
+      font-weight:600;  /* sadece player başlığı */
       flex:1; min-width:0;
     }
-    #fpRight{
-      display:flex; align-items:center; gap:8px;
-      flex:0 0 auto;
-    }
+    #fpRight{display:flex; align-items:center; gap:8px;}
     .mini{
       width:44px; height:44px; border-radius:14px;
       border:1px solid var(--chip-border);
@@ -178,31 +156,19 @@
       cursor:pointer;
     }
     .mini svg{width:22px; height:22px; fill:none; stroke:#333; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
-    .dragTag{
-      color:var(--muted);
-      font-size:16px;
-      padding:0 6px;
-      border-radius:10px;
-      border:1px solid transparent;
-    }
+    .dragTag{color:var(--muted); font-size:16px; padding:0 6px;}
+
     #fpMsg{
       padding:10px 14px 0;
       color:var(--muted);
       font-size:16px;
       display:none;
+      line-height:1.35;
     }
+    #fpMsg a{color:var(--accent); text-decoration:underline;}
 
-    /* Plyr spacing */
     .plyr--audio .plyr__controls{padding:10px 12px;}
     .plyr__time{font-size:14px;}
-    .plyr__menu__container .plyr__control{font-size:14px;}
-
-    /* reduce extra gaps on small */
-    @media (max-width:700px){
-      #fpTitle{font-size:18px;}
-      .search{font-size:18px; padding:12px 14px;}
-      .btn{font-size:17px; padding:10px 14px;}
-    }
   </style>
 </head>
 
@@ -220,33 +186,26 @@
     <div class="table">
       <div class="head">
         <div class="hlabel">Kayıt</div>
-
-        <!-- Like count column header is blank on purpose -->
         <div></div>
 
-        <!-- Filter icons (no text) -->
         <div id="hLike" class="hicon" title="Sadece liked">
-          <!-- heart -->
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6c-1.7 1.7-1.7 4.4 0 6.1L12 19.5l8.8-8.8c1.7-1.7 1.7-4.4 0-6.1z"/>
           </svg>
         </div>
 
         <div id="hFav" class="hicon" title="Sadece favoriler">
-          <!-- star -->
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2l3.1 6.3 7 .9-5.1 5 1.2 7-6.2-3.3-6.2 3.3 1.2-7-5.1-5 7-.9z"/>
           </svg>
         </div>
 
         <div id="hSel" class="hicon" title="Sadece seçili">
-          <!-- check -->
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         </div>
 
-        <!-- download header empty -->
         <div></div>
       </div>
 
@@ -254,7 +213,6 @@
     </div>
   </div>
 
-  <!-- Floating player -->
   <div id="floatingPlayer" aria-live="polite">
     <div id="fpBar">
       <div id="fpTitle">Bir kayıt seç…</div>
@@ -265,7 +223,7 @@
         <button id="nextBtn" class="mini" title="Sonraki">
           <svg viewBox="0 0 24 24"><path d="M13 5l9 7-9 7V5z"/><path d="M2 5v14"/></svg>
         </button>
-        <span class="dragTag" title="Sürükle">Sürükle</span>
+        <span class="dragTag">Sürükle</span>
       </div>
     </div>
     <div id="fpMsg"></div>
@@ -276,48 +234,33 @@
 
   <script>
     /***********************
-     * 1) AYAR: Archive base
+     * 🔴 BURAYI DÜZ GİR:
+     * https://archive.org/download/IDENTIFIER/
      ***********************/
-    // Burayı kendi linkinle aynı formatta bırak:
-    // "https://archive.org/download/IDENTIFIER/"
-    const ARCHIVE_BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
-
-    // items.json bu repo içinde (GitHub Pages) olmalı:
+    const ARCHIVE_BASE = "https://archive.org/download/IDENTIFIER/"; // <-- bunu değiştir
     const ITEMS_JSON = "./items.json";
 
-    /***********************
-     * 2) State + storage
-     ***********************/
     const LS_LIKES = "fsp_likes_v1";
     const LS_FAVS  = "fsp_favs_v1";
     const LS_SELS  = "fsp_sels_v1";
+    const LS_LIKECOUNTS = "fsp_likecounts_v1";
 
     const loadSet = (k) => new Set(JSON.parse(localStorage.getItem(k) || "[]"));
     const saveSet = (k, s) => localStorage.setItem(k, JSON.stringify([...s]));
+    const loadCounts = () => JSON.parse(localStorage.getItem(LS_LIKECOUNTS) || "{}");
+    const saveCounts = (obj) => localStorage.setItem(LS_LIKECOUNTS, JSON.stringify(obj));
 
     let likes = loadSet(LS_LIKES);
     let favs  = loadSet(LS_FAVS);
     let sels  = loadSet(LS_SELS);
-
-    // Like sayaçları (sadece bu cihazda)
-    const LS_LIKECOUNTS = "fsp_likecounts_v1";
-    const loadCounts = () => JSON.parse(localStorage.getItem(LS_LIKECOUNTS) || "{}");
-    const saveCounts = (obj) => localStorage.setItem(LS_LIKECOUNTS, JSON.stringify(obj));
     let likeCounts = loadCounts();
 
-    // Data
     let allItems = [];
     let filtered = [];
     let activeIndex = null;
 
-    // Filters
-    let filterLike = false;
-    let filterFav  = false;
-    let filterSel  = false;
+    let filterLike = false, filterFav = false, filterSel = false;
 
-    /***********************
-     * 3) DOM
-     ***********************/
     const qEl = document.getElementById("q");
     const listEl = document.getElementById("list");
     const metaEl = document.getElementById("meta");
@@ -327,64 +270,44 @@
     const hFav  = document.getElementById("hFav");
     const hSel  = document.getElementById("hSel");
 
-    const fp = document.getElementById("floatingPlayer");
-    const fpBar = document.getElementById("fpBar");
     const fpTitle = document.getElementById("fpTitle");
     const fpMsg = document.getElementById("fpMsg");
     const audioEl = document.getElementById("player");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
 
-    /***********************
-     * 4) Plyr init
-     ***********************/
     const plyr = new Plyr(audioEl, {
       seekTime: 5,
-      controls: [
-        "rewind","play","fast-forward","progress","current-time","duration","mute","volume","settings"
-      ],
+      controls: ["rewind","play","fast-forward","progress","current-time","duration","mute","volume","settings"],
       settings: ["speed"],
       speed: { selected: 1, options: [0.8, 0.9, 1, 1.1, 1.2] }
     });
 
-    // Oynatma hatası mesajı
-    audioEl.addEventListener("error", () => {
-      const err = audioEl.error;
-      let msg = "Oynatma başlatılamadı. Player’daki ▶︎ tuşuna bas.";
-      if (err && err.code) msg += " (Hata kodu: " + err.code + ")";
-      showMsg(msg);
-    });
-
-    plyr.on("play", () => hideMsg());
-
-    function showMsg(t){
+    function showMsg(html){
       fpMsg.style.display = "block";
-      fpMsg.textContent = t;
+      fpMsg.innerHTML = html;
     }
     function hideMsg(){
       fpMsg.style.display = "none";
-      fpMsg.textContent = "";
+      fpMsg.innerHTML = "";
     }
 
-    /***********************
-     * 5) URL builder (kritik)
-     ***********************/
+    // ✅ filename encoding (Türkçe/Almanca vb.)
+    function encodeFile(file){
+      // dosya adını parçalayarak encode et (space/umlaut vb.)
+      return file.split("/").map(part => encodeURIComponent(part)).join("/");
+    }
     function toFileUrl(file){
-      // items.json'daki "file" sadece dosya adı (boşluk/özel karakter olabilir)
-      // encodeURI tüm yolu güvenli hale getirir.
-      return encodeURI(ARCHIVE_BASE + file);
+      const base = ARCHIVE_BASE.endsWith("/") ? ARCHIVE_BASE : (ARCHIVE_BASE + "/");
+      return base + encodeFile(file);
     }
 
-    /***********************
-     * 6) Fetch items.json
-     ***********************/
     async function loadItems(){
       try{
         const res = await fetch(ITEMS_JSON + "?v=" + Date.now(), { cache: "no-store" });
         if(!res.ok) throw new Error("items.json HTTP " + res.status);
         const data = await res.json();
 
-        // data: [{title,file}, ...]
         const cleaned = (Array.isArray(data) ? data : [])
           .filter(x => x && typeof x.title === "string" && typeof x.file === "string")
           .filter(x => {
@@ -392,25 +315,21 @@
             return f.endsWith(".m4a") || f.endsWith(".mp3");
           })
           .map(x => ({
-            id: x.file,                 // stable key
+            id: x.file,
             title: x.title.trim(),
             file: x.file,
             url: toFileUrl(x.file)
           }));
 
-        // A–Z
         cleaned.sort((a,b)=> a.title.localeCompare(b.title, "tr", { sensitivity:"base" }));
-
         allItems = cleaned;
+
         applyFiltersAndRender();
       }catch(e){
         metaEl.textContent = "Hata: items.json okunamadı. (" + e.message + ")";
       }
     }
 
-    /***********************
-     * 7) Render
-     ***********************/
     const heartSvg = () => `
       <svg viewBox="0 0 24 24">
         <path d="M20.8 4.6c-1.6-1.6-4.2-1.6-5.8 0L12 7.6 9 4.6C7.4 3 4.8 3 3.2 4.6c-1.7 1.7-1.7 4.4 0 6.1L12 19.5l8.8-8.8c1.7-1.7 1.7-4.4 0-6.1z"></path>
@@ -430,6 +349,12 @@
         <path d="M5 21h14"></path>
       </svg>`;
 
+    function toggleSet(setObj, key, id){
+      if(setObj.has(id)) setObj.delete(id);
+      else setObj.add(id);
+      saveSet(key, setObj);
+    }
+
     function applyFiltersAndRender(){
       const q = qEl.value.trim().toLowerCase();
 
@@ -441,26 +366,19 @@
         return true;
       });
 
-      // meta
       metaEl.textContent = `Görünen: ${filtered.length} / Toplam: ${allItems.length}`;
 
-      // header icon states
       hLike.classList.toggle("on", filterLike);
       hFav.classList.toggle("on",  filterFav);
       hSel.classList.toggle("on",  filterSel);
 
-      // keep activeIndex valid
-      if(activeIndex != null){
-        if(activeIndex < 0 || activeIndex >= filtered.length) activeIndex = null;
-      }
+      if(activeIndex != null && (activeIndex < 0 || activeIndex >= filtered.length)) activeIndex = null;
 
-      // render list
       listEl.innerHTML = "";
       filtered.forEach((it, idx) => {
         const row = document.createElement("div");
         row.className = "row" + (activeIndex === idx ? " active" : "");
 
-        // title
         const t = document.createElement("div");
         t.className = "title";
         const span = document.createElement("span");
@@ -468,12 +386,10 @@
         t.appendChild(span);
         t.addEventListener("click", () => playIndex(idx));
 
-        // like count
         const lc = document.createElement("div");
         lc.className = "likecount";
         lc.textContent = String(likeCounts[it.id] || 0);
 
-        // like btn
         const bLike = document.createElement("button");
         bLike.className = "iconbtn" + (likes.has(it.id) ? " on" : "");
         bLike.innerHTML = heartSvg();
@@ -481,7 +397,6 @@
         bLike.addEventListener("click", (ev) => {
           ev.stopPropagation();
           toggleSet(likes, LS_LIKES, it.id);
-          // sayacı sadece like ON olduğunda +1 (OFF olunca -1 yapmıyorum; istersen yaparız)
           if(likes.has(it.id)){
             likeCounts[it.id] = (likeCounts[it.id] || 0) + 1;
             saveCounts(likeCounts);
@@ -489,7 +404,6 @@
           applyFiltersAndRender();
         });
 
-        // fav btn
         const bFav = document.createElement("button");
         bFav.className = "iconbtn" + (favs.has(it.id) ? " on" : "");
         bFav.innerHTML = starSvg();
@@ -500,7 +414,6 @@
           applyFiltersAndRender();
         });
 
-        // sel btn
         const bSel = document.createElement("button");
         bSel.className = "iconbtn" + (sels.has(it.id) ? " on" : "");
         bSel.innerHTML = checkSvg();
@@ -511,7 +424,6 @@
           applyFiltersAndRender();
         });
 
-        // download btn
         const bDl = document.createElement("button");
         bDl.className = "iconbtn dl";
         bDl.innerHTML = dlSvg();
@@ -521,6 +433,7 @@
           await downloadFile(it.url, it.file);
         });
 
+        // ✅ SIRA ÖNEMLİ: 6 kolonla tam oturuyor
         row.appendChild(t);
         row.appendChild(lc);
         row.appendChild(bLike);
@@ -532,36 +445,41 @@
       });
     }
 
-    function toggleSet(setObj, key, id){
-      if(setObj.has(id)) setObj.delete(id);
-      else setObj.add(id);
-      saveSet(key, setObj);
-    }
-
-    /***********************
-     * 8) Playback + prev/next
-     ***********************/
     async function playIndex(idx){
       if(idx < 0 || idx >= filtered.length) return;
       activeIndex = idx;
       const it = filtered[idx];
 
-      // highlight
       applyFiltersAndRender();
-
       fpTitle.textContent = it.title;
-      hideMsg();
 
-      // set source (kritik)
-      audioEl.src = it.url;
+      // ✅ Önce URL test (404/CORS ayırt etmek için)
+      const url = it.url;
+      showMsg(`Yükleniyor…<br><a href="${url}" target="_blank" rel="noopener noreferrer">Dosyayı yeni sekmede aç</a>`);
+
+      try{
+        // HEAD bazen engellenir; GET range ile de olabilir ama önce HEAD deneyelim
+        const head = await fetch(url, { method:"HEAD", mode:"cors" });
+        if(!head.ok){
+          showMsg(`Dosya erişilemiyor (HTTP ${head.status}).<br>
+                   <a href="${url}" target="_blank" rel="noopener noreferrer">Dosyayı yeni sekmede aç</a><br>
+                   <small>Muhtemel sebep: ARCHIVE_BASE yanlış veya dosya adı farklı.</small>`);
+          return;
+        }
+      }catch(e){
+        // HEAD bloke olabilir; yine de audio ile deneyelim
+      }
+
+      audioEl.src = url;
       audioEl.load();
 
-      // Autoplay bazen engellenebilir — o durumda kullanıcı play'e basar.
       try{
         await audioEl.play();
+        hideMsg();
       }catch(e){
-        // iOS/Chrome autoplay policy
-        showMsg("Oynatma başlatılamadı. Player’daki ▶︎ tuşuna bas.");
+        // autoplay policy veya başka bir engel
+        showMsg(`Oynatma başlatılamadı. Player’daki ▶︎ tuşuna bas.<br>
+                 <a href="${url}" target="_blank" rel="noopener noreferrer">Dosyayı yeni sekmede aç</a>`);
       }
     }
 
@@ -579,14 +497,13 @@
     prevBtn.addEventListener("click", (e)=>{ e.stopPropagation(); playPrev(); });
     nextBtn.addEventListener("click", (e)=>{ e.stopPropagation(); playNext(); });
 
-    audioEl.addEventListener("ended", () => {
-      // sıradaki
-      playNext();
+    audioEl.addEventListener("ended", () => playNext());
+    audioEl.addEventListener("error", () => {
+      const url = audioEl.src || "";
+      showMsg(`Ses yüklenemedi.<br>
+               <a href="${url}" target="_blank" rel="noopener noreferrer">Dosyayı yeni sekmede aç</a>`);
     });
 
-    /***********************
-     * 9) Filters (header icons) + reset
-     ***********************/
     hLike.addEventListener("click", () => { filterLike = !filterLike; applyFiltersAndRender(); });
     hFav .addEventListener("click", () => { filterFav  = !filterFav;  applyFiltersAndRender(); });
     hSel .addEventListener("click", () => { filterSel  = !filterSel;  applyFiltersAndRender(); });
@@ -599,14 +516,9 @@
 
     qEl.addEventListener("input", applyFiltersAndRender);
 
-    /***********************
-     * 10) Keyboard
-     ***********************/
     document.addEventListener("keydown", (e) => {
       const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
-      const inInput = tag === "input" || tag === "textarea";
-
-      if(inInput) return;
+      if(tag === "input" || tag === "textarea") return;
 
       if(e.code === "Space"){
         e.preventDefault();
@@ -615,98 +527,61 @@
           else audioEl.pause();
         }
       }
-      if(e.key === "ArrowDown"){
-        e.preventDefault();
-        if(!filtered.length) return;
-        if(activeIndex == null) playIndex(0);
-        else playIndex(Math.min(filtered.length-1, activeIndex+1));
-      }
-      if(e.key === "ArrowUp"){
-        e.preventDefault();
-        if(!filtered.length) return;
-        if(activeIndex == null) playIndex(0);
-        else playIndex(Math.max(0, activeIndex-1));
-      }
-      if(e.key === "ArrowLeft"){
-        // -5s
-        if(!isNaN(audioEl.currentTime)) audioEl.currentTime = Math.max(0, audioEl.currentTime - 5);
-      }
-      if(e.key === "ArrowRight"){
-        // +5s
-        if(!isNaN(audioEl.currentTime)) audioEl.currentTime = Math.min(audioEl.duration || Infinity, audioEl.currentTime + 5);
-      }
     });
 
-    /***********************
-     * 11) Draggable player
-     ***********************/
+    // draggable
     (function makeDraggable(){
-      let dragging = false;
-      let startX=0, startY=0, startLeft=0, startTop=0;
+      const fp = document.getElementById("floatingPlayer");
+      const fpBar = document.getElementById("fpBar");
+      let dragging=false, startX=0,startY=0,startLeft=0,startTop=0;
 
-      // initialize position (bottom-left)
-      // We'll switch to top/left positioning after first drag.
+      function getPoint(ev){
+        if(ev.touches && ev.touches[0]) return {x: ev.touches[0].clientX, y: ev.touches[0].clientY};
+        return {x: ev.clientX, y: ev.clientY};
+      }
       function onDown(ev){
-        dragging = true;
-        fpBar.style.cursor = "grabbing";
+        dragging=true;
+        fpBar.style.cursor="grabbing";
 
-        const rect = fp.getBoundingClientRect();
-        // lock to current top/left
-        fp.style.left = rect.left + "px";
-        fp.style.top  = rect.top + "px";
+        const r = fp.getBoundingClientRect();
+        fp.style.left = r.left + "px";
+        fp.style.top  = r.top + "px";
         fp.style.bottom = "auto";
 
-        startLeft = rect.left;
-        startTop  = rect.top;
-
-        const p = getPoint(ev);
-        startX = p.x;
-        startY = p.y;
+        startLeft=r.left; startTop=r.top;
+        const p=getPoint(ev);
+        startX=p.x; startY=p.y;
 
         window.addEventListener("mousemove", onMove);
         window.addEventListener("mouseup", onUp);
         window.addEventListener("touchmove", onMove, {passive:false});
         window.addEventListener("touchend", onUp);
       }
-
       function onMove(ev){
         if(!dragging) return;
         if(ev.cancelable) ev.preventDefault();
-        const p = getPoint(ev);
-        const dx = p.x - startX;
-        const dy = p.y - startY;
+        const p=getPoint(ev);
+        const nx=startLeft+(p.x-startX);
+        const ny=startTop+(p.y-startY);
 
-        const nx = startLeft + dx;
-        const ny = startTop + dy;
-
-        const maxX = window.innerWidth - fp.offsetWidth - 10;
-        const maxY = window.innerHeight - fp.offsetHeight - 10;
+        const maxX=window.innerWidth-fp.offsetWidth-10;
+        const maxY=window.innerHeight-fp.offsetHeight-10;
 
         fp.style.left = Math.max(10, Math.min(maxX, nx)) + "px";
         fp.style.top  = Math.max(10, Math.min(maxY, ny)) + "px";
       }
-
       function onUp(){
-        dragging = false;
-        fpBar.style.cursor = "grab";
+        dragging=false;
+        fpBar.style.cursor="grab";
         window.removeEventListener("mousemove", onMove);
         window.removeEventListener("mouseup", onUp);
         window.removeEventListener("touchmove", onMove);
         window.removeEventListener("touchend", onUp);
       }
-
-      function getPoint(ev){
-        if(ev.touches && ev.touches[0]) return {x: ev.touches[0].clientX, y: ev.touches[0].clientY};
-        return {x: ev.clientX, y: ev.clientY};
-      }
-
       fpBar.addEventListener("mousedown", onDown);
       fpBar.addEventListener("touchstart", onDown, {passive:true});
     })();
 
-    /***********************
-     * 12) Download (try blob -> fallback)
-     ***********************/
     async function downloadFile(url, filename){
       try{
         const r = await fetch(url, { mode:"cors" });
@@ -721,14 +596,10 @@
         a.remove();
         setTimeout(()=>URL.revokeObjectURL(objUrl), 1500);
       }catch(e){
-        // fallback: open
         window.open(url, "_blank", "noopener,noreferrer");
       }
     }
 
-    /***********************
-     * 13) Start
-     ***********************/
     loadItems();
   </script>
 </body>
