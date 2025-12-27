@@ -104,7 +104,7 @@
     /* HEADER + ROWS */
     .headerRow, .itemRow{
       display: grid;
-      grid-template-columns: 1fr 110px 260px; /* Kayıt | Süre | İşlemler */
+      grid-template-columns: 1fr 120px 260px; /* Kayıt | Süre | İşlemler */
       align-items: center;
       column-gap: 10px;
     }
@@ -130,6 +130,33 @@
       justify-content:flex-end;
       gap:10px;
       user-select:none;
+    }
+
+    /* Süre başlığı + sort ok */
+    .durHead{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+    }
+
+    .sortBtn{
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid #d8d8d8;
+      background: white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      color:#111;
+    }
+    .sortBtn:hover{ background: var(--hover); }
+    .sortBtn svg{ width:16px; height:16px; }
+    .sortBtn.on{
+      border-color:#2b7cff;
+      box-shadow: 0 0 0 3px rgba(43,124,255,.12) inset;
     }
 
     #list{
@@ -161,7 +188,7 @@
       white-space: nowrap;
     }
 
-    @media (max-width: 640px){
+    @media (max-width: 680px){
       body{ margin: 14px; }
       .headerRow, .itemRow{ grid-template-columns: 1fr 92px 210px; }
       .title{
@@ -200,7 +227,6 @@
     }
     .iconBtn svg{ width: 18px; height: 18px; opacity: .9; }
 
-    /* Header filtre ikonları — BOŞ GÖRÜNMEYİ ENGELLE */
     .filterBtn{
       width: 38px;
       height: 38px;
@@ -211,7 +237,7 @@
       align-items:center;
       justify-content:center;
       cursor:pointer;
-      color:#111; /* Safari’de “boş” görünmesin */
+      color:#111;
     }
     .filterBtn:hover{ background: var(--hover); }
     .filterBtn.on{
@@ -232,7 +258,7 @@
       box-shadow: var(--shadow);
       overflow: hidden;
       z-index: 9999;
-      -webkit-transform: translateZ(0); /* iOS flicker fix */
+      -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
 
@@ -246,6 +272,7 @@
       cursor: grab;
       user-select:none;
       gap: 10px;
+      touch-action: none; /* drag stabil */
     }
 
     #fpTitle{
@@ -319,9 +346,19 @@
 
   <div class="headerRow">
     <div class="colTitle">Kayıt</div>
-    <div class="colDur">Süre</div>
+
+    <div class="colDur">
+      <div class="durHead">
+        <span>Süre</span>
+        <button id="sortDurBtn" class="sortBtn" type="button" title="Süreye göre sırala">
+          <svg id="sortDurIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <div class="colActions">
-      <!-- ✅ SADECE Fav + Sel filtreleri kaldı -->
       <button id="filterFav" class="filterBtn" title="Favoriler filtrele" type="button" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2z"/>
@@ -385,6 +422,10 @@
     const filterSelBtn  = document.getElementById("filterSel");
     const resetBtn      = document.getElementById("resetBtn");
 
+    const sortDurBtn  = document.getElementById("sortDurBtn");
+    const sortDurIcon = document.getElementById("sortDurIcon");
+
+    // ✅ Plyr: hız ayarı geri geldi (settings + speed)
     const plyr = new Plyr(playerEl, {
       seekTime: 5,
       controls: [
@@ -395,15 +436,19 @@
         "current-time",
         "duration",
         "mute",
-        "volume"
-      ]
+        "volume",
+        "settings" // <-- hız menüsü burada
+      ],
+      settings: ["speed"],
+      speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
     });
 
     const LS = {
       favs:  "fsp.favs.v1",
       sels:  "fsp.sels.v1",
       pos:   "fsp.fp.pos.v1",
-      durs:  "fsp.durs.v1" // ✅ duration cache (seconds)
+      durs:  "fsp.durs.v1",
+      sort:  "fsp.sortDur.v1"
     };
 
     const loadMap = (k) => { try { return JSON.parse(localStorage.getItem(k) || "{}"); } catch { return {}; } };
@@ -419,12 +464,13 @@
     let items = [];
     let activeId = null;
 
-    // ✅ Türkçe normalize (en gerekli)
+    // duration sort: "asc" | "desc"
+    let durSort = (localStorage.getItem(LS.sort) === "desc") ? "desc" : "asc";
+
     function normTR(s){
       return (s || "").toLocaleLowerCase("tr");
     }
 
-    // ✅ MIME tahmini: querystring'e takılma (pathname)
     function guessMime(url){
       try{
         const p = new URL(url).pathname.toLowerCase();
@@ -449,7 +495,7 @@
       const mm = String(m).padStart(2, "0");
       const ss = String(s).padStart(2, "0");
       if (h > 0) return `${h}:${mm}:${ss}`;
-      return `${m}:${ss.padStart(2, "0")}`;
+      return `${m}:${ss}`;
     }
 
     function parseMinMax(){
@@ -461,6 +507,22 @@
       const maxSec = (Number.isFinite(maxMin) && maxMin >= 0) ? (maxMin * 60) : null;
       return { minSec, maxSec, active: (minSec !== null || maxSec !== null) };
     }
+
+    function setSortIcon(){
+      const isAsc = (durSort === "asc");
+      sortDurBtn.classList.add("on");
+      sortDurIcon.innerHTML = isAsc
+        ? `<path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>`
+        : `<path d="M12 19V5"/><path d="M7 10l5-5 5 5"/>`;
+    }
+
+    sortDurBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      durSort = (durSort === "asc") ? "desc" : "asc";
+      localStorage.setItem(LS.sort, durSort);
+      setSortIcon();
+      render();
+    });
 
     // --- Duration loader (metadata) ---
     const durQueue = [];
@@ -508,7 +570,6 @@
         const cleanup = () => {
           a.removeEventListener("loadedmetadata", onMeta);
           a.removeEventListener("error", onErr);
-          // iOS bazen kaynak tutuyor:
           a.src = "";
         };
 
@@ -533,7 +594,6 @@
         a.addEventListener("loadedmetadata", onMeta, { once: true });
         a.addEventListener("error", onErr, { once: true });
 
-        // Bazı ortamlarda metadata geç gelebilir; fail-safe:
         setTimeout(() => {
           if (!durs[it.id] && durLoading.has(it.id)){
             durLoading.delete(it.id);
@@ -546,7 +606,6 @@
     async function loadItems(){
       statusEl.textContent = "Yükleniyor...";
       try{
-        // ✅ Cache-bust: GitHub Pages/CDN eski items.json vermesin
         const res = await fetch(`items.json?v=${Date.now()}`, { cache: "no-store" });
         if(!res.ok) throw new Error("items.json okunamadı");
         const data = await res.json();
@@ -576,21 +635,29 @@
       const q = normTR((searchEl.value || "").trim());
       const { minSec, maxSec, active } = parseMinMax();
 
-      return items.filter(it => {
+      let arr = items.filter(it => {
         if (q && !normTR(it.title).includes(q)) return false;
-
         if (filterFav && !favs[it.id]) return false;
         if (filterSel && !sels[it.id]) return false;
 
         if (active){
           const dur = durs[it.id];
-          // Süre filtresi aktifken: süresi bilinmeyenleri şimdilik gizle
-          if (!Number.isFinite(dur) || dur <= 0) return false;
+          if (!Number.isFinite(dur) || dur <= 0) return false; // süre filtresi aktifken bilinmeyeni gizle
           if (minSec !== null && dur < minSec) return false;
           if (maxSec !== null && dur > maxSec) return false;
         }
         return true;
       });
+
+      const dir = (durSort === "asc") ? 1 : -1;
+      arr.sort((a,b) => {
+        const da = (durs[a.id] > 0) ? durs[a.id] : Infinity;
+        const db = (durs[b.id] > 0) ? durs[b.id] : Infinity;
+        if (da !== db) return (da - db) * dir;
+        return a.title.localeCompare(b.title, "tr");
+      });
+
+      return arr;
     }
 
     function render(){
@@ -605,25 +672,19 @@
 
       listEl.innerHTML = "";
 
-      // Görünenlerde süre gösterimi için metadata iste (cache yoksa)
-      // Süre filtresi aktifse görünmeyenler de olacağı için:
-      // - Filtre aktif değilse sadece görünürleri ölçmek yeterli.
-      // - Filtre aktifse, arama + fav/sel filtrelerine uyanların sürelerini ölçelim ki liste “dolabilsin”.
+      // süre ölçümü: filtre aktifse adayları daha geniş ölç
       const { active: durFilterActive } = parseMinMax();
-
-      let candidatesForDur = null;
+      let toMeasure = visible;
       if (durFilterActive){
         const q = normTR((searchEl.value || "").trim());
-        candidatesForDur = items.filter(it => {
+        toMeasure = items.filter(it => {
           if (q && !normTR(it.title).includes(q)) return false;
           if (filterFav && !favs[it.id]) return false;
           if (filterSel && !sels[it.id]) return false;
           return true;
         });
       }
-
-      const toMeasure = durFilterActive ? candidatesForDur : visible;
-      for (const it of (toMeasure || [])){
+      for (const it of toMeasure){
         if (!(durs[it.id] > 0)) requestDuration(it);
       }
 
@@ -643,22 +704,23 @@
         actions.className = "actions";
 
         const favBtn = iconButton("star", !!favs[it.id], "Favori");
+        const selBtn = iconButton("check", !!sels[it.id], "Seç");
+        const dlBtn  = iconButton("download", false, "İndir");
+
+        // ✅ BUTONLARIN ÇALIŞMASI İÇİN:
+        // row click kullanıyoruz; buton click stopPropagation yeterli.
         favBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           favs[it.id] = !favs[it.id];
           saveMap(LS.favs, favs);
           render();
         });
-
-        const selBtn = iconButton("check", !!sels[it.id], "Seç");
         selBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           sels[it.id] = !sels[it.id];
           saveMap(LS.sels, sels);
           render();
         });
-
-        const dlBtn = iconButton("download", false, "İndir");
         dlBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           const url = urlFor(it);
@@ -671,6 +733,12 @@
           a.remove();
         });
 
+        // ekstra güvenlik: iOS pointer event bubbling
+        for (const b of [favBtn, selBtn, dlBtn]){
+          b.addEventListener("pointerup", (e) => e.stopPropagation());
+          b.addEventListener("pointerdown", (e) => e.stopPropagation());
+        }
+
         actions.appendChild(favBtn);
         actions.appendChild(selBtn);
         actions.appendChild(dlBtn);
@@ -679,8 +747,8 @@
         row.appendChild(dur);
         row.appendChild(actions);
 
-        // iOS: pointerup daha stabil
-        row.addEventListener("pointerup", () => playById(it.id));
+        // ✅ Satır artık click ile çalıyor (butonlar sorunsuz)
+        row.addEventListener("click", () => playById(it.id));
 
         listEl.appendChild(row);
       }
@@ -713,7 +781,7 @@
       return btn;
     }
 
-    // --- Playback (iOS stabil) ---
+    // --- Playback ---
     function playById(id){
       const visible = getVisibleItems();
       const idx = visible.findIndex(x => x.id === id);
@@ -879,6 +947,7 @@
       try{ fpHeader.releasePointerCapture(e.pointerId); }catch{}
     });
 
+    setSortIcon();
     restorePlayerPos();
     loadItems();
   </script>
