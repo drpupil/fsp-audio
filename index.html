@@ -41,46 +41,13 @@
     }
 
     #search{
-      flex: 1 1 420px;
+      flex: 1 1 520px;
       min-width: 220px;
       padding: 10px 12px;
       border: 1px solid #d8d8d8;
       border-radius: 14px;
       font-size: 1rem;
       outline: none;
-    }
-
-    .durWrap{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex: 0 0 auto;
-    }
-
-    .durField{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border: 1px solid #d8d8d8;
-      border-radius: 14px;
-      background: #fff;
-    }
-
-    .durField label{
-      color: var(--muted);
-      font-size: .92rem;
-      user-select:none;
-      white-space: nowrap;
-    }
-
-    .durField input{
-      width: 70px;
-      padding: 6px 8px;
-      border: 1px solid #e1e1e1;
-      border-radius: 10px;
-      font-size: 1rem;
-      outline:none;
     }
 
     #resetBtn{
@@ -116,9 +83,6 @@
       font-size: .92rem;
     }
 
-    .colTitle{ user-select:none; }
-    .colDur{ text-align:right; user-select:none; }
-
     .colActions{
       display:flex;
       align-items:center;
@@ -131,6 +95,7 @@
       display:flex;
       align-items:center;
       gap:8px;
+      user-select:none;
     }
     .titleHead{ justify-content:flex-start; }
     .durHead{ justify-content:flex-end; }
@@ -146,6 +111,7 @@
       justify-content:center;
       cursor:pointer;
       color:#111;
+      flex: 0 0 auto;
     }
     .sortBtn:hover{ background: var(--hover); }
     .sortBtn svg{ width:16px; height:16px; }
@@ -191,7 +157,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .durWrap{ width: 100%; }
       #search{ flex: 1 1 100%; }
     }
 
@@ -322,18 +287,6 @@
 
   <div class="topbar">
     <input id="search" type="text" placeholder="Arama (ör. ACS, DM, PAVK)..." />
-
-    <div class="durWrap" aria-label="Süre filtresi">
-      <div class="durField">
-        <label for="minDur">Min dk</label>
-        <input id="minDur" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
-      </div>
-      <div class="durField">
-        <label for="maxDur">Max dk</label>
-        <input id="maxDur" type="number" min="0" step="1" inputmode="numeric" placeholder="∞" />
-      </div>
-    </div>
-
     <button id="resetBtn" type="button">Hepsi</button>
   </div>
 
@@ -343,7 +296,7 @@
     <div class="colTitle">
       <div class="titleHead">
         <span>Kayıt</span>
-        <!-- ✅ Tarihe göre sort (dosya sonundaki tarih) -->
+        <!-- Tarih sort -->
         <button id="sortDateBtn" class="sortBtn" type="button" title="Tarihe göre sırala (dosya sonu)">
           <svg id="sortDateIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>
@@ -352,9 +305,10 @@
       </div>
     </div>
 
-    <div class="colDur">
+    <div class="colDur" style="text-align:right;">
       <div class="durHead">
         <span>Süre</span>
+        <!-- Süre sort -->
         <button id="sortDurBtn" class="sortBtn" type="button" title="Süreye göre sırala">
           <svg id="sortDurIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>
@@ -412,9 +366,6 @@
     const metaEl   = document.getElementById("meta");
     const statusEl = document.getElementById("status");
 
-    const minDurEl = document.getElementById("minDur");
-    const maxDurEl = document.getElementById("maxDur");
-
     const fp = document.getElementById("floatingPlayer");
     const fpHeader = document.getElementById("fpHeader");
     const fpTitle = document.getElementById("fpTitle");
@@ -432,7 +383,6 @@
     const sortDateBtn  = document.getElementById("sortDateBtn");
     const sortDateIcon = document.getElementById("sortDateIcon");
 
-    // ✅ Plyr: hız ayarı (settings + speed)
     const plyr = new Plyr(playerEl, {
       seekTime: 5,
       controls: [
@@ -455,9 +405,9 @@
       sels:  "fsp.sels.v1",
       pos:   "fsp.fp.pos.v1",
       durs:  "fsp.durs.v1",
-      sortMode: "fsp.sort.mode.v1",   // "title" | "dur" | "date"
-      sortDirDur: "fsp.sort.dur.dir.v1",   // "asc" | "desc"
-      sortDirDate: "fsp.sort.date.dir.v1"  // "asc" | "desc"
+      sortMode: "fsp.sort.mode.v2",        // "title" | "dur" | "date"
+      sortDirDur: "fsp.sort.dur.dir.v2",   // "asc" | "desc"
+      sortDirDate: "fsp.sort.date.dir.v2"  // "asc" | "desc"
     };
 
     const loadMap = (k) => { try { return JSON.parse(localStorage.getItem(k) || "{}"); } catch { return {}; } };
@@ -473,8 +423,7 @@
     let items = [];
     let activeId = null;
 
-    // sort state
-    let sortMode = localStorage.getItem(LS.sortMode) || "title";  // default: alfabetik
+    let sortMode = localStorage.getItem(LS.sortMode) || "title"; // default alfabetik
     let durSortDir  = (localStorage.getItem(LS.sortDirDur) === "desc") ? "desc" : "asc";
     let dateSortDir = (localStorage.getItem(LS.sortDirDate) === "desc") ? "desc" : "asc";
 
@@ -509,56 +458,43 @@
       return `${m}:${ss}`;
     }
 
-    function parseMinMax(){
-      const minV = minDurEl.value.trim();
-      const maxV = maxDurEl.value.trim();
-      const minMin = minV === "" ? null : Number(minV);
-      const maxMin = maxV === "" ? null : Number(maxV);
-      const minSec = (Number.isFinite(minMin) && minMin >= 0) ? (minMin * 60) : null;
-      const maxSec = (Number.isFinite(maxMin) && maxMin >= 0) ? (maxMin * 60) : null;
-      return { minSec, maxSec, active: (minSec !== null || maxSec !== null) };
-    }
-
-    // ✅ Başlık sonundan tarih yakala: dd.mm.yy veya dd.mm.yyyy
-    // Örn: "... 17.10.24" veya "..._17.10.2024"
-    const DATE_RE = /(\d{2})[.\-_](\d{2})[.\-_](\d{2}|\d{4})(?!.*\d)/;
+    // dd.mm.yy veya dd.mm.yyyy (stringin SONUNDA olmasa da son eşleşmeyi alacağız)
+    const DATE_GLOBAL = /(\d{2})[.\-_](\d{2})[.\-_](\d{2}|\d{4})/g;
 
     function parseEndDate(item){
-      // önce title, yoksa file
-      const s = (item.title || "") + " " + (item.file || "");
-      const m = s.match(DATE_RE);
-      if (!m) return null;
-      const dd = Number(m[1]);
-      const mm = Number(m[2]);
-      let yy = Number(m[3]);
-      if (!Number.isFinite(dd) || !Number.isFinite(mm) || !Number.isFinite(yy)) return null;
-      if (yy < 100) yy = 2000 + yy; // 24 -> 2024
-      // UTC date
+      const s = `${item.title || ""} ${item.file || ""}`;
+      let m, last = null;
+      while ((m = DATE_GLOBAL.exec(s)) !== null){
+        last = m;
+      }
+      DATE_GLOBAL.lastIndex = 0; // reset global regex
+      if (!last) return null;
+
+      const dd = Number(last[1]);
+      const mm = Number(last[2]);
+      let yy = Number(last[3]);
+      if (yy < 100) yy = 2000 + yy;
       const t = Date.UTC(yy, mm - 1, dd);
-      if (!Number.isFinite(t)) return null;
-      return t;
+      return Number.isFinite(t) ? t : null;
+    }
+
+    function arrowSvg(isAsc){
+      return isAsc
+        ? `<path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>`
+        : `<path d="M12 19V5"/><path d="M7 10l5-5 5 5"/>`;
     }
 
     function setSortIcons(){
-      // reset visual
       sortDurBtn.classList.remove("on");
       sortDateBtn.classList.remove("on");
 
-      // helper for arrow
-      const arrow = (isAsc) => isAsc
-        ? `<path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>`   // aşağı ok
-        : `<path d="M12 19V5"/><path d="M7 10l5-5 5 5"/>`; // yukarı ok
+      sortDurIcon.innerHTML = arrowSvg(durSortDir === "asc");
+      sortDateIcon.innerHTML = arrowSvg(dateSortDir === "asc");
 
-      // duration icon (direction stored even if inactive)
-      sortDurIcon.innerHTML = arrow(durSortDir === "asc");
-      sortDateIcon.innerHTML = arrow(dateSortDir === "asc");
-
-      // active highlight
       if (sortMode === "dur") sortDurBtn.classList.add("on");
       if (sortMode === "date") sortDateBtn.classList.add("on");
     }
 
-    // Toggle duration sort (exclusive)
     sortDurBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (sortMode !== "dur"){
@@ -572,7 +508,6 @@
       render();
     });
 
-    // Toggle date sort (exclusive)
     sortDateBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (sortMode !== "date"){
@@ -684,7 +619,6 @@
             return { id, title, file, url: x.url || null };
           });
 
-        // title sort only used as fallback/default; we keep it stable
         items.sort((a,b) => a.title.localeCompare(b.title, "tr"));
         statusEl.textContent = "";
         render();
@@ -696,23 +630,14 @@
 
     function getVisibleItems(){
       const q = normTR((searchEl.value || "").trim());
-      const { minSec, maxSec, active } = parseMinMax();
 
       let arr = items.filter(it => {
         if (q && !normTR(it.title).includes(q)) return false;
         if (filterFav && !favs[it.id]) return false;
         if (filterSel && !sels[it.id]) return false;
-
-        if (active){
-          const dur = durs[it.id];
-          if (!Number.isFinite(dur) || dur <= 0) return false;
-          if (minSec !== null && dur < minSec) return false;
-          if (maxSec !== null && dur > maxSec) return false;
-        }
         return true;
       });
 
-      // ✅ Sorting mode
       if (sortMode === "dur"){
         const dir = (durSortDir === "asc") ? 1 : -1;
         arr.sort((a,b) => {
@@ -732,7 +657,6 @@
           return a.title.localeCompare(b.title, "tr");
         });
       } else {
-        // default: alfabetik
         arr.sort((a,b) => a.title.localeCompare(b.title, "tr"));
       }
 
@@ -751,21 +675,8 @@
 
       listEl.innerHTML = "";
 
-      // duration measurement
-      const { active: durFilterActive } = parseMinMax();
-      let toMeasure = visible;
-
-      // Süre filtresi aktifse veya süre sort aktifse, daha agresif ölç
-      if (durFilterActive || sortMode === "dur"){
-        const q = normTR((searchEl.value || "").trim());
-        toMeasure = items.filter(it => {
-          if (q && !normTR(it.title).includes(q)) return false;
-          if (filterFav && !favs[it.id]) return false;
-          if (filterSel && !sels[it.id]) return false;
-          return true;
-        });
-      }
-
+      // duration measurement: yalnızca süre sort aktifken veya görünürlerde gösterim için
+      const toMeasure = (sortMode === "dur") ? items : visible;
       for (const it of toMeasure){
         if (!(durs[it.id] > 0)) requestDuration(it);
       }
@@ -951,16 +862,14 @@
     filterFavBtn.addEventListener("click", () => { filterFav = !filterFav; render(); });
     filterSelBtn.addEventListener("click", () => { filterSel = !filterSel; render(); });
 
-    // ✅ Hepsi: tüm filtre + sıralama kalksın (default alfabetik)
+    // ✅ Hepsi: tüm filtre + sıralama sıfırla
     resetBtn.addEventListener("click", () => {
       filterFav = false;
       filterSel = false;
 
       searchEl.value = "";
-      minDurEl.value = "";
-      maxDurEl.value = "";
 
-      sortMode = "title";              // <- sıralamaları kapat
+      sortMode = "title";
       localStorage.setItem(LS.sortMode, sortMode);
 
       setSortIcons();
@@ -968,8 +877,6 @@
     });
 
     searchEl.addEventListener("input", () => render());
-    minDurEl.addEventListener("input", () => render());
-    maxDurEl.addEventListener("input", () => render());
 
     // Draggable player
     function restorePlayerPos(){
