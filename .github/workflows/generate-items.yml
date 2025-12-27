@@ -3,11 +3,13 @@ name: Generate items.json from Archive.org
 on:
   workflow_dispatch:
   schedule:
-    # Her gün 03:00 UTC (Berlin kışın 04:00 / yazın 05:00 civarı)
-    - cron: "0 3 * * *"
+    - cron: "0 3 * * *"  # Her gün 03:00 UTC
 
 permissions:
   contents: write
+
+env:
+  ARCHIVE_IDENTIFIER: vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25
 
 jobs:
   build:
@@ -22,64 +24,56 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Generate items.json (m4a + mp3)
+      - name: Generate items.json (m4a + mp3) via metadata API
         run: |
           python - << 'EOF'
           import json, re
           from urllib.request import Request, urlopen
-          from html.parser import HTMLParser
-          from urllib.parse import unquote
 
-          BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/"
+          IDENT = "${ARCHIVE_IDENTIFIER}"
+          META_URL = f"https://archive.org/metadata/{IDENT}"
 
-          class LinkParser(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.files = []
+          def fetch_json(url):
+            req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urlopen(req, timeout=30) as r:
+              return json.loads(r.read().decode("utf-8", errors="ignore"))
 
-              def handle_starttag(self, tag, attrs):
-                  if tag != "a":
-                      return
-                  href = None
-                  for k, v in attrs:
-                      if k == "href":
-                          href = v
-                          break
-                  if not href:
-                      return
-
-                  h = href.lower()
-                  if h.endswith(".m4a") or h.endswith(".mp3"):
-                      self.files.append(unquote(href))
-
-          req = Request(BASE, headers={"User-Agent": "Mozilla/5.0"})
-          html = urlopen(req).read().decode("utf-8", errors="ignore")
-
-          parser = LinkParser()
-          parser.feed(html)
-
-          # de-dup
-          seen = set()
-          files = []
-          for f in parser.files:
-              if f in seen:
-                  continue
-              seen.add(f)
-              files.append(f)
+          data = fetch_json(META_URL)
+          files = data.get("files", [])
 
           items = []
           for f in files:
-              title = re.sub(r"\.(m4a|mp3)$", "", f, flags=re.IGNORECASE)
-              # başlık temizleme (istersen daha agresif temizleriz)
-              title = title.replace("_", " ").replace("%20", " ")
-              items.append({"title": title, "file": f})
+            name = f.get("name") or ""
+            name_l = name.lower()
 
-          items.sort(key=lambda x: x["title"].lower())
+            # sadece mp3/m4a
+            if not (name_l.endswith(".mp3") or name_l.endswith(".m4a")):
+              continue
+
+            # bazı metadata kayıtlarında "source" gibi alanlar olabilir; istersen filtre eklenir.
+            title = re.sub(r"\.(m4a|mp3)$", "", name, flags=re.IGNORECASE)
+
+            # basit title temizleme (gerekirse genişletiriz)
+            title = title.replace("_", " ").replace("%20", " ")
+            title = re.sub(r"\s+", " ", title).strip()
+
+            items.append({"title": title, "file": name})
+
+          # de-dup (aynı name birden fazla gelirse)
+          seen = set()
+          uniq = []
+          for it in items:
+            if it["file"] in seen:
+              continue
+            seen.add(it["file"])
+            uniq.append(it)
+
+          uniq.sort(key=lambda x: x["title"].lower())
 
           with open("items.json", "w", encoding="utf-8") as out:
-              json.dump(items, out, ensure_ascii=False, indent=2)
+            json.dump(uniq, out, ensure_ascii=False, indent=2)
 
-          print(f"{len(items)} kayıt üretildi (m4a + mp3).")
+          print(f"{len(uniq)} kayıt üretildi (m4a + mp3) - {IDENT}.")
           EOF
 
       - name: Commit items.json if changed
