@@ -476,15 +476,20 @@
 
   if (yy < 100) yy = 2000 + yy; // 24 -> 2024
 
-  const t = Date.UTC(yy, mm - 1, dd);
-  return Number.isFinite(t) ? t : null;
+     const t = Date.UTC(yy, mm - 1, dd);
+if (!Number.isFinite(t)) return null;
 
+// geri doğrulama: taşma olmasın
+const d = new Date(t);
+if (d.getUTCFullYear() !== yy || (d.getUTCMonth()+1) !== mm || d.getUTCDate() !== dd) return null;
+
+return t;
     }
 
     function arrowSvg(isAsc){
-      return isAsc
-        ? `<path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>`
-        : `<path d="M12 19V5"/><path d="M7 10l5-5 5 5"/>`;
+  return isAsc
+    ? `<path d="M12 19V5"/><path d="M7 10l5-5 5 5"/>`   // ↑
+    : `<path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>`; // ↓
     }
 
     function setSortIcons(){
