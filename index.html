@@ -281,7 +281,7 @@
     }
 
     /* ================================
-       SATIR ARALIKLARI (%50 DAR)
+       SATIR ARALIKLARI (%50 DAR) + İKONLARI UYDUR
        ================================ */
     body{ line-height: 1.10; }
     .headerRow{ padding: 6px 8px; line-height: 1.05; }
@@ -291,9 +291,6 @@
     #meta, #status{ line-height: 1.05; }
     #fpTitle{ line-height: 1.05; }
 
-    /* ================================
-       İKONLARI SATIRA UYDUR
-       ================================ */
     .actions{ gap: 6px; }
     .iconBtn{ width: 30px; height: 30px; }
     .iconBtn svg{ width: 14px; height: 14px; }
@@ -385,6 +382,7 @@
 
   <script>
     const BASE = "https://archive.org/download/vorhofflimmern-bei-bekannter-khk-dr-oemer-dr-remzi-09.05.25/";
+    const DL_PROXY = "https://fspdownload.protokolfsp.workers.dev/"; // ✅ Cloudflare Worker
 
     const listEl   = document.getElementById("list");
     const searchEl = document.getElementById("search");
@@ -422,7 +420,7 @@
         "settings"
       ],
       settings: ["speed"],
-      speed: { selected: 1, options: [ 0.75, 1, 1.25, ] }
+      speed: { selected: 1, options: [ 0.75, 1, 1.25 ] }
     });
 
     const LS = {
@@ -465,78 +463,39 @@
       return "audio/*";
     }
 
-    function urlFor(item){
-      if (item.url) return item.url;
-      const file = item.file || item.name || item.title || "";
-      return new URL(file, BASE).toString();
-    }
-
-    function withDownloadFlag(url){
+    // ✅ items.json içinden /details/ gelirse otomatik /download/ yap + "+" -> "%20"
+    function normalizeArchiveUrl(u){
+      if (!u) return u;
       try{
-        const u = new URL(url);
-        if (!u.searchParams.has("download")) u.searchParams.set("download", "1");
-        return u.toString();
+        const url = new URL(u);
+
+        // /details/ID/filename -> /download/ID/filename
+        if (url.hostname.includes("archive.org") && url.pathname.startsWith("/details/")){
+          const parts = url.pathname.split("/").filter(Boolean); // ["details","ID","file..."]
+          const id = parts[1] || "";
+          const filename = parts.slice(2).join("/") || "";
+          if (id){
+            const fixedName = filename.replace(/\+/g, "%20");
+            return `https://archive.org/download/${id}/${fixedName}`;
+          }
+        }
+
+        // pathname içinde + varsa düzelt
+        if (url.hostname.includes("archive.org") && url.pathname.includes("+")){
+          url.pathname = url.pathname.replace(/\+/g, "%20");
+          return url.toString();
+        }
+
+        return url.toString();
       }catch{
-        return url + (url.includes("?") ? "&" : "?") + "download=1";
+        return u;
       }
     }
 
-    function fileNameFromUrl(url, fallback){
-      try{
-        const u = new URL(url);
-        const name = decodeURIComponent(u.pathname.split("/").pop() || "");
-        if (name) return name;
-      }catch{}
-      const safe = (fallback || "kayit").toString()
-        .replace(/[\\/:*?"<>|]+/g, "_")
-        .replace(/\s+/g, " ")
-        .trim();
-      return safe || "kayit";
-    }
-
-    function isIOS(){
-      const ua = navigator.userAgent || "";
-      const iOS = /iPad|iPhone|iPod/.test(ua);
-      const iPadOS13 = (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      return iOS || iPadOS13;
-    }
-
-    function openSameTab(url){
-      window.location.assign(url);
-    }
-
-    async function forceDownload(url, filename){
-      const dlUrl = withDownloadFlag(url);
-      statusEl.textContent = "";
-
-      // iOS: download garanti değil, ama yeni pencere olmadan "aynı sekmede aç" garanti
-      if (isIOS()){
-        openSameTab(dlUrl);
-        return;
-      }
-
-      // diğerleri: önce blob ile indir; olmazsa aynı sekmede aç
-      try{
-        const res = await fetch(dlUrl, { mode: "cors", cache: "no-store" });
-        if (!res.ok) throw new Error("fetch failed: " + res.status);
-
-        const blob = await res.blob();
-        const objUrl = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = objUrl;
-        a.download = filename || "download";
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        setTimeout(() => URL.revokeObjectURL(objUrl), 2000);
-        return;
-      }catch(err){
-        console.warn("download fallback (same tab):", err);
-        openSameTab(dlUrl);
-      }
+    function urlFor(item){
+      if (item.url) return normalizeArchiveUrl(item.url);
+      const file = item.file || item.name || item.title || "";
+      return normalizeArchiveUrl(new URL(file, BASE).toString());
     }
 
     function fmtDur(sec){
@@ -828,12 +787,19 @@
           render();
         });
 
-        // ✅ Download: async/await yok (gesture kaybolmasın). Yeni pencere yok.
+        // ✅ Download: Worker üzerinden (attachment) indir
         dlBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          const url = urlFor(it);
-          const filename = fileNameFromUrl(url, it.file || it.title);
-          forceDownload(url, filename);
+          const fileUrl = urlFor(it); // normalize edilmiş gerçek /download url
+          const dlUrl = DL_PROXY + "?u=" + encodeURIComponent(fileUrl);
+
+          const a = document.createElement("a");
+          a.href = dlUrl;
+          a.setAttribute("download", it.file || "");
+          a.rel = "noopener";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
         });
 
         for (const b of [favBtn, selBtn, dlBtn]){
@@ -881,6 +847,7 @@
       return btn;
     }
 
+    // --- Playback ---
     function playById(id){
       const visible = getVisibleItems();
       const idx = visible.findIndex(x => x.id === id);
@@ -966,9 +933,11 @@
       }
     });
 
+    // Filters
     filterFavBtn.addEventListener("click", () => { filterFav = !filterFav; render(); });
     filterSelBtn.addEventListener("click", () => { filterSel = !filterSel; render(); });
 
+    // Hepsi: tüm filtre + arama + sıralama modu sıfırla
     resetBtn.addEventListener("click", () => {
       filterFav = false;
       filterSel = false;
@@ -983,6 +952,7 @@
 
     searchEl.addEventListener("input", () => render());
 
+    // Draggable player (SADECE fpHeader)
     function restorePlayerPos(){
       try{
         const s = JSON.parse(localStorage.getItem(LS.pos) || "null");
