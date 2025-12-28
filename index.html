@@ -280,13 +280,69 @@
       border-radius: 12px;
     }
 
-    /* ✅ SADECE satır aralığını daralt (başka hiçbir şeye dokunmaz) */
-    body{ line-height: 1.22; }
-    .title{ line-height: 1.08; }
-    .headerRow{ line-height: 1.12; }
-    #fpTitle{ line-height: 1.10; }
-    #meta, #status{ line-height: 1.18; }
-    .dur{ line-height: 1.10; }
+    /* ================================
+       🔽 SATIR ARALIKLARI (%50 DAR)
+       (Ayarları bozmadan sadece sıkıştırma)
+       ================================ */
+
+    body{ line-height: 1.10; }
+
+    .headerRow{
+      padding: 6px 8px;
+      line-height: 1.05;
+    }
+
+    .itemRow{
+      padding: 4px 8px;
+    }
+
+    .title{ line-height: 1.02; }
+    .dur{ line-height: 1.00; }
+
+    #meta, #status{ line-height: 1.05; }
+    #fpTitle{ line-height: 1.05; }
+
+    /* ================================
+       🔽 İKONLARI SATIRA UYDUR
+       ================================ */
+
+    .actions{ gap: 6px; }
+
+    .iconBtn{
+      width: 30px;
+      height: 30px;
+    }
+    .iconBtn svg{
+      width: 14px;
+      height: 14px;
+    }
+
+    .filterBtn{
+      width: 30px;
+      height: 30px;
+    }
+    .filterBtn svg{
+      width: 14px;
+      height: 14px;
+    }
+
+    .sortBtn{
+      width: 28px;
+      height: 28px;
+    }
+    .sortBtn svg{
+      width: 14px;
+      height: 14px;
+    }
+
+    .miniBtn{
+      width: 36px;
+      height: 36px;
+    }
+    .miniBtn svg{
+      width: 16px;
+      height: 16px;
+    }
   </style>
 </head>
 
