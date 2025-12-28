@@ -17,17 +17,22 @@
       --shadow: 0 12px 30px rgba(0,0,0,.12);
     }
 
+    /* ✅ Daha küçük font + daha dar satır aralığı */
     body{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14.5px;
+      line-height: 1.32;
       margin: 18px;
       max-width: 980px;
       color:#111;
       background: var(--bg);
     }
 
+    /* ✅ Başlık biraz küçültüldü */
     h1{
-      font-size: 1.55rem;
-      margin: 0 0 12px 0;
+      font-size: 1.42rem;
+      line-height: 1.15;
+      margin: 0 0 10px 0;
       font-weight: 650;
       letter-spacing: .2px;
     }
@@ -61,10 +66,12 @@
     }
     #resetBtn:hover{ background: var(--hover); }
 
+    /* ✅ Meta daha küçük ve sıkı */
     #meta{
       color: var(--muted);
-      font-size: .95rem;
-      margin: 6px 0 12px 2px;
+      font-size: .88rem;
+      line-height: 1.25;
+      margin: 6px 0 10px 2px;
     }
 
     /* HEADER + ROWS */
@@ -75,12 +82,14 @@
       column-gap: 10px;
     }
 
+    /* ✅ Header font ve satır aralığı sıkı */
     .headerRow{
       padding: 8px 8px;
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
       color: var(--muted);
-      font-size: .92rem;
+      font-size: .86rem;
+      line-height: 1.2;
     }
 
     .colActions{
@@ -133,18 +142,21 @@
     .itemRow:hover{ background: var(--hover); }
     .itemRow.active{ background: var(--active); }
 
+    /* ✅ Satır yazısı küçük + daha dar line-height */
     .title{
-      font-size: 1.02rem;
+      font-size: .96rem;
       font-weight: 500;
-      line-height: 1.2;
+      line-height: 1.12;
       min-width: 0;
     }
 
+    /* ✅ Süre yazısı küçük + sıkı */
     .dur{
       text-align:right;
       color: var(--muted);
       font-variant-numeric: tabular-nums;
-      font-size: .95rem;
+      font-size: .88rem;
+      line-height: 1.1;
       user-select:none;
       white-space: nowrap;
     }
@@ -235,9 +247,11 @@
       touch-action: none;
     }
 
+    /* ✅ Player başlığı küçük + sıkı */
     #fpTitle{
       font-weight: 600;
-      font-size: 1rem;
+      font-size: .95rem;
+      line-height: 1.15;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -270,10 +284,12 @@
       padding: 10px 12px 12px 12px;
     }
 
+    /* ✅ Durum yazısı küçük + sıkı */
     #status{
       margin: 8px 2px 0 2px;
       color: var(--muted);
-      font-size: .92rem;
+      font-size: .86rem;
+      line-height: 1.2;
     }
 
     .plyr--audio .plyr__controls{
