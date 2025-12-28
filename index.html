@@ -458,52 +458,47 @@
       return `${m}:${ss}`;
     }
 
-    // dd.mm.yy veya dd.mm.yyyy (stringin SONUNDA olmasa da son eşleşmeyi alacağız)
-function parseEndDate(item){
-  const raw0 = (item.file || item.title || "").toString();
-  const lastPart = raw0.split("/").pop() || raw0;
+    // dd.mm.yy veya dd.mm.yyyy -> son eşleşmeyi (sondan) alır
+    function parseEndDate(item){
+      const raw0 = (item.file || item.title || "").toString();
+      const lastPart = raw0.split("/").pop() || raw0;
 
-  let s;
-  try { s = decodeURIComponent(lastPart); } catch { s = lastPart; }
+      let s;
+      try { s = decodeURIComponent(lastPart); } catch { s = lastPart; }
 
-  s = s.replace(/\.(mp3|m4a|wav|aac|ogg|flac)$/i, "").trim();
-  s = s.normalize("NFKC");                 // görünmez/komik unicode fix
-  s = s.replace(/\u00A0/g, " ");           // NBSP
-  s = s.trim().replace(/[)\]\s]+$/g, "").trim();
+      s = s.replace(/\.(mp3|m4a|wav|aac|ogg|flac)$/i, "").trim();
+      s = s.normalize("NFKC");
+      s = s.replace(/\u00A0/g, " ");
+      s = s.trim().replace(/[)\]\s]+$/g, "").trim();
 
-  // 🔥 dd ve mm artık 1 veya 2 hane olabilir
-  // sonundan yakala: d.m.yy | dd.mm.yyyy | 4.12.2025 | 04.11.25 ...
-  const m = s.match(/(\d{1,2})[.\-_\u00B7](\d{1,2})[.\-_\u00B7](\d{2}|\d{4})\s*$/);
-  if (!m) return null;
+      const m = s.match(/(\d{1,2})[.\-_\u00B7](\d{1,2})[.\-_\u00B7](\d{2}|\d{4})\s*$/);
+      if (!m) return null;
 
-  const dd = Number(m[1]);
-  const mm = Number(m[2]);
-  let yy = Number(m[3]);
-  if (yy < 100) yy = 2000 + yy;
+      const dd = Number(m[1]);
+      const mm = Number(m[2]);
+      let yy = Number(m[3]);
+      if (yy < 100) yy = 2000 + yy;
 
-  if (!(dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12)) return null;
+      if (!(dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12)) return null;
 
-  const t = Date.UTC(yy, mm - 1, dd);
-  if (!Number.isFinite(t)) return null;
+      const t = Date.UTC(yy, mm - 1, dd);
+      if (!Number.isFinite(t)) return null;
 
-  // taşma doğrulama
-  const d = new Date(t);
-  if (
-    d.getUTCFullYear() !== yy ||
-    (d.getUTCMonth() + 1) !== mm ||
-    d.getUTCDate() !== dd
-  ) return null;
+      const d = new Date(t);
+      if (
+        d.getUTCFullYear() !== yy ||
+        (d.getUTCMonth() + 1) !== mm ||
+        d.getUTCDate() !== dd
+      ) return null;
 
-  return t;
-}
-    
-function arrowSvg(isAsc){
-  // Asc: ↑ (eski->yeni), Desc: ↓ (yeni->eski)
-  return isAsc
-    ? `<path d="M12 19V5"/><path d="M7 10l5-5 5 5"/>`
-    : `<path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>`;
-}
+      return t;
+    }
 
+    function arrowSvg(isAsc){
+      return isAsc
+        ? `<path d="M12 19V5"/><path d="M7 10l5-5 5 5"/>`
+        : `<path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>`;
+    }
 
     function setSortIcons(){
       sortDurBtn.classList.remove("on");
@@ -640,7 +635,9 @@ function arrowSvg(isAsc){
             return { id, title, file, url: x.url || null };
           });
 
+        // ilk yüklemede alfabetik
         items.sort((a,b) => a.title.localeCompare(b.title, "tr"));
+
         statusEl.textContent = "";
         render();
       }catch(err){
@@ -659,12 +656,18 @@ function arrowSvg(isAsc){
         return true;
       });
 
+      // NOT: Bilinmeyen süre/tarih her zaman en sonda kalsın (asc/desc fark etmez)
       if (sortMode === "dur"){
         const dir = (durSortDir === "asc") ? 1 : -1;
         arr.sort((a,b) => {
-          const da = (durs[a.id] > 0) ? durs[a.id] : Infinity;
-          const db = (durs[b.id] > 0) ? durs[b.id] : Infinity;
-          if (da !== db) return (da - db) * dir;
+          const ha = (durs[a.id] > 0);
+          const hb = (durs[b.id] > 0);
+          if (ha !== hb) return ha ? -1 : 1; // duration'ı olmayan en sona
+          if (ha && hb){
+            const da = durs[a.id];
+            const db = durs[b.id];
+            if (da !== db) return (da - db) * dir;
+          }
           return a.title.localeCompare(b.title, "tr");
         });
       } else if (sortMode === "date"){
@@ -672,9 +675,10 @@ function arrowSvg(isAsc){
         arr.sort((a,b) => {
           const ta = parseEndDate(a);
           const tb = parseEndDate(b);
-          const va = (ta === null) ? Infinity : ta;
-          const vb = (tb === null) ? Infinity : tb;
-          if (va !== vb) return (va - vb) * dir;
+          const ha = (ta !== null);
+          const hb = (tb !== null);
+          if (ha !== hb) return ha ? -1 : 1; // tarihi olmayan en sona
+          if (ha && hb && ta !== tb) return (ta - tb) * dir;
           return a.title.localeCompare(b.title, "tr");
         });
       } else {
@@ -696,7 +700,7 @@ function arrowSvg(isAsc){
 
       listEl.innerHTML = "";
 
-      // duration measurement: yalnızca süre sort aktifken veya görünürlerde gösterim için
+      // duration measurement: süre sort aktifken hepsini, değilse sadece görünenleri ölç
       const toMeasure = (sortMode === "dur") ? items : visible;
       for (const it of toMeasure){
         if (!(durs[it.id] > 0)) requestDuration(it);
@@ -883,11 +887,10 @@ function arrowSvg(isAsc){
     filterFavBtn.addEventListener("click", () => { filterFav = !filterFav; render(); });
     filterSelBtn.addEventListener("click", () => { filterSel = !filterSel; render(); });
 
-    // ✅ Hepsi: tüm filtre + sıralama sıfırla
+    // Hepsi: tüm filtre + arama + sıralama modu sıfırla
     resetBtn.addEventListener("click", () => {
       filterFav = false;
       filterSel = false;
-
       searchEl.value = "";
 
       sortMode = "title";
@@ -899,7 +902,7 @@ function arrowSvg(isAsc){
 
     searchEl.addEventListener("input", () => render());
 
-    // Draggable player
+    // Draggable player (SADECE fpHeader)  ✅ dragHandle hatası tamamen giderildi
     function restorePlayerPos(){
       try{
         const s = JSON.parse(localStorage.getItem(LS.pos) || "null");
@@ -919,79 +922,53 @@ function arrowSvg(isAsc){
     let dragging = false;
     let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
-    dragHandle.addEventListener("pointerdown", (e) => {
-  // Sağ taraftaki prev/next butonlarına basınca drag başlamasın
-  if (e.target && e.target.closest && e.target.closest("#fpHeaderRight")) return;
+    fpHeader.addEventListener("pointerdown", (e) => {
+      // prev/next butonlarına basınca drag başlamasın
+      if (e.target && e.target.closest && e.target.closest("#fpHeaderRight")) return;
 
-  dragging = true;
-  dragHandle.setPointerCapture(e.pointerId);
-  dragHandle.style.cursor = "grabbing";
+      dragging = true;
+      fpHeader.setPointerCapture(e.pointerId);
+      fpHeader.style.cursor = "grabbing";
 
-  const rect = fp.getBoundingClientRect();
-  startX = e.clientX;
-  startY = e.clientY;
-  startLeft = rect.left;
-  startTop = rect.top;
+      const rect = fp.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
 
-  fp.style.left = startLeft + "px";
-  fp.style.top = startTop + "px";
-  fp.style.bottom = "auto";
-});
+      fp.style.left = startLeft + "px";
+      fp.style.top = startTop + "px";
+      fp.style.bottom = "auto";
+    });
 
-fpHeader.addEventListener("pointerdown", (e) => {
-  dragging = true;
-  fpHeader.setPointerCapture(e.pointerId);
-  fpHeader.style.cursor = "grabbing";
+    fpHeader.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
 
-  const rect = fp.getBoundingClientRect();
-  startX = e.clientX;
-  startY = e.clientY;
-  startLeft = rect.left;
-  startTop = rect.top;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
 
-  fp.style.left = startLeft + "px";
-  fp.style.top = startTop + "px";
-  fp.style.bottom = "auto";
-});
+      const w = fp.offsetWidth;
+      const h = fp.offsetHeight;
 
-fpHeader.addEventListener("pointermove", (e) => {
-  if (!dragging) return;
+      const minX = 8;
+      const minY = 8;
+      const maxX = window.innerWidth - w - 8;
+      const maxY = window.innerHeight - h - 8;
 
-  const dx = e.clientX - startX;
-  const dy = e.clientY - startY;
+      const nx = Math.min(maxX, Math.max(minX, startLeft + dx));
+      const ny = Math.min(maxY, Math.max(minY, startTop + dy));
 
-  const w = fp.offsetWidth;
-  const h = fp.offsetHeight;
+      fp.style.left = nx + "px";
+      fp.style.top = ny + "px";
 
-  const minX = 8;
-  const minY = 8;
-  const maxX = window.innerWidth - w - 8;
-  const maxY = window.innerHeight - h - 8;
+      savePlayerPos(nx, ny);
+    });
 
-  let nx = Math.min(maxX, Math.max(minX, startLeft + dx));
-  let ny = Math.min(maxY, Math.max(minY, startTop + dy));
-
-  fp.style.left = nx + "px";
-  fp.style.top = ny + "px";
-
-  savePlayerPos(nx, ny);
-});
-
-fpHeader.addEventListener("pointerup", (e) => {
-  dragging = false;
-  fpHeader.style.cursor = "grab";
-
-  try {
-    fpHeader.releasePointerCapture(e.pointerId);
-  } catch {}
-});
-
-
-dragHandle.addEventListener("pointerup", (e) => {
-  dragging = false;
-  dragHandle.style.cursor = "grab";
-  try{ dragHandle.releasePointerCapture(e.pointerId); }catch{}
-});
+    fpHeader.addEventListener("pointerup", (e) => {
+      dragging = false;
+      fpHeader.style.cursor = "grab";
+      try { fpHeader.releasePointerCapture(e.pointerId); } catch {}
+    });
 
     setSortIcons();
     restorePlayerPos();
