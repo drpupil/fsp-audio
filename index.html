@@ -281,7 +281,7 @@
     }
 
     /* ================================
-       🔽 SATIR ARALIKLARI (%50 DAR)
+       SATIR ARALIKLARI (%50 DAR)
        ================================ */
     body{ line-height: 1.10; }
     .headerRow{ padding: 6px 8px; line-height: 1.05; }
@@ -292,7 +292,7 @@
     #fpTitle{ line-height: 1.05; }
 
     /* ================================
-       🔽 İKONLARI SATIRA UYDUR
+       İKONLARI SATIRA UYDUR
        ================================ */
     .actions{ gap: 6px; }
     .iconBtn{ width: 30px; height: 30px; }
@@ -430,9 +430,9 @@
       sels:  "fsp.sels.v1",
       pos:   "fsp.fp.pos.v1",
       durs:  "fsp.durs.v1",
-      sortMode: "fsp.sort.mode.v2",        // "title" | "dur" | "date"
-      sortDirDur: "fsp.sort.dur.dir.v2",   // "asc" | "desc"
-      sortDirDate: "fsp.sort.date.dir.v2"  // "asc" | "desc"
+      sortMode: "fsp.sort.mode.v2",
+      sortDirDur: "fsp.sort.dur.dir.v2",
+      sortDirDate: "fsp.sort.date.dir.v2"
     };
 
     const loadMap = (k) => { try { return JSON.parse(localStorage.getItem(k) || "{}"); } catch { return {}; } };
@@ -448,7 +448,7 @@
     let items = [];
     let activeId = null;
 
-    let sortMode = localStorage.getItem(LS.sortMode) || "title"; // default alfabetik
+    let sortMode = localStorage.getItem(LS.sortMode) || "title";
     let durSortDir  = (localStorage.getItem(LS.sortDirDur) === "desc") ? "desc" : "asc";
     let dateSortDir = (localStorage.getItem(LS.sortDirDate) === "desc") ? "desc" : "asc";
 
@@ -471,7 +471,6 @@
       return new URL(file, BASE).toString();
     }
 
-    /* ✅ URL'ye download=1 ekle (varsa & ile) */
     function withDownloadFlag(url){
       try{
         const u = new URL(url);
@@ -495,23 +494,28 @@
       return safe || "kayit";
     }
 
-    /* ✅ Yeni pencere açmadan indirmeyi tetikle (iframe) */
-    function iframeDownload(url){
-      const iframe = document.createElement("iframe");
-      iframe.style.display = "none";
-      iframe.src = url;
-      document.body.appendChild(iframe);
-      setTimeout(() => {
-        try{ iframe.remove(); }catch{}
-      }, 4000);
+    function isIOS(){
+      const ua = navigator.userAgent || "";
+      const iOS = /iPad|iPhone|iPod/.test(ua);
+      const iPadOS13 = (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      return iOS || iPadOS13;
     }
 
-    /* ✅ 1) blob indir (download=1 ile) 2) olmazsa iframe 3) mesaj */
+    function openSameTab(url){
+      window.location.assign(url);
+    }
+
     async function forceDownload(url, filename){
       const dlUrl = withDownloadFlag(url);
+      statusEl.textContent = "";
 
-      statusEl.textContent = ""; // temizle
+      // iOS: download garanti değil, ama yeni pencere olmadan "aynı sekmede aç" garanti
+      if (isIOS()){
+        openSameTab(dlUrl);
+        return;
+      }
 
+      // diğerleri: önce blob ile indir; olmazsa aynı sekmede aç
       try{
         const res = await fetch(dlUrl, { mode: "cors", cache: "no-store" });
         if (!res.ok) throw new Error("fetch failed: " + res.status);
@@ -530,13 +534,8 @@
         setTimeout(() => URL.revokeObjectURL(objUrl), 2000);
         return;
       }catch(err){
-        // CORS vb. -> sayfayı terk etmeden indir dene
-        console.warn("forceDownload blob failed, iframe fallback:", err);
-        iframeDownload(dlUrl);
-
-        // Kullanıcıya küçük bilgi
-        statusEl.textContent = "İndirme tetiklendi. Eğer tarayıcı oynatıcı açıyorsa, dosya sunucu tarafından 'attachment' olarak sunulmuyor olabilir.";
-        return;
+        console.warn("download fallback (same tab):", err);
+        openSameTab(dlUrl);
       }
     }
 
@@ -829,12 +828,12 @@
           render();
         });
 
-        /* ✅ Download: yeni pencere YOK. Önce blob, olmazsa iframe. */
-        dlBtn.addEventListener("click", async (e) => {
+        // ✅ Download: async/await yok (gesture kaybolmasın). Yeni pencere yok.
+        dlBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           const url = urlFor(it);
           const filename = fileNameFromUrl(url, it.file || it.title);
-          await forceDownload(url, filename);
+          forceDownload(url, filename);
         });
 
         for (const b of [favBtn, selBtn, dlBtn]){
@@ -882,7 +881,6 @@
       return btn;
     }
 
-    // --- Playback ---
     function playById(id){
       const visible = getVisibleItems();
       const idx = visible.findIndex(x => x.id === id);
@@ -968,7 +966,6 @@
       }
     });
 
-    // Filters
     filterFavBtn.addEventListener("click", () => { filterFav = !filterFav; render(); });
     filterSelBtn.addEventListener("click", () => { filterSel = !filterSel; render(); });
 
@@ -986,7 +983,6 @@
 
     searchEl.addEventListener("input", () => render());
 
-    // Draggable player (SADECE fpHeader)
     function restorePlayerPos(){
       try{
         const s = JSON.parse(localStorage.getItem(LS.pos) || "null");
