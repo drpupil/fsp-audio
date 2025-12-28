@@ -282,67 +282,30 @@
 
     /* ================================
        🔽 SATIR ARALIKLARI (%50 DAR)
-       (Ayarları bozmadan sadece sıkıştırma)
        ================================ */
-
     body{ line-height: 1.10; }
-
-    .headerRow{
-      padding: 6px 8px;
-      line-height: 1.05;
-    }
-
-    .itemRow{
-      padding: 4px 8px;
-    }
-
+    .headerRow{ padding: 6px 8px; line-height: 1.05; }
+    .itemRow{ padding: 4px 8px; }
     .title{ line-height: 1.02; }
     .dur{ line-height: 1.00; }
-
     #meta, #status{ line-height: 1.05; }
     #fpTitle{ line-height: 1.05; }
 
     /* ================================
        🔽 İKONLARI SATIRA UYDUR
        ================================ */
-
     .actions{ gap: 6px; }
+    .iconBtn{ width: 30px; height: 30px; }
+    .iconBtn svg{ width: 14px; height: 14px; }
 
-    .iconBtn{
-      width: 30px;
-      height: 30px;
-    }
-    .iconBtn svg{
-      width: 14px;
-      height: 14px;
-    }
+    .filterBtn{ width: 30px; height: 30px; }
+    .filterBtn svg{ width: 14px; height: 14px; }
 
-    .filterBtn{
-      width: 30px;
-      height: 30px;
-    }
-    .filterBtn svg{
-      width: 14px;
-      height: 14px;
-    }
+    .sortBtn{ width: 28px; height: 28px; }
+    .sortBtn svg{ width: 14px; height: 14px; }
 
-    .sortBtn{
-      width: 28px;
-      height: 28px;
-    }
-    .sortBtn svg{
-      width: 14px;
-      height: 14px;
-    }
-
-    .miniBtn{
-      width: 36px;
-      height: 36px;
-    }
-    .miniBtn svg{
-      width: 16px;
-      height: 16px;
-    }
+    .miniBtn{ width: 36px; height: 36px; }
+    .miniBtn svg{ width: 16px; height: 16px; }
   </style>
 </head>
 
@@ -360,7 +323,6 @@
     <div class="colTitle">
       <div class="titleHead">
         <span>Kayıt</span>
-        <!-- Tarih sort -->
         <button id="sortDateBtn" class="sortBtn" type="button" title="Tarihe göre sırala (dosya sonu)">
           <svg id="sortDateIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>
@@ -372,7 +334,6 @@
     <div class="colDur" style="text-align:right;">
       <div class="durHead">
         <span>Süre</span>
-        <!-- Süre sort -->
         <button id="sortDurBtn" class="sortBtn" type="button" title="Süreye göre sırala">
           <svg id="sortDurIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 5v14"/><path d="M7 14l5 5 5-5"/>
@@ -510,7 +471,17 @@
       return new URL(file, BASE).toString();
     }
 
-    /* ✅ m4a/mp3 fark etmeden URL'den gerçek dosya adını al */
+    /* ✅ URL'ye download=1 ekle (varsa & ile) */
+    function withDownloadFlag(url){
+      try{
+        const u = new URL(url);
+        if (!u.searchParams.has("download")) u.searchParams.set("download", "1");
+        return u.toString();
+      }catch{
+        return url + (url.includes("?") ? "&" : "?") + "download=1";
+      }
+    }
+
     function fileNameFromUrl(url, fallback){
       try{
         const u = new URL(url);
@@ -524,10 +495,25 @@
       return safe || "kayit";
     }
 
-    /* ✅ CORS uygunsa zorla indir; değilse popup açmadan aynı sekmede aç */
+    /* ✅ Yeni pencere açmadan indirmeyi tetikle (iframe) */
+    function iframeDownload(url){
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      setTimeout(() => {
+        try{ iframe.remove(); }catch{}
+      }, 4000);
+    }
+
+    /* ✅ 1) blob indir (download=1 ile) 2) olmazsa iframe 3) mesaj */
     async function forceDownload(url, filename){
+      const dlUrl = withDownloadFlag(url);
+
+      statusEl.textContent = ""; // temizle
+
       try{
-        const res = await fetch(url, { mode: "cors", cache: "no-store" });
+        const res = await fetch(dlUrl, { mode: "cors", cache: "no-store" });
         if (!res.ok) throw new Error("fetch failed: " + res.status);
 
         const blob = await res.blob();
@@ -544,8 +530,13 @@
         setTimeout(() => URL.revokeObjectURL(objUrl), 2000);
         return;
       }catch(err){
-        console.warn("forceDownload fallback:", err);
-        window.location.href = url;
+        // CORS vb. -> sayfayı terk etmeden indir dene
+        console.warn("forceDownload blob failed, iframe fallback:", err);
+        iframeDownload(dlUrl);
+
+        // Kullanıcıya küçük bilgi
+        statusEl.textContent = "İndirme tetiklendi. Eğer tarayıcı oynatıcı açıyorsa, dosya sunucu tarafından 'attachment' olarak sunulmuyor olabilir.";
+        return;
       }
     }
 
@@ -561,7 +552,6 @@
       return `${m}:${ss}`;
     }
 
-    // dd.mm.yy veya dd.mm.yyyy -> son eşleşmeyi (sondan) alır
     function parseEndDate(item){
       const raw0 = (item.file || item.title || "").toString();
       const lastPart = raw0.split("/").pop() || raw0;
@@ -738,7 +728,6 @@
             return { id, title, file, url: x.url || null };
           });
 
-        // ilk yüklemede alfabetik
         items.sort((a,b) => a.title.localeCompare(b.title, "tr"));
 
         statusEl.textContent = "";
@@ -759,13 +748,12 @@
         return true;
       });
 
-      // NOT: Bilinmeyen süre/tarih her zaman en sonda kalsın (asc/desc fark etmez)
       if (sortMode === "dur"){
         const dir = (durSortDir === "asc") ? 1 : -1;
         arr.sort((a,b) => {
           const ha = (durs[a.id] > 0);
           const hb = (durs[b.id] > 0);
-          if (ha !== hb) return ha ? -1 : 1; // duration'ı olmayan en sona
+          if (ha !== hb) return ha ? -1 : 1;
           if (ha && hb){
             const da = durs[a.id];
             const db = durs[b.id];
@@ -780,7 +768,7 @@
           const tb = parseEndDate(b);
           const ha = (ta !== null);
           const hb = (tb !== null);
-          if (ha !== hb) return ha ? -1 : 1; // tarihi olmayan en sona
+          if (ha !== hb) return ha ? -1 : 1;
           if (ha && hb && ta !== tb) return (ta - tb) * dir;
           return a.title.localeCompare(b.title, "tr");
         });
@@ -803,7 +791,6 @@
 
       listEl.innerHTML = "";
 
-      // duration measurement: süre sort aktifken hepsini, değilse sadece görünenleri ölç
       const toMeasure = (sortMode === "dur") ? items : visible;
       for (const it of toMeasure){
         if (!(durs[it.id] > 0)) requestDuration(it);
@@ -842,7 +829,7 @@
           render();
         });
 
-        /* ✅ Download: yeni sekme açmadan, mümkünse direkt indir */
+        /* ✅ Download: yeni pencere YOK. Önce blob, olmazsa iframe. */
         dlBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
           const url = urlFor(it);
@@ -850,7 +837,6 @@
           await forceDownload(url, filename);
         });
 
-        // iOS pointer bubbling safety
         for (const b of [favBtn, selBtn, dlBtn]){
           b.addEventListener("pointerup", (e) => e.stopPropagation());
           b.addEventListener("pointerdown", (e) => e.stopPropagation());
@@ -986,7 +972,6 @@
     filterFavBtn.addEventListener("click", () => { filterFav = !filterFav; render(); });
     filterSelBtn.addEventListener("click", () => { filterSel = !filterSel; render(); });
 
-    // Hepsi: tüm filtre + arama + sıralama modu sıfırla
     resetBtn.addEventListener("click", () => {
       filterFav = false;
       filterSel = false;
@@ -1001,7 +986,7 @@
 
     searchEl.addEventListener("input", () => render());
 
-    // Draggable player (SADECE fpHeader)  ✅ dragHandle hatası tamamen giderildi
+    // Draggable player (SADECE fpHeader)
     function restorePlayerPos(){
       try{
         const s = JSON.parse(localStorage.getItem(LS.pos) || "null");
@@ -1022,7 +1007,6 @@
     let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
     fpHeader.addEventListener("pointerdown", (e) => {
-      // prev/next butonlarına basınca drag başlamasın
       if (e.target && e.target.closest && e.target.closest("#fpHeaderRight")) return;
 
       dragging = true;
