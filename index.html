@@ -337,7 +337,7 @@
 
   <div id="floatingPlayer" role="region" aria-label="Oynatıcı">
     <div id="fpHeader" title="Sürükle">
-      <div id="fpTitle">Bir kayıt seç...</div>
+      <div id="fpTitle" class="dragHandle">Bir kayıt seç...</div>
       <div id="fpHeaderRight">
         <button id="prevBtn" class="miniBtn" type="button" title="Önceki">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -919,48 +919,52 @@ function arrowSvg(isAsc){
     let dragging = false;
     let startX = 0, startY = 0, startLeft = 0, startTop = 0;
 
-    fpHeader.addEventListener("pointerdown", (e) => {
-      dragging = true;
-      fpHeader.setPointerCapture(e.pointerId);
-      fpHeader.style.cursor = "grabbing";
+    dragHandle.addEventListener("pointerdown", (e) => {
+  // Sağ taraftaki prev/next butonlarına basınca drag başlamasın
+  if (e.target && e.target.closest && e.target.closest("#fpHeaderRight")) return;
 
-      const rect = fp.getBoundingClientRect();
-      startX = e.clientX;
-      startY = e.clientY;
-      startLeft = rect.left;
-      startTop = rect.top;
+  dragging = true;
+  dragHandle.setPointerCapture(e.pointerId);
+  dragHandle.style.cursor = "grabbing";
 
-      fp.style.left = startLeft + "px";
-      fp.style.top = startTop + "px";
-      fp.style.bottom = "auto";
-    });
+  const rect = fp.getBoundingClientRect();
+  startX = e.clientX;
+  startY = e.clientY;
+  startLeft = rect.left;
+  startTop = rect.top;
 
-    fpHeader.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+  fp.style.left = startLeft + "px";
+  fp.style.top = startTop + "px";
+  fp.style.bottom = "auto";
+});
 
-      const w = fp.offsetWidth;
-      const h = fp.offsetHeight;
+dragHandle.addEventListener("pointermove", (e) => {
+  if (!dragging) return;
 
-      const minX = 8;
-      const minY = 8;
-      const maxX = window.innerWidth - w - 8;
-      const maxY = window.innerHeight - h - 8;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
 
-      let nx = Math.min(maxX, Math.max(minX, startLeft + dx));
-      let ny = Math.min(maxY, Math.max(minY, startTop + dy));
+  const w = fp.offsetWidth;
+  const h = fp.offsetHeight;
 
-      fp.style.left = nx + "px";
-      fp.style.top = ny + "px";
-      savePlayerPos(nx, ny);
-    });
+  const minX = 8;
+  const minY = 8;
+  const maxX = window.innerWidth - w - 8;
+  const maxY = window.innerHeight - h - 8;
 
-    fpHeader.addEventListener("pointerup", (e) => {
-      dragging = false;
-      fpHeader.style.cursor = "grab";
-      try{ fpHeader.releasePointerCapture(e.pointerId); }catch{}
-    });
+  const nx = Math.min(maxX, Math.max(minX, startLeft + dx));
+  const ny = Math.min(maxY, Math.max(minY, startTop + dy));
+
+  fp.style.left = nx + "px";
+  fp.style.top = ny + "px";
+  savePlayerPos(nx, ny);
+});
+
+dragHandle.addEventListener("pointerup", (e) => {
+  dragging = false;
+  dragHandle.style.cursor = "grab";
+  try{ dragHandle.releasePointerCapture(e.pointerId); }catch{}
+});
 
     setSortIcons();
     restorePlayerPos();
