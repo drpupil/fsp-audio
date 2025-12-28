@@ -938,7 +938,23 @@ function arrowSvg(isAsc){
   fp.style.bottom = "auto";
 });
 
-dragHandle.addEventListener("pointermove", (e) => {
+fpHeader.addEventListener("pointerdown", (e) => {
+  dragging = true;
+  fpHeader.setPointerCapture(e.pointerId);
+  fpHeader.style.cursor = "grabbing";
+
+  const rect = fp.getBoundingClientRect();
+  startX = e.clientX;
+  startY = e.clientY;
+  startLeft = rect.left;
+  startTop = rect.top;
+
+  fp.style.left = startLeft + "px";
+  fp.style.top = startTop + "px";
+  fp.style.bottom = "auto";
+});
+
+fpHeader.addEventListener("pointermove", (e) => {
   if (!dragging) return;
 
   const dx = e.clientX - startX;
@@ -952,13 +968,24 @@ dragHandle.addEventListener("pointermove", (e) => {
   const maxX = window.innerWidth - w - 8;
   const maxY = window.innerHeight - h - 8;
 
-  const nx = Math.min(maxX, Math.max(minX, startLeft + dx));
-  const ny = Math.min(maxY, Math.max(minY, startTop + dy));
+  let nx = Math.min(maxX, Math.max(minX, startLeft + dx));
+  let ny = Math.min(maxY, Math.max(minY, startTop + dy));
 
   fp.style.left = nx + "px";
   fp.style.top = ny + "px";
+
   savePlayerPos(nx, ny);
 });
+
+fpHeader.addEventListener("pointerup", (e) => {
+  dragging = false;
+  fpHeader.style.cursor = "grab";
+
+  try {
+    fpHeader.releasePointerCapture(e.pointerId);
+  } catch {}
+});
+
 
 dragHandle.addEventListener("pointerup", (e) => {
   dragging = false;
