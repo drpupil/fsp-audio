@@ -510,6 +510,45 @@
       return new URL(file, BASE).toString();
     }
 
+    /* ✅ m4a/mp3 fark etmeden URL'den gerçek dosya adını al */
+    function fileNameFromUrl(url, fallback){
+      try{
+        const u = new URL(url);
+        const name = decodeURIComponent(u.pathname.split("/").pop() || "");
+        if (name) return name;
+      }catch{}
+      const safe = (fallback || "kayit").toString()
+        .replace(/[\\/:*?"<>|]+/g, "_")
+        .replace(/\s+/g, " ")
+        .trim();
+      return safe || "kayit";
+    }
+
+    /* ✅ CORS uygunsa zorla indir; değilse popup açmadan aynı sekmede aç */
+    async function forceDownload(url, filename){
+      try{
+        const res = await fetch(url, { mode: "cors", cache: "no-store" });
+        if (!res.ok) throw new Error("fetch failed: " + res.status);
+
+        const blob = await res.blob();
+        const objUrl = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = objUrl;
+        a.download = filename || "download";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setTimeout(() => URL.revokeObjectURL(objUrl), 2000);
+        return;
+      }catch(err){
+        console.warn("forceDownload fallback:", err);
+        window.location.href = url;
+      }
+    }
+
     function fmtDur(sec){
       if (!Number.isFinite(sec) || sec <= 0) return "—";
       sec = Math.round(sec);
@@ -803,16 +842,12 @@
           render();
         });
 
-        dlBtn.addEventListener("click", (e) => {
+        /* ✅ Download: yeni sekme açmadan, mümkünse direkt indir */
+        dlBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
           const url = urlFor(it);
-          const a = document.createElement("a");
-          a.href = url;
-          a.setAttribute("download", it.file || (it.title + ".audio"));
-          a.rel = "noopener";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
+          const filename = fileNameFromUrl(url, it.file || it.title);
+          await forceDownload(url, filename);
         });
 
         // iOS pointer bubbling safety
