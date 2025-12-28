@@ -484,18 +484,15 @@
     // hızlı geçerlilik
     if (!(dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12)) continue;
 
-    const t = Date.UTC(yy, mm - 1, dd);
-    if (!Number.isFinite(t)) continue;
+    cconst t = Date.UTC(yy, mm - 1, dd);
+if (!Number.isFinite(t)) return null;
 
-    // taşma doğrulama
-    const d = new Date(t);
-    if (d.getUTCFullYear() !== yy || (d.getUTCMonth() + 1) !== mm || d.getUTCDate() !== dd) continue;
+// geri doğrulama: taşma olmasın
+const d = new Date(t);
+if (d.getUTCFullYear() !== yy || (d.getUTCMonth()+1) !== mm || d.getUTCDate() !== dd) return null;
 
-    lastValid = t; // en son geçerli tarihi sakla
-  }
+return t;
 
-  return lastValid; // null olabilir
-}
     }
 
     function arrowSvg(isAsc){
